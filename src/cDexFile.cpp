@@ -137,7 +137,10 @@ BOOL cDexFile::DumpDex()
 				if (code_offset == NULL)
 					DexClasses[i].ClassData->DirectMethods[j].CodeArea = NULL;
 				else
-					GetCodeArea(DexClasses[i].ClassData->DirectMethods[j].CodeArea, code_offset);
+				{
+					DexClasses[i].ClassData->VirtualMethods[j].CodeArea = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE;
+					DexCode = (DEX_CODE*)(BaseAddress + code_offset);
+				}
 
 			}
 
@@ -158,7 +161,19 @@ BOOL cDexFile::DumpDex()
 				if (code_offset == NULL)
 					DexClasses[i].ClassData->VirtualMethods[j].CodeArea = NULL;
 				else
-					GetCodeArea(DexClasses[i].ClassData->VirtualMethods[j].CodeArea, code_offset);
+				{
+					DexClasses[i].ClassData->VirtualMethods[j].CodeArea = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE;
+					DexCode = (DEX_CODE*)(BaseAddress + code_offset);
+
+					DexClasses[i].ClassData->VirtualMethods[j].CodeArea->InsSize = DexCode->InsSize;
+					DexClasses[i].ClassData->VirtualMethods[j].CodeArea->RegistersSize = DexCode->RegistersSize;
+					DexClasses[i].ClassData->VirtualMethods[j].CodeArea->OutsSize = DexCode->OutsSize;
+					DexClasses[i].ClassData->VirtualMethods[j].CodeArea->TriesSize = DexCode->TriesSize;
+					DexClasses[i].ClassData->VirtualMethods[j].CodeArea->InstructionsSize = DexCode->InstructionsSize;
+
+					//DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries;
+					//DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions;
+				}
 			}
 		}
 	}
@@ -196,13 +211,6 @@ CHAR* cDexFile::GetAccessMask(UINT Type, UINT AccessFlags)
 	*cp = '\0';
 	return str;
 }
-
-void cDexFile::GetCodeArea(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE *
-						   CodeArea, UINT Offset)
-{
-	CodeArea =  new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE;
-	DexCode = (DEX_CODE*)(BaseAddress + Offset);
-};
 
 INT cDexFile::ReadUnsignedLeb128(const UCHAR** pStream) 
 {

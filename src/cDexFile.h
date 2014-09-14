@@ -129,9 +129,9 @@ struct DEX_STRING_ITEM
     UCHAR*  Data;
 };
 
-struct DEX_FILE {
+struct DEX_FILE 
+{
     //const DEX_OPT_HEADER* DexOptHeader;
-
     const DEX_HEADER*       DexHeader;
     const DEX_STRING_ID*    DexStringIds;
     const DEX_TYPE_ID*      DexTypeIds;
@@ -154,8 +154,8 @@ struct DEX_CODE
     USHORT  OutsSize;
     USHORT  TriesSize;
     UINT    DebugInfoOff;       /* file offset to debug info stream */
-    UINT    InsnsSize;          /* size of the insns array, in u2 units */
-    USHORT  Insns[1];
+    UINT    InstructionsSize;   /* size of the insns array, in u2 units */
+    USHORT* Instructions;
     /* followed by optional u2 padding */
     /* followed by try_item[triesSize] */
     /* followed by uleb128 handlersSize */
@@ -301,7 +301,21 @@ struct DEX_CLASS_STRUCTURE
 
 			struct CLASS_CODE
 			{
-				UINT t;
+				USHORT  RegistersSize;
+				USHORT  InsSize;
+				USHORT  OutsSize;
+				USHORT  TriesSize;
+				UINT    DebugInfoOff;   
+				UINT    InstructionsSize;  
+
+				struct CLASS_CODE_TRY
+				{
+				} *Tries;
+
+				struct CLASS_CODE_INSTRUCTION
+				{
+					UINT n;
+				}	*Instructions;
 			}	*CodeArea;
 
 		}	*DirectMethods, 
@@ -348,14 +362,12 @@ public:
 	CHAR*	GetAccessMask(UINT Type, UINT AccessFlag);
 
 private:
-    BOOL DumpDex();
+    BOOL	DumpDex();
 	INT		ReadUnsignedLeb128(const UCHAR** pStream);
 	UINT	ULEB128toUINT(UCHAR *data);
 	UCHAR*	ULEB128toUCHAR(UCHAR *data, UINT *v);
 
 	BOOL	ValidChecksum();
-	void	GetCodeArea(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE *CodeArea, UINT Offset);
-
 	DEX_CODE* DexCode;
 };
 
