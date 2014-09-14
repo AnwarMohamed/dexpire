@@ -10,7 +10,7 @@ int main()
     {
         printf("Opened '%s', DEX version '%s'\n", dex.Filename, dex.DexVersion);
 
-        for (UINT i=5; i<6/*dex.nClassDefinitions*/; i++)
+        for (UINT i=0; i<1/*dex.nClassDefinitions*/; i++)
         {
             printf("Class #%d header:\n", i);
             printf(	"class_idx           : %d\n"
@@ -98,22 +98,35 @@ int main()
                         "      type          : '(%s)%s'\n"
                         "      access        : 0x%04x (%s)\n"
                         "      code          -\n"
-                        "      registers     : 3\n"
-                        "      ins           : 1\n"
-                        "      outs          : 2\n"
-                        "      insns size    : 15 16-bit code units\n"
-                        "      catches       : (none)\n"
-                        "      positions     :\n" 
-                        "	     0x0000 line=36\n"
-                        "	     0x0006 line=37\n"
-                        "		 0x0009 line=39\n"
-                        "      locals        :\n",
+                        "      registers     : %d\n"
+                        "      ins           : %d\n"
+                        "      outs          : %d\n"
+                        "      insns size    : %d 16-bit code units\n",
 
                         j, dex.DexClasses[i].Descriptor,
                         dex.DexClasses[i].ClassData->DirectMethods[j].Name,
 						/*dex.DexClasses[i].ClassData->DirectMethods[j].Type*/"", dex.DexClasses[i].ClassData->DirectMethods[j].ProtoType,
 						dex.DexClasses[i].ClassData->DirectMethods[j].AccessFlags,  
-						dex.GetAccessMask(1, dex.DexClasses[i].ClassData->DirectMethods[j].AccessFlags));
+						dex.GetAccessMask(1, dex.DexClasses[i].ClassData->DirectMethods[j].AccessFlags),
+						dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->RegistersSize,
+						dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->InsSize,
+						dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->OutsSize,
+						dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->InstructionsSize);
+
+				if (!dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize)
+					printf("      catches       : (none)\n");
+				else
+					printf("      catches       : %d\n", 
+					dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize);
+
+
+				/*printf(	"      catches       : %s\n"
+                        "      positions     :\n" 
+                        "	     0x0000 line=36\n"
+                        "	     0x0006 line=37\n"
+                        "		 0x0009 line=39\n"
+                        "      locals        :\n"
+						);*/
             }
 
 
@@ -128,20 +141,33 @@ int main()
                         "      registers     : 3\n"
                         "      ins           : 1\n"
                         "      outs          : 2\n"
-                        "      insns size    : 15 16-bit code units\n"
-                        "      catches       : (none)\n"
-                        "      positions     :\n" 
-                        "	     0x0000 line=36\n"
-                        "	     0x0006 line=37\n"
-                        "		 0x0009 line=39\n"
-                        "      locals        :\n",
+                        "      insns size    : 15 16-bit code units\n",
 
                         j, dex.DexClasses[i].Descriptor,
                         dex.DexClasses[i].ClassData->VirtualMethods[j].Name,
 						/*dex.DexClasses[i].ClassData->VirtualMethods[j].Type*/"", dex.DexClasses[i].ClassData->VirtualMethods[j].ProtoType,
 						dex.DexClasses[i].ClassData->VirtualMethods[j].AccessFlags,  
-						dex.GetAccessMask(1, dex.DexClasses[i].ClassData->VirtualMethods[j].AccessFlags));
-            }
+						dex.GetAccessMask(1, dex.DexClasses[i].ClassData->VirtualMethods[j].AccessFlags),
+						dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->RegistersSize,
+						dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->InsSize,
+						dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->OutsSize,
+						dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->InstructionsSize);
+
+				if (!dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->TriesSize)
+					printf("      catches       : (none)\n");
+				else
+					printf("      catches       : %d\n", 
+					dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->TriesSize);
+
+				/*
+				                        "      catches       : (none)\n"
+                        "      positions     :\n" 
+                        "	     0x0000 line=36\n"
+                        "	     0x0006 line=37\n"
+                        "		 0x0009 line=39\n"
+                        "      locals        :\n",
+						*/
+			}
 
 			printf("  source_file_idx   : %d (SourceFile)\n\n", dex.DexClassDefs[i].SourceFileIdx);
         }

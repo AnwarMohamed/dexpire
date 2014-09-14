@@ -200,6 +200,24 @@ enum {
 					 | ACC_DECLARED_SYNCHRONIZED),
 };
 
+/* debug info opcodes and constants */
+enum {
+    DBG_END_SEQUENCE         = 0x00,
+    DBG_ADVANCE_PC           = 0x01,
+    DBG_ADVANCE_LINE         = 0x02,
+    DBG_START_LOCAL          = 0x03,
+    DBG_START_LOCAL_EXTENDED = 0x04,
+    DBG_END_LOCAL            = 0x05,
+    DBG_RESTART_LOCAL        = 0x06,
+    DBG_SET_PROLOGUE_END     = 0x07,
+    DBG_SET_EPILOGUE_BEGIN   = 0x08,
+    DBG_SET_FILE             = 0x09,
+    DBG_FIRST_SPECIAL        = 0x0a,
+    DBG_LINE_BASE            = -4,
+    DBG_LINE_RANGE           = 15,
+};
+
+
 static const CHAR* AccessMaskStrings[3][18] = 
 {
 	{   
@@ -305,8 +323,15 @@ struct DEX_CLASS_STRUCTURE
 				USHORT  InsSize;
 				USHORT  OutsSize;
 				USHORT  TriesSize;
-				UINT    DebugInfoOff;   
+				//UINT    DebugInfoOff;   
 				UINT    InstructionsSize;  
+
+				struct CLASS_CODE_DEBUG_INFO
+				{
+					UINT LineStart;
+					UINT ParametersSize;
+				UCHAR** ParametersNames;
+				} DebugInfo;
 
 				struct CLASS_CODE_TRY
 				{
@@ -364,6 +389,7 @@ public:
 private:
     BOOL	DumpDex();
 	INT		ReadUnsignedLeb128(const UCHAR** pStream);
+	INT		ReadSignedLeb128(const UCHAR** pStream);
 	UINT	ULEB128toUINT(UCHAR *data);
 	UCHAR*	ULEB128toUCHAR(UCHAR *data, UINT *v);
 

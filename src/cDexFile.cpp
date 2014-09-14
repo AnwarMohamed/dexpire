@@ -138,8 +138,66 @@ BOOL cDexFile::DumpDex()
 					DexClasses[i].ClassData->DirectMethods[j].CodeArea = NULL;
 				else
 				{
-					DexClasses[i].ClassData->VirtualMethods[j].CodeArea = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE;
+					DexClasses[i].ClassData->DirectMethods[j].CodeArea = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE;
 					DexCode = (DEX_CODE*)(BaseAddress + code_offset);
+
+					DexClasses[i].ClassData->DirectMethods[j].CodeArea->InsSize = DexCode->InsSize;
+					DexClasses[i].ClassData->DirectMethods[j].CodeArea->RegistersSize = DexCode->RegistersSize;
+					DexClasses[i].ClassData->DirectMethods[j].CodeArea->OutsSize = DexCode->OutsSize;
+					DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize = DexCode->TriesSize;
+					DexClasses[i].ClassData->DirectMethods[j].CodeArea->InstructionsSize = DexCode->InstructionsSize;
+
+					/* StartDebug Info */
+					UCHAR* BufPtr2 = (UCHAR*)(BaseAddress + DexCode->DebugInfoOff);
+					DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.LineStart = 
+						ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
+					DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersSize = 
+						ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
+
+					if (DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersSize > 0)
+					{
+						DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersNames = 
+							new UCHAR*[DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersSize];
+
+						for (UINT k=0; k<DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersSize; k++)
+						{
+							DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersNames[k] = 
+								StringItems[ ReadUnsignedLeb128((const UCHAR**)&BufPtr2) ].Data;
+						}
+					}
+					else
+					{
+						DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersNames = NULL;
+					}
+
+						//()ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
+					/* End Debug Info */
+
+
+					/* Start Tries Parsing */
+					if (DexCode->TriesSize > 0)
+					{
+						DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries = 
+							new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY[DexCode->TriesSize];
+					}
+					else 
+					{
+						DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries = NULL;
+					}
+					/* End Tries Parsing */
+
+
+					/* Start Instructions Parsing */
+					if (DexCode->InstructionsSize > 0)
+					{
+						DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions = 
+							new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION[DexCode->InstructionsSize];
+					}
+					else
+					{
+						DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions = NULL;
+					}
+					/* End Instructions Parsing */
 				}
 
 			}
@@ -210,6 +268,51 @@ CHAR* cDexFile::GetAccessMask(UINT Type, UINT AccessFlags)
 
 	*cp = '\0';
 	return str;
+}
+
+INT cDexFile::ReadSignedLeb128(const UCHAR** pStream) 
+{
+ const UCHAR* ptr = *pStream;
+    int result = *(ptr++);
+
+    if (result <= 0x7f) 
+	{
+        result = (result << 25) >> 25;
+    } 
+	else 
+	{
+        int cur = *(ptr++);
+        result = (result & 0x7f) | ((cur & 0x7f) << 7);
+        if (cur <= 0x7f) {
+            result = (result << 18) >> 18;
+        } 
+		else 
+		{
+            cur = *(ptr++);
+            result |= (cur & 0x7f) << 14;
+            if (cur <= 0x7f) 
+			{
+                result = (result << 11) >> 11;
+            } 
+			else 
+			{
+                cur = *(ptr++);
+                result |= (cur & 0x7f) << 21;
+                if (cur <= 0x7f) 
+				{
+                    result = (result << 4) >> 4;
+                } 
+				else 
+				{                
+                    cur = *(ptr++);
+                    result |= cur << 28;
+                }
+            }
+        }
+    }
+
+    *pStream = ptr;
+    return result;
 }
 
 INT cDexFile::ReadUnsignedLeb128(const UCHAR** pStream) 
