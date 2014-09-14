@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dexpire", "dexpire.vcxproj", "{E4F78D54-449B-42E4-B031-2CFD20BBB546}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dexpire-test", "..\test\dexpire-test.vcxproj", "{A1A2C92E-4881-4128-9FFA-4ACB8133E278}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E4F78D54-449B-42E4-B031-2CFD20BBB546} = {E4F78D54-449B-42E4-B031-2CFD20BBB546}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E4F78D54-449B-42E4-B031-2CFD20BBB546}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E4F78D54-449B-42E4-B031-2CFD20BBB546}.Debug|Win32.Build.0 = Debug|Win32
+		{E4F78D54-449B-42E4-B031-2CFD20BBB546}.Release|Win32.ActiveCfg = Release|Win32
+		{E4F78D54-449B-42E4-B031-2CFD20BBB546}.Release|Win32.Build.0 = Release|Win32
+		{A1A2C92E-4881-4128-9FFA-4ACB8133E278}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A1A2C92E-4881-4128-9FFA-4ACB8133E278}.Debug|Win32.Build.0 = Debug|Win32
+		{A1A2C92E-4881-4128-9FFA-4ACB8133E278}.Release|Win32.ActiveCfg = Release|Win32
+		{A1A2C92E-4881-4128-9FFA-4ACB8133E278}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
