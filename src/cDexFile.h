@@ -418,6 +418,11 @@ public:
 
     CHAR*   GetAccessMask(UINT Type, UINT AccessFlag);
 
+    void DumpClassInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
+    void DumpClassDataInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class, UCHAR** Buffer);
+    void DumpFieldByIndex(UINT FieldIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD* Field, UCHAR** Buffer);
+    void AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
+
 private:
     BOOL    DumpDex();
     INT     ReadUnsignedLeb128(const UCHAR** pStream);

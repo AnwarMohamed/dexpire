@@ -10,7 +10,7 @@ int main()
     {
         printf("Opened '%s', DEX version '%s'\n", dex.Filename, dex.DexVersion);
 
-        for (UINT i=7; i<8/*dex.nClassDefinitions*/; i++)
+        for (UINT i=0; i< 1/*dex.nClassDefinitions*/; i++)
         {
             printf("Class #%d header:\n", i);
             printf(	"class_idx           : %d\n"
