@@ -212,87 +212,19 @@ BOOL cDexFile::DumpDex()
             /* Parsing Direct Methods */
             CurIndex = 0;
             for (UINT j=0; j<DexClasses[i].ClassData->DirectMethodsSize; j++)
-            {
-                CurIndex += ReadUnsignedLeb128((const UCHAR**)&BufPtr);
-                DexClasses[i].ClassData->DirectMethods[j].ProtoType = 
-                    StringItems[DexTypeIds[DexProtoIds[DexMethodIds[CurIndex].PrototypeIndex].ReturnTypeIdx].StringIndex].Data;
-
-                /* Parsing Parameters */
-                DumpMethodParameters(
-                    CurIndex, 
-                    &DexClasses[i].ClassData->DirectMethods[j]);
-                
-
-                DexClasses[i].ClassData->DirectMethods[j].Name = StringItems[DexMethodIds[CurIndex].StringIndex].Data;
-                DexClasses[i].ClassData->DirectMethods[j].AccessFlags = ReadUnsignedLeb128((const UCHAR**)&BufPtr);
-
-                UINT code_offset = ReadUnsignedLeb128((const UCHAR**)&BufPtr);
-                if (code_offset == NULL)
-                    DexClasses[i].ClassData->DirectMethods[j].CodeArea = NULL;
-                else
-                {
-                    DexClasses[i].ClassData->DirectMethods[j].CodeArea = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE;
-                    memset(DexClasses[i].ClassData->DirectMethods[j].CodeArea, NULL, 
-                        sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE));
-
-                    DexCode = (DEX_CODE*)(BaseAddress + code_offset);
-
-                    DexClasses[i].ClassData->DirectMethods[j].CodeArea->InsSize = DexCode->InsSize;
-                    DexClasses[i].ClassData->DirectMethods[j].CodeArea->RegistersSize = DexCode->RegistersSize;
-                    DexClasses[i].ClassData->DirectMethods[j].CodeArea->OutsSize = DexCode->OutsSize;
-                    DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize = DexCode->TriesSize;
-                    DexClasses[i].ClassData->DirectMethods[j].CodeArea->InstructionsSize = DexCode->InstructionsSize;
-
-                    /* Start Debug Info */
-                    BufPtr2 = (UCHAR*)(BaseAddress + DexCode->DebugInfoOff);
-
-                    DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.LineStart = 
-                        ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
-                    DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersSize = 
-                        ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
-
-                    if (DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersSize > 0)
-                    {
-                        DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersNames = 
-                            new UCHAR*[DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersSize];
-                        memset(DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersNames, NULL, 
-                            DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersSize * sizeof(UCHAR*));
-
-                        UINT test;
-                        for (UINT k=0; k<DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersSize; k++)
-                        {
-                            //DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersNames[k] = 
-                            //  StringItems[ ReadUnsignedLeb128((const UCHAR**)(ParametersNames + k*sizeof(UINT))) ].Data;
-                            //test = ReadUnsignedLeb128((const UCHAR**)(BufPtr2));
-                        }
-                    }
-                    else
-                        DexClasses[i].ClassData->DirectMethods[j].CodeArea->DebugInfo.ParametersNames = NULL;
-
-                    /* End Debug Info */
-
-
-                    /* Tries Parsing */
-                    DumpMethodTryItems(DexClasses[i].ClassData->DirectMethods[j].CodeArea, DexCode->TriesSize);
-
-                    /* Start Instructions Parsing */
-                    if (DexCode->InstructionsSize > 0)
-                    {
-                        DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions = 
-                            new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION[DexCode->InstructionsSize];
-                    }
-                    else
-                        DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions = NULL;
-
-                    /* End Instructions Parsing */
-                }
-
-            }
+                DumpMethodById(
+                    (CurIndex += ReadUnsignedLeb128((const UCHAR**)&BufPtr)),
+                    &DexClasses[i].ClassData->DirectMethods[j],
+                    &BufPtr);
 
             /* Parsing Virtual Methods */
             CurIndex = 0;
             for (UINT j=0; j<DexClasses[i].ClassData->VirtualMethodsSize; j++)
-            {
+                DumpMethodById(
+                    (CurIndex += ReadUnsignedLeb128((const UCHAR**)&BufPtr)),
+                    &DexClasses[i].ClassData->VirtualMethods[j],
+                    &BufPtr);
+            /*{
                 CurIndex += ReadUnsignedLeb128((const UCHAR**)&BufPtr);
                 DexClasses[i].ClassData->VirtualMethods[j].ProtoType = 
                     StringItems[DexTypeIds[DexProtoIds[DexMethodIds[CurIndex].PrototypeIndex].ReturnTypeIdx].StringIndex].Data;
@@ -320,13 +252,124 @@ BOOL cDexFile::DumpDex()
                     //DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries;
                     //DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions;
                 }
-            }
+            }*/
         }
     }
 
     /* End Class Definitions */
 
     return TRUE;
+}
+
+void cDexFile::DumpMethodById(
+    UINT MethodIndex,
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method,
+    UCHAR** Buffer)
+{
+    (*Method).ProtoType = 
+        StringItems[DexTypeIds[DexProtoIds[DexMethodIds[MethodIndex].PrototypeIndex].ReturnTypeIdx].StringIndex].Data;
+
+    /* Parsing Parameters */
+    DumpMethodParameters(
+        MethodIndex, 
+        Method);
+                
+    (*Method).Name = StringItems[DexMethodIds[MethodIndex].StringIndex].Data;
+    (*Method).AccessFlags = ReadUnsignedLeb128((const UCHAR**)Buffer);
+
+    /* Parse Method Code */
+    DumpMethodCode(
+        (DEX_CODE*)(BaseAddress + ReadUnsignedLeb128((const UCHAR**)Buffer)),
+        Method);
+}
+
+void cDexFile::DumpMethodCode(
+    DEX_CODE* CodeAreaDef,
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method
+    )
+{
+    if ((DWORD)CodeAreaDef == BaseAddress)
+        (*Method).CodeArea = NULL;
+    else
+    {
+        (*Method).CodeArea = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE;
+        memset((*Method).CodeArea, NULL, sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE));
+
+        DumpMethodCodeInfo(
+            (*Method).CodeArea,
+            CodeAreaDef);
+ 
+        /* Debug Info */
+        TempBuffer = (UCHAR*)(BaseAddress + (*CodeAreaDef).DebugInfoOff);
+        DumpMethodDebugInfo(
+            &((*Method).CodeArea->DebugInfo),
+            &TempBuffer);
+                  
+        /* Tries Parsing */
+        DumpMethodTryItems(
+            (*Method).CodeArea, 
+            CodeAreaDef);
+
+        /* Instructions Parsing */
+        DumpMethodInstructions(
+            (*Method).CodeArea,
+            CodeAreaDef);
+    }
+}
+
+void cDexFile::DumpMethodCodeInfo(
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea,
+    DEX_CODE* CodeAreaDef    
+    )
+{
+    (*CodeArea).InsSize = (*CodeAreaDef).InsSize;
+    (*CodeArea).RegistersSize = (*CodeAreaDef).RegistersSize;
+    (*CodeArea).OutsSize = (*CodeAreaDef).OutsSize;
+    (*CodeArea).TriesSize = (*CodeAreaDef).TriesSize;
+    (*CodeArea).InstructionsSize = (*CodeAreaDef).InstructionsSize;
+}
+
+void cDexFile::DumpMethodDebugInfo(
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_DEBUG_INFO* DebugInfo,
+    UCHAR** Buffer
+    )
+{
+    (*DebugInfo).LineStart = ReadUnsignedLeb128((const UCHAR**)Buffer);
+    (*DebugInfo).ParametersSize = ReadUnsignedLeb128((const UCHAR**)Buffer);
+
+    if ((*DebugInfo).ParametersSize > 0)
+    {
+        (*DebugInfo).ParametersNames = new UCHAR*[(*DebugInfo).ParametersSize];
+        memset((*DebugInfo).ParametersNames, NULL, (*DebugInfo).ParametersSize * sizeof(UCHAR*));
+
+        UINT ParameterIndex;
+        for (UINT k=0; k<(*DebugInfo).ParametersSize; k++)
+        {
+            //ParameterIndex = ReadUnsignedLeb128((const UCHAR**)Buffer) + 1;
+
+            //if(ParameterIndex == NO_INDEX)
+            //    (*DebugInfo).ParametersNames[k] = (UCHAR*)"";
+            //else
+            //    (*DebugInfo).ParametersNames[k] = StringItems[ParameterIndex].Data;
+        }
+    }
+    else
+        (*DebugInfo).ParametersNames = NULL;
+}
+
+void cDexFile::DumpMethodInstructions(
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea,
+    DEX_CODE* CodeAreaDef
+    )
+{
+    if ((*CodeAreaDef).InstructionsSize > 0)
+    {
+        (*CodeArea).Instructions = 
+            new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION
+            [(*CodeAreaDef).InstructionsSize];
+    }
+    else
+        (*CodeArea).Instructions = NULL;
 }
 
 void cDexFile::DumpMethodParameters(
@@ -361,26 +404,26 @@ void cDexFile::DumpMethodParameters(
 
 void cDexFile::DumpMethodTryItems(
     DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea,
-    UINT Size
+    DEX_CODE* CodeAreaDef
     )
 {
-    if (Size > 0)
+    if ((*CodeAreaDef).TriesSize > 0)
     {
-        (*CodeArea).Tries = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY[Size];
+        (*CodeArea).Tries = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY[(*CodeAreaDef).TriesSize];
         memset((*CodeArea).Tries, NULL, 
-            sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY) * DexCode->TriesSize);
+            sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY) * (*CodeAreaDef).TriesSize);
                         
-        USHORT* InstructionsEnd = &((DexCode->Instructions)[DexCode->InstructionsSize]);
+        USHORT* InstructionsEnd = &(((*CodeAreaDef).Instructions)[(*CodeAreaDef).InstructionsSize]);
         if ((((UINT)InstructionsEnd) & 3) != 0) { InstructionsEnd++; }
         DEX_TRY_ITEM* TryItems = (DEX_TRY_ITEM*)InstructionsEnd;
 
         /* Parsing Catch Handlers */
-        UCHAR* Buffer = (UCHAR*)&(TryItems[DexCode->TriesSize]);
+        TempBuffer = (UCHAR*)&(TryItems[(*CodeAreaDef).TriesSize]);
         DumpMethodCatchHandlers(
             CodeArea, 
-            &Buffer);
+            &TempBuffer);
 
-        for (UINT k=0; k<DexCode->TriesSize; k++)
+        for (UINT k=0; k<(*CodeAreaDef).TriesSize; k++)
             DumpMethodTryItemsInfo(
                 &(*CodeArea).Tries[k],
                 &TryItems[k],

@@ -444,7 +444,7 @@ public:
     void DumpFieldByIndex(UINT FieldIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD* Field, UCHAR** Buffer);
     void DumpInterfaceByIndex(UINT ClassIndex, UINT InterfaceIndex, UCHAR** Interface);
 
-    void DumpMethodTryItems(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, UINT Size);
+    void DumpMethodTryItems(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
 
     void DumpMethodTryItemsInfo(
         DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY* TryItem, 
@@ -455,6 +455,18 @@ public:
         DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, 
         UCHAR** Buffer);
 
+    void DumpMethodDebugInfo(
+        DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_DEBUG_INFO* DebugInfo,
+        UCHAR** Buffer);
+
+    void DumpMethodCodeInfo(
+        DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea,
+        DEX_CODE* CodeAreaDef);
+
+    void DumpMethodCode(DEX_CODE* CodeAreaDef, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method);
+    void DumpMethodById(UINT MethodIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method, UCHAR** Buffer);
+
+    void DumpMethodInstructions(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
     void DumpMethodParameters(UINT MethodIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method);
     void AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
      
@@ -467,5 +479,7 @@ private:
 
     BOOL    ValidChecksum();
     DEX_CODE* DexCode;
+
+    UCHAR* TempBuffer;
 };
 
