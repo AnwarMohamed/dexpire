@@ -179,6 +179,7 @@ BOOL cDexFile::DumpDex()
                     DexClasses[i].ClassData->DirectMethods[j].Type = (UCHAR*)"";
                 /* End Parsing Parameters */
                 
+
                 DexClasses[i].ClassData->DirectMethods[j].Name = StringItems[DexMethodIds[CurIndex].StringIndex].Data;
                 DexClasses[i].ClassData->DirectMethods[j].AccessFlags = ReadUnsignedLeb128((const UCHAR**)&BufPtr);
 
@@ -239,6 +240,7 @@ BOOL cDexFile::DumpDex()
                         if ((((UINT)InstructionsEnd) & 3) != 0) { InstructionsEnd++; }
                         DEX_TRY_ITEM* TryItems = (DEX_TRY_ITEM*)InstructionsEnd;
 
+
                         /* Start Parsing Catch Handlers */
                         BufPtr2 = (UCHAR*)&(TryItems[DexCode->TriesSize]);
                         DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlersSize = 
@@ -257,13 +259,13 @@ BOOL cDexFile::DumpDex()
                                 new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER::CLASS_CODE_CATCH_TYPE_PAIR
                                 [abs(DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize)];
 
-                            for (UINT l=0; l<abs(DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize); l++)
+                            for (UINT l=0; l<(UINT)abs(DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize); l++)
                             {
                                 DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers[l].TypeIndex = 
                                     ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
 
                                 DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers[l].Type = 
-                                    DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers[l].TypeIndex == NO_INDEX?
+                                    DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers[l].TypeIndex == NO_INDEX ?
                                     (UCHAR*)"<any>": 
                                 StringItems[DexTypeIds[ DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers[l].TypeIndex ].StringIndex].Data;
                                                                     
@@ -271,11 +273,14 @@ BOOL cDexFile::DumpDex()
                                     ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
                             }
 
-                            if (DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize <= 0)
+                            if (DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize > 0)
                                 DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].CatchAllAddress = NULL;
                             else
                                 DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].CatchAllAddress =
                                     ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
+
+                            DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize = 
+                                abs(DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize);
                         }
 
                         /* End Parsing Catch Handlers */
@@ -287,6 +292,8 @@ BOOL cDexFile::DumpDex()
                                 TryItems[k].StartAddress;
                             DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsEnd =
                                 TryItems[k].StartAddress + TryItems[k].InstructionsSize;
+                            DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler =
+                                &DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[TryItems[k].HandlerOff-1];
                         }
                     }
                     else 

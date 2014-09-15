@@ -347,12 +347,6 @@ struct DEX_CLASS_STRUCTURE
                 UCHAR** ParametersNames;
                 } DebugInfo;
 
-                struct CLASS_CODE_TRY
-                {
-                    UINT InstructionsStart;
-                    UINT InstructionsEnd;
-                } *Tries;
-
                 UINT CatchHandlersSize;
                 struct CLASS_CODE_CATCH_HANDLER
                 {
@@ -365,6 +359,15 @@ struct DEX_CLASS_STRUCTURE
                     } *TypeHandlers;
                     UINT CatchAllAddress;
                 } *CatchHandlers;
+
+                struct CLASS_CODE_TRY
+                {
+                    UINT InstructionsStart;
+                    UINT InstructionsEnd;
+                    CLASS_CODE_CATCH_HANDLER* CatchHandler;
+                } *Tries;
+
+
 
                 struct CLASS_CODE_INSTRUCTION
                 {

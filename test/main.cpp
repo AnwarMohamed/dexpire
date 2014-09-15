@@ -10,7 +10,7 @@ int main()
     {
         printf("Opened '%s', DEX version '%s'\n", dex.Filename, dex.DexVersion);
 
-        for (UINT i=26; i<27/*dex.nClassDefinitions*/; i++)
+        for (UINT i=7; i<8/*dex.nClassDefinitions*/; i++)
         {
             printf("Class #%d header:\n", i);
             printf(	"class_idx           : %d\n"
@@ -125,6 +125,14 @@ int main()
 						printf("        0x%04x - 0x%04x\n", 
 							dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsStart,
 							dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsEnd);
+
+                        for (UINT l=0; l<dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
+                        {
+                            printf("          %s -> 0x%04x\n", 
+                                dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Type,
+                                dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
+                        }
+
 					}
 				}
 
@@ -139,6 +147,7 @@ int main()
             }
 
 
+            /*
 			printf(	"  Virtual methods   -\n");
 			for (UINT j=0; j<dex.DexClasses[i].ClassData->VirtualMethodsSize; j++)
             {
@@ -154,7 +163,7 @@ int main()
 
                         j, dex.DexClasses[i].Descriptor,
                         dex.DexClasses[i].ClassData->VirtualMethods[j].Name,
-						/*dex.DexClasses[i].ClassData->VirtualMethods[j].Type*/"", dex.DexClasses[i].ClassData->VirtualMethods[j].ProtoType,
+						dex.DexClasses[i].ClassData->VirtualMethods[j].Type, dex.DexClasses[i].ClassData->VirtualMethods[j].ProtoType,
 						dex.DexClasses[i].ClassData->VirtualMethods[j].AccessFlags,  
 						dex.GetAccessMask(1, dex.DexClasses[i].ClassData->VirtualMethods[j].AccessFlags),
 						dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->RegistersSize,
@@ -176,7 +185,7 @@ int main()
                         "		 0x0009 line=39\n"
                         "      locals        :\n",
 						*/
-			}
+			//}
 
 			printf("  source_file_idx   : %d (SourceFile)\n\n", dex.DexClassDefs[i].SourceFileIdx);
         }
