@@ -10,7 +10,7 @@ int main()
     {
         printf("Opened '%s', DEX version '%s'\n", dex.Filename, dex.DexVersion);
 
-        for (UINT i=0; i<1/*dex.nClassDefinitions*/; i++)
+        for (UINT i=26; i<27/*dex.nClassDefinitions*/; i++)
         {
             printf("Class #%d header:\n", i);
             printf(	"class_idx           : %d\n"
@@ -105,7 +105,7 @@ int main()
 
                         j, dex.DexClasses[i].Descriptor,
                         dex.DexClasses[i].ClassData->DirectMethods[j].Name,
-						/*dex.DexClasses[i].ClassData->DirectMethods[j].Type*/"", dex.DexClasses[i].ClassData->DirectMethods[j].ProtoType,
+						dex.DexClasses[i].ClassData->DirectMethods[j].Type, dex.DexClasses[i].ClassData->DirectMethods[j].ProtoType,
 						dex.DexClasses[i].ClassData->DirectMethods[j].AccessFlags,  
 						dex.GetAccessMask(1, dex.DexClasses[i].ClassData->DirectMethods[j].AccessFlags),
 						dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->RegistersSize,
@@ -116,8 +116,17 @@ int main()
 				if (!dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize)
 					printf("      catches       : (none)\n");
 				else
+				{
 					printf("      catches       : %d\n", 
 					dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize);
+
+					for (UINT k=0; k<dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize; k++)
+					{
+						printf("        0x%04x - 0x%04x\n", 
+							dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsStart,
+							dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsEnd);
+					}
+				}
 
 
 				/*printf(	"      catches       : %s\n"

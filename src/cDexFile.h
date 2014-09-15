@@ -112,6 +112,12 @@ struct DEX_LINK         { USHORT    Bleargh; };
 struct DEX_STRING_ID    { UINT      StringDataOff; };
 struct DEX_TYPE_ID      { UINT      StringIndex; };
 
+struct DEX_TYPE_LIST
+{
+	UINT Size;
+	DEX_TYPE_ITEM List[1];
+};
+
 struct DEX_CLASS_LOOKUP
 {
     INT     Size;                       // total size, including "size"
@@ -127,6 +133,13 @@ struct DEX_STRING_ITEM
 {
     UINT    StringSize;
     UCHAR*  Data;
+};
+
+struct DEX_TRY_ITEM
+{
+	UINT	StartAddress;
+	USHORT	InstructionsSize;
+	USHORT	HandlerOff;
 };
 
 struct DEX_FILE 
@@ -155,7 +168,8 @@ struct DEX_CODE
     USHORT  TriesSize;
     UINT    DebugInfoOff;       /* file offset to debug info stream */
     UINT    InstructionsSize;   /* size of the insns array, in u2 units */
-    USHORT* Instructions;
+    USHORT	Instructions[1];
+
     /* followed by optional u2 padding */
     /* followed by try_item[triesSize] */
     /* followed by uleb128 handlersSize */
@@ -335,7 +349,22 @@ struct DEX_CLASS_STRUCTURE
 
 				struct CLASS_CODE_TRY
 				{
+					UINT InstructionsStart;
+					UINT InstructionsEnd;
 				} *Tries;
+
+				UINT CatchHandlersSize;
+				struct CLASS_CODE_CATCH_HANDLER
+				{
+					INT TypeHandlersSize;
+					struct CLASS_CODE_CATCH_TYPE_PAIR
+					{
+						UCHAR* Type;
+						UINT TypeIndex;
+						UINT Address;
+					} *TypeHandlers;
+					UINT CatchAllAddress;
+				} *CatchHandlers;
 
 				struct CLASS_CODE_INSTRUCTION
 				{
