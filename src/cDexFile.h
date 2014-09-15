@@ -400,6 +400,321 @@ struct DEX_CLASS_STRUCTURE
 
     }*  ClassData;
 };
+static const CHAR* OpcodesFormatStrings[32] = 
+{
+    "?",
+    "op",
+    "op vA, vB",
+    "op vA, #+B",
+    "op vAA",
+    "op +AA",
+    "op AA, thing@BBBB",
+    "op +AAAA",
+    "op vAA, vBBBB",
+    "op vAA, +BBBB",
+    "op vAA, #+BBBB",
+    "op vAA, #+BBBB00000[00000000]",
+    "op vAA, thing@BBBB",
+    "op vAA, vBB, vCC",
+    "op vAA, vBB, #+CC",
+    "op vA, vB, +CCCC",
+    "op vA, vB, #+CCCC",
+    "op vA, vB, thing@CCCC",
+    "[opt] op vA, vB, field offset CCCC",
+    "op vAAAA, vBBBB",
+    "op +AAAAAAAA",
+    "op vAA, +BBBBBBBB",
+    "op vAA, #+BBBBBBBB",
+    "op vAA, thing@BBBBBBBB",
+    "op {vC, vD, vE, vF, vG}, thing@BBBB (B: count, A: vG)",
+    "[opt] invoke-virtual+super",
+    "[opt] invoke-interface",
+    "op {vCCCC .. v(CCCC+AA-1)}, meth@BBBB",
+    "[opt] invoke-virtual+super/range",
+    "[opt] invoke-interface/range",
+    "[opt] inline invoke",
+    "op vAA, #+BBBBBBBBBBBBBBBB"
+};
+
+static const CHAR* OpcodesStrings[256] =
+{
+    "nop",
+    "move",
+    "move/from16",
+    "move/16",
+    "move-wide",
+    "move-wide/from16",
+    "move-wide/16",
+    "move-object",
+    "move-object/from16",
+    "move-object/16",
+    
+    "move-result",
+    "move-result-wide",
+    "move-result-object",
+    "move-exception",
+
+    "return-void",
+    "return",
+    "return-wide",
+    "return-object",
+
+    "const/4",
+    "const/16",
+    "const",
+    "const/high16",
+    "const-wide/16",
+    "const-wide/32",
+    "const-wide",
+    "const-wide/high16",
+    "const-string",
+    "const-string/jumbo",
+    "const-class",
+
+    "monitor-enter",
+    "monitor-exit",
+    "check-cast",
+    "instance-of",
+    "array-length",
+    "new-instance",
+    "new-array",
+    "filled-new-array",
+    "filled-new-array/range",
+    "fill-array-data",
+    "throw",
+    "goto",
+    "goto/16",
+    "goto/32",
+    "packed-switch",
+    "sparse-switch",
+
+    "cmpl-float",
+    "cmpg-float",
+    "cmpl-double",
+    "cmpg-double",
+    "cmp-long",
+
+    "if-eq",
+    "if-ne",
+    "if-lt",
+    "if-ge",
+    "if-gt",
+    "if-le",
+
+    "if-eqz",
+    "if-nez",
+    "if-ltz",
+    "if-gez",
+    "if-gtz",
+    "if-lez",
+
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+
+    "aget",
+    "aget-wide",
+    "aget-object",
+    "aget-boolean",
+    "aget-byte",
+    "aget-char",
+    "aget-short",
+    "aput",
+    "aput-wide",
+    "aput-object",
+    "aput-boolean",
+    "aput-byte",
+    "aput-char",
+    "aput-short",
+
+    "iget",
+    "iget-wide",
+    "iget-object",
+    "iget-boolean",
+    "iget-byte",
+    "iget-char",
+    "iget-short",
+    "iput",
+    "iput-wide",
+    "iput-object",
+    "iput-boolean",
+    "iput-byte",
+    "iput-char",
+    "iput-short",
+
+    "sget",
+    "sget-wide",
+    "sget-object",
+    "sget-boolean",
+    "sget-byte",
+    "sget-char",
+    "sget-short",
+    "sput",
+    "sput-wide",
+    "sput-object",
+    "sput-boolean",
+    "sput-byte",
+    "sput-char",
+    "sput-short",
+
+    "invoke-virtual",
+    "invoke-super",
+    "invoke-direct",
+    "invoke-static",
+    "invoke-interface",
+
+    "?",
+
+    "invoke-virtual/range",
+    "invoke-super/range",
+    "invoke-direct/range",
+    "invoke-static/range",
+    "invoke-interface/range",
+
+    "?",
+    "?"
+
+    "neg-int",
+    "not-int",
+    "neg-long",
+    "not-long",
+    "neg-float",
+    "neg-double",
+    "int-to-long",
+    "int-to-float",
+    "int-to-double",
+    "long-to-int",
+    "long-to-float",
+    "long-to-double",
+    "float-to-int",
+    "float-to-long",
+    "float-to-double",
+    "double-to-int",
+    "double-to-long",
+    "double-to-float",
+    "int-to-byte",
+    "int-to-char",
+    "int-to-short",
+
+    "add-int",
+    "sub-int",
+    "mul-int",",",
+    "div-int",",",
+    "rem-int",
+    "and-int",
+    "or-int",
+    "xor-int",
+    "shl-int",
+    "shr-int",
+    "ushr-int",
+    "add-long",
+    "sub-long",
+    "mul-long",
+    "div-long",
+    "rem-long",
+    "and-long",
+    "or-long",
+    "xor-long",
+    "shl-long",
+    "shr-long",
+    "ushr-long",
+    "add-float",
+    "sub-float",
+    "mul-float",
+    "div-float",
+    "rem-float",
+    "add-double",
+    "sub-double",
+    "mul-double",
+    "div-double",
+    "rem-double",
+
+    "add-int/2addr",
+    "sub-int/2addr",
+    "mul-int/2addr",
+    "div-int/2addr",
+    "rem-int/2addr",
+    "and-int/2addr",
+    "or-int/2addr",
+    "xor-int/2addr",
+    "shl-int/2addr",
+    "shr-int/2addr",
+    "ushr-int/2addr",
+    "add-long/2addr",
+    "sub-long/2addr",
+    "mul-long/2addr",
+    "div-long/2addr",
+    "rem-long/2addr",
+    "and-long/2addr",
+    "or-long/2addr",
+    "xor-long/2addr",
+    "shl-long/2addr",
+    "shr-long/2addr",
+    "ushr-long/2addr",
+    "add-float/2addr",
+    "sub-float/2addr",
+    "mul-float/2addr",
+    "div-float/2addr",
+    "rem-float/2addr",
+    "add-double/2addr",
+    "sub-double/2addr",
+    "mul-double/2addr",
+    "div-double/2addr",
+    "rem-double/2addr",
+
+    "add-int/lit16",
+    "rsub-int",
+    "mul-int/lit16",
+    "div-int/lit16",
+    "rem-int/lit16",
+    "and-int/lit16",
+    "or-int/lit16",
+    "xor-int/lit16",
+
+    "add-int/lit8",
+    "rsub-int/lit8",
+    "mul-int/lit8",
+    "div-int/lit8",
+    "rem-int/lit8",
+    "and-int/lit8",
+    "or-int/lit8",
+    "xor-int/lit8",
+    "shl-int/lit8",
+    "shr-int/lit8",
+    "ushr-int/lit8",
+
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+    "?",
+};
 
 typedef enum DEX_OP_CODES 
 {
@@ -695,6 +1010,52 @@ typedef enum DEX_OP_CODES
     OP_UNUSED_FF                    = 0xff, /* OP_INVOKE_INTERFACE_QUICK_RANGE*/
 };
 
+enum DEX_OP_CODES_FLAGS 
+{
+    OP_FLAG_CAN_BRANCH    = 1,        // conditional or unconditional branch
+    OP_FLAG_CAN_CONTINUE  = 1 << 1,   // flow can continue to next statement
+    OP_FLAG_CAN_SWITCH    = 1 << 2,   // switch statement
+    OP_FLAG_CAN_THROW     = 1 << 3,   // could cause an exception to be thrown
+    OP_FLAG_CAN_RETURN    = 1 << 4,   // returns, no additional statements
+    OP_FLAG_INVOKE        = 1 << 5,   // a flavor of invoke
+    OP_FLAG_UNCONDITIONAL = 1 << 6,   // unconditional branch
+};
+
+enum DEX_OP_CODES_FORMAT 
+{
+    OP_FORMAT_UNKNOWN = 0,
+    OP_FORMAT_10x,        // op
+    OP_FORMAT_12x,        // op vA, vB
+    OP_FORMAT_11n,        // op vA, #+B
+    OP_FORMAT_11x,        // op vAA
+    OP_FORMAT_10t,        // op +AA
+    OP_FORMAT_20bc,       // op AA, thing@BBBB
+    OP_FORMAT_20t,        // op +AAAA
+    OP_FORMAT_22x,        // op vAA, vBBBB
+    OP_FORMAT_21t,        // op vAA, +BBBB
+    OP_FORMAT_21s,        // op vAA, #+BBBB
+    OP_FORMAT_21h,        // op vAA, #+BBBB00000[00000000]
+    OP_FORMAT_21c,        // op vAA, thing@BBBB
+    OP_FORMAT_23x,        // op vAA, vBB, vCC
+    OP_FORMAT_22b,        // op vAA, vBB, #+CC
+    OP_FORMAT_22t,        // op vA, vB, +CCCC
+    OP_FORMAT_22s,        // op vA, vB, #+CCCC
+    OP_FORMAT_22c,        // op vA, vB, thing@CCCC
+    OP_FORMAT_22cs,       // [opt] op vA, vB, field offset CCCC
+    OP_FORMAT_32x,        // op vAAAA, vBBBB
+    OP_FORMAT_30t,        // op +AAAAAAAA
+    OP_FORMAT_31t,        // op vAA, +BBBBBBBB
+    OP_FORMAT_31i,        // op vAA, #+BBBBBBBB
+    OP_FORMAT_31c,        // op vAA, thing@BBBBBBBB
+    OP_FORMAT_35c,        // op {vC, vD, vE, vF, vG}, thing@BBBB (B: count, A: vG)
+    OP_FORMAT_35ms,       // [opt] invoke-virtual+super
+    OP_FORMAT_35fs,       // [opt] invoke-interface
+    OP_FORMAT_3rc,        // op {vCCCC .. v(CCCC+AA-1)}, meth@BBBB
+    OP_FORMAT_3rms,       // [opt] invoke-virtual+super/range
+    OP_FORMAT_3rfs,       // [opt] invoke-interface/range
+    OP_FORMAT_3inline,    // [opt] inline invoke
+    OP_FORMAT_51l,        // op vAA, #+BBBBBBBBBBBBBBBB
+};
 
 class DLLEXPORT cDexFile: public cFile
 {
@@ -773,7 +1134,12 @@ private:
     DEX_CODE* DexCode;
 
     CHAR*   OpcodesWidths;
+    CHAR*   OpcodesFlags;
+    CHAR*   OpcodesFormat;
+
     void    CreateOpcodesWidthsTable();
+    void    CreateOpcodesFlagsTable();
+    void    CreateOpcodesFormatTable();
 
     UCHAR* TempBuffer;
 };
