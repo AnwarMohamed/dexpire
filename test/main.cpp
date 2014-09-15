@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright (C) 2014  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to Anwar Mohamed
+ *  anwarelmakrahy[at]gmail.com
+ *
+ */
+
 #include "..\src\cDexFile.h"
 #include <stdio.h>
 
@@ -10,7 +30,7 @@ int main()
     {
         printf("Opened '%s', DEX version '%s'\n", dex.Filename, dex.DexVersion);
 
-        for (UINT i=7; i<8/*dex.nClassDefinitions*/; i++)
+        for (UINT i=0; i< 1/*dex.nClassDefinitions*/; i++)
         {
             printf("Class #%d header:\n", i);
             printf(	"class_idx           : %d\n"
@@ -126,7 +146,7 @@ int main()
 							dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsStart,
 							dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsEnd);
 
-                        for (UINT l=0; l<dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
+                        for (UINT l=0; l<(UINT)dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
                         {
                             printf("          %s -> 0x%04x\n", 
                                 dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Type,

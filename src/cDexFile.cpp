@@ -1,12 +1,36 @@
+/*
+ *
+ *  Copyright (C) 2014  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to Anwar Mohamed
+ *  anwarelmakrahy[at]gmail.com
+ *
+ */
+
 #include "cDexFile.h"
 #define NO_INDEX 0xffffffff
 
-cDexFile::cDexFile(CHAR* Filename): cFile(Filename)
+cDexFile::cDexFile(CHAR* Filename): 
+    cFile(Filename)
 {
     isReady = BaseAddress && FileLength >= sizeof(DEX_HEADER) && DumpDex();
 }
 
-void cDexFile::DumpClassInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class)
+void cDexFile::DumpClassInfo(
+    UINT ClassIndex, 
+    DEX_CLASS_STRUCTURE* Class
+    )
 {
     (*Class).Descriptor = StringItems[DexTypeIds[DexClassDefs[ClassIndex].ClassIdx].StringIndex].Data;
     (*Class).AccessFlags = DexClassDefs[ClassIndex].AccessFlags;
@@ -18,7 +42,11 @@ void cDexFile::DumpClassInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class)
         (*Class).SourceFile = (UCHAR*)"No Information Found";
 }
 
-void cDexFile::DumpClassDataInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class, UCHAR** Buffer)
+void cDexFile::DumpClassDataInfo(
+    UINT ClassIndex, 
+    DEX_CLASS_STRUCTURE* Class, 
+    UCHAR** Buffer
+    )
 {
     /* Fields & Methods Sizes */
     (*Class).ClassData->StaticFieldsSize = ReadUnsignedLeb128((const UCHAR**)Buffer);
@@ -29,7 +57,10 @@ void cDexFile::DumpClassDataInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class, UC
         DexClassDefs[ClassIndex].InterfacesOff? *(UINT*)(BaseAddress + DexClassDefs[ClassIndex].InterfacesOff): 0;
 }
 
-void cDexFile::AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class)
+void cDexFile::AllocateClassData(
+    UINT ClassIndex, 
+    DEX_CLASS_STRUCTURE* Class
+    )
 {
     /* Allocating Static Fields */
     (*Class).ClassData->StaticFields = 
@@ -60,12 +91,27 @@ void cDexFile::AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class)
     memset((*Class).ClassData->Interfaces, NULL, (*Class).ClassData->InterfacesSize * sizeof(UCHAR*));
 }
 
-void cDexFile::DumpFieldByIndex(UINT FieldIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD* Field, UCHAR** Buffer)
+void cDexFile::DumpFieldByIndex(
+    UINT FieldIndex, 
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD* Field, 
+    UCHAR** Buffer
+    )
 {
     (*Field).Type = StringItems[DexTypeIds[ DexFieldIds[FieldIndex].TypeIdex ].StringIndex].Data;
     (*Field).Name = StringItems[DexFieldIds[FieldIndex].StringIndex].Data;
     (*Field).AccessFlags = ReadUnsignedLeb128((const UCHAR**)Buffer);
 } 
+
+void cDexFile::DumpInterfaceByIndex(
+    UINT ClassIndex, 
+    UINT InterfaceIndex, 
+    UCHAR** Interface
+    )
+{
+    (*Interface) = StringItems[DexTypeIds[ 
+        ((USHORT*)(BaseAddress+DexClassDefs[ClassIndex].InterfacesOff+sizeof(UINT)))[InterfaceIndex] 
+    ].StringIndex].Data;
+}
 
 BOOL cDexFile::DumpDex()
 {
@@ -143,8 +189,10 @@ BOOL cDexFile::DumpDex()
             /* Parsing Interfaces */
             UINT CurIndex = 0;
             for (UINT j=0; j<DexClasses[i].ClassData->InterfacesSize; j++)
-                DexClasses[i].ClassData->Interfaces[j] = 
-                    StringItems[DexTypeIds[ ((USHORT*)(BaseAddress+DexClassDefs[i].InterfacesOff+sizeof(UINT)))[j] ].StringIndex].Data;
+                DumpInterfaceByIndex(
+                i,
+                j,
+                &DexClasses[i].ClassData->Interfaces[j]);
 
             /* Parsing Static Fields */
             for (UINT j=0; j<DexClasses[i].ClassData->StaticFieldsSize; j++)
@@ -169,32 +217,10 @@ BOOL cDexFile::DumpDex()
                 DexClasses[i].ClassData->DirectMethods[j].ProtoType = 
                     StringItems[DexTypeIds[DexProtoIds[DexMethodIds[CurIndex].PrototypeIndex].ReturnTypeIdx].StringIndex].Data;
 
-                /* Start Parsing Parameters */
-                if (DexProtoIds[DexMethodIds[CurIndex].PrototypeIndex].ParametersOff)
-                {
-                    UINT ParamStringLen = 0;
-                    DEX_TYPE_LIST* ParametersList = (DEX_TYPE_LIST*)(BaseAddress + DexProtoIds[DexMethodIds[CurIndex].PrototypeIndex].ParametersOff);
-                
-                    for (UINT k=0; k<ParametersList->Size; k++) 
-                        ParamStringLen += strlen((CHAR*)StringItems[DexTypeIds[ParametersList->List[k].TypeIdx].StringIndex].Data);
-
-                    DexClasses[i].ClassData->DirectMethods[j].Type = new UCHAR[ParamStringLen+1];
-
-                    ParamStringLen = 0;
-                    for (UINT k=0; k<ParametersList->Size; k++)
-                    {
-                        memcpy(DexClasses[i].ClassData->DirectMethods[j].Type + ParamStringLen, 
-                            (CHAR*)StringItems[DexTypeIds[ParametersList->List[k].TypeIdx].StringIndex].Data,
-                            StringItems[DexTypeIds[ParametersList->List[k].TypeIdx].StringIndex].StringSize);
-
-                        ParamStringLen += StringItems[DexTypeIds[ParametersList->List[k].TypeIdx].StringIndex].StringSize;
-                    }
-                    DexClasses[i].ClassData->DirectMethods[j].Type[ParamStringLen] = '\0';
-                }
-                else
-                    DexClasses[i].ClassData->DirectMethods[j].Type = (UCHAR*)"";
-                
-                /* End Parsing Parameters */
+                /* Parsing Parameters */
+                DumpMethodParameters(
+                    CurIndex, 
+                    &DexClasses[i].ClassData->DirectMethods[j]);
                 
 
                 DexClasses[i].ClassData->DirectMethods[j].Name = StringItems[DexMethodIds[CurIndex].StringIndex].Data;
@@ -246,78 +272,8 @@ BOOL cDexFile::DumpDex()
                     /* End Debug Info */
 
 
-                    /* Start Tries Parsing */
-                    if (DexCode->TriesSize > 0)
-                    {
-                        DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries = 
-                            new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY[DexCode->TriesSize];
-                        memset(DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries, NULL, 
-                            sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY) * DexCode->TriesSize);
-                        
-                        USHORT* InstructionsEnd = &((DexCode->Instructions)[DexCode->InstructionsSize]);
-                        if ((((UINT)InstructionsEnd) & 3) != 0) { InstructionsEnd++; }
-                        DEX_TRY_ITEM* TryItems = (DEX_TRY_ITEM*)InstructionsEnd;
-
-
-                        /* Start Parsing Catch Handlers */
-                        BufPtr2 = (UCHAR*)&(TryItems[DexCode->TriesSize]);
-                        DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlersSize = 
-                            ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
-
-                        DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers = 
-                            new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER
-                            [DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlersSize];
-
-                        for (UINT k=0; k<DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlersSize; k++)
-                        {
-                            DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize =
-                                ReadSignedLeb128((const UCHAR**)&BufPtr2);
-
-                            DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers = 
-                                new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER::CLASS_CODE_CATCH_TYPE_PAIR
-                                [abs(DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize)];
-
-                            for (UINT l=0; l<(UINT)abs(DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize); l++)
-                            {
-                                DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers[l].TypeIndex = 
-                                    ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
-
-                                DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers[l].Type = 
-                                    DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers[l].TypeIndex == NO_INDEX ?
-                                    (UCHAR*)"<any>": 
-                                StringItems[DexTypeIds[ DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers[l].TypeIndex ].StringIndex].Data;
-                                                                    
-                                DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlers[l].Address = 
-                                    ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
-                            }
-
-                            if (DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize > 0)
-                                DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].CatchAllAddress = NULL;
-                            else
-                                DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].CatchAllAddress =
-                                    ReadUnsignedLeb128((const UCHAR**)&BufPtr2);
-
-                            DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize = 
-                                abs(DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[k].TypeHandlersSize);
-                        }
-                        /* End Parsing Catch Handlers */
-
-
-                        for (UINT k=0; k<DexCode->TriesSize; k++)
-                        {
-                            DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsStart =
-                                TryItems[k].StartAddress;
-                            DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsEnd =
-                                TryItems[k].StartAddress + TryItems[k].InstructionsSize;
-                            DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler =
-                                &DexClasses[i].ClassData->DirectMethods[j].CodeArea->CatchHandlers[TryItems[k].HandlerOff-1];
-                        }
-                    }
-                    else 
-                        DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries = NULL;
-
-                    /* End Tries Parsing */
-
+                    /* Tries Parsing */
+                    DumpMethodTryItems(DexClasses[i].ClassData->DirectMethods[j].CodeArea, DexCode->TriesSize);
 
                     /* Start Instructions Parsing */
                     if (DexCode->InstructionsSize > 0)
@@ -373,7 +329,121 @@ BOOL cDexFile::DumpDex()
     return TRUE;
 }
 
-CHAR* cDexFile::GetAccessMask(UINT Type, UINT AccessFlags)
+void cDexFile::DumpMethodParameters(
+    UINT MethodIndex, 
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method
+    )
+{
+    if (DexProtoIds[DexMethodIds[MethodIndex].PrototypeIndex].ParametersOff)
+    {
+        UINT ParamStringLen = 0;
+        DEX_TYPE_LIST* ParametersList = (DEX_TYPE_LIST*)(BaseAddress + DexProtoIds[DexMethodIds[MethodIndex].PrototypeIndex].ParametersOff);
+                
+        for (UINT k=0; k<ParametersList->Size; k++) 
+            ParamStringLen += strlen((CHAR*)StringItems[DexTypeIds[ParametersList->List[k].TypeIdx].StringIndex].Data);
+
+        (*Method).Type = new UCHAR[ParamStringLen+1];
+
+        ParamStringLen = 0;
+        for (UINT k=0; k<ParametersList->Size; k++)
+        {
+            memcpy((*Method).Type + ParamStringLen, 
+                (CHAR*)StringItems[DexTypeIds[ParametersList->List[k].TypeIdx].StringIndex].Data,
+                StringItems[DexTypeIds[ParametersList->List[k].TypeIdx].StringIndex].StringSize);
+
+            ParamStringLen += StringItems[DexTypeIds[ParametersList->List[k].TypeIdx].StringIndex].StringSize;
+        }
+        (*Method).Type[ParamStringLen] = '\0';
+    }
+    else
+        (*Method).Type = (UCHAR*)"";
+}
+
+void cDexFile::DumpMethodTryItems(
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea,
+    UINT Size
+    )
+{
+    if (Size > 0)
+    {
+        (*CodeArea).Tries = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY[Size];
+        memset((*CodeArea).Tries, NULL, 
+            sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY) * DexCode->TriesSize);
+                        
+        USHORT* InstructionsEnd = &((DexCode->Instructions)[DexCode->InstructionsSize]);
+        if ((((UINT)InstructionsEnd) & 3) != 0) { InstructionsEnd++; }
+        DEX_TRY_ITEM* TryItems = (DEX_TRY_ITEM*)InstructionsEnd;
+
+        /* Parsing Catch Handlers */
+        UCHAR* Buffer = (UCHAR*)&(TryItems[DexCode->TriesSize]);
+        DumpMethodCatchHandlers(
+            CodeArea, 
+            &Buffer);
+
+        for (UINT k=0; k<DexCode->TriesSize; k++)
+            DumpMethodTryItemsInfo(
+                &(*CodeArea).Tries[k],
+                &TryItems[k],
+                &(*CodeArea).CatchHandlers
+            );
+    }
+    else 
+        (*CodeArea).Tries = NULL;
+}
+
+void cDexFile::DumpMethodCatchHandlers(
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, 
+    UCHAR** Buffer
+    )
+{
+    (*CodeArea).CatchHandlersSize = ReadUnsignedLeb128((const UCHAR**)Buffer);
+    (*CodeArea).CatchHandlers = 
+        new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER
+        [(*CodeArea).CatchHandlersSize];
+
+    for (UINT k=0; k<(*CodeArea).CatchHandlersSize; k++)
+    {
+        (*CodeArea).CatchHandlers[k].TypeHandlersSize = ReadSignedLeb128((const UCHAR**)Buffer);
+        (*CodeArea).CatchHandlers[k].TypeHandlers = 
+            new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER::CLASS_CODE_CATCH_TYPE_PAIR
+            [abs((*CodeArea).CatchHandlers[k].TypeHandlersSize)];
+
+        for (UINT l=0; l<(UINT)abs((*CodeArea).CatchHandlers[k].TypeHandlersSize); l++)
+        {
+            (*CodeArea).CatchHandlers[k].TypeHandlers[l].TypeIndex = ReadUnsignedLeb128((const UCHAR**)Buffer);
+            (*CodeArea).CatchHandlers[k].TypeHandlers[l].Address = ReadUnsignedLeb128((const UCHAR**)Buffer);
+
+            if ((*CodeArea).CatchHandlers[k].TypeHandlers[l].TypeIndex == NO_INDEX)
+                (*CodeArea).CatchHandlers[k].TypeHandlers[l].Type = (UCHAR*)"<any>";
+            else
+                (*CodeArea).CatchHandlers[k].TypeHandlers[l].Type =
+                    StringItems[DexTypeIds[ (*CodeArea).CatchHandlers[k].TypeHandlers[l].TypeIndex ].StringIndex].Data;
+        }
+
+        if ((*CodeArea).CatchHandlers[k].TypeHandlersSize > 0)
+            (*CodeArea).CatchHandlers[k].CatchAllAddress = NULL;
+        else
+            (*CodeArea).CatchHandlers[k].CatchAllAddress = ReadUnsignedLeb128((const UCHAR**)Buffer);
+
+        (*CodeArea).CatchHandlers[k].TypeHandlersSize = abs((*CodeArea).CatchHandlers[k].TypeHandlersSize);
+    }
+}
+
+void cDexFile::DumpMethodTryItemsInfo(
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY* TryItem, 
+    DEX_TRY_ITEM* TryItemInfo,
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER** CatchHandlers
+    )
+{
+    (*TryItem).InstructionsStart = (*TryItemInfo).StartAddress;
+    (*TryItem).InstructionsEnd = (*TryItemInfo).StartAddress + (*TryItemInfo).InstructionsSize;
+    (*TryItem).CatchHandler = &(*CatchHandlers)[(*TryItemInfo).HandlerOff-1];
+}
+
+CHAR* cDexFile::GetAccessMask(
+    UINT Type, 
+    UINT AccessFlags
+    )
 {
     CHAR* str,* cp;
     UINT flag = AccessFlags;
@@ -402,7 +472,9 @@ CHAR* cDexFile::GetAccessMask(UINT Type, UINT AccessFlags)
     return str;
 }
 
-INT cDexFile::ReadSignedLeb128(const UCHAR** pStream) 
+INT cDexFile::ReadSignedLeb128(
+    const UCHAR** pStream
+    ) 
 {
  const UCHAR* ptr = *pStream;
     int result = *(ptr++);
@@ -447,7 +519,9 @@ INT cDexFile::ReadSignedLeb128(const UCHAR** pStream)
     return result;
 }
 
-INT cDexFile::ReadUnsignedLeb128(const UCHAR** pStream) 
+INT cDexFile::ReadUnsignedLeb128(
+    const UCHAR** pStream
+    ) 
 {
     const UCHAR* ptr = *pStream;
     int result = *(ptr++);

@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright (C) 2014  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to Anwar Mohamed
+ *  anwarelmakrahy[at]gmail.com
+ *
+ */
+
 #pragma once
 #include "dexpire.h"
 #include "cFile.h"
@@ -420,7 +440,22 @@ public:
 
     void DumpClassInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
     void DumpClassDataInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class, UCHAR** Buffer);
+
     void DumpFieldByIndex(UINT FieldIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD* Field, UCHAR** Buffer);
+    void DumpInterfaceByIndex(UINT ClassIndex, UINT InterfaceIndex, UCHAR** Interface);
+
+    void DumpMethodTryItems(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, UINT Size);
+
+    void DumpMethodTryItemsInfo(
+        DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY* TryItem, 
+        DEX_TRY_ITEM* TryItemInfo, 
+        DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER** CatchHandlers);
+
+    void DumpMethodCatchHandlers(
+        DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, 
+        UCHAR** Buffer);
+
+    void DumpMethodParameters(UINT MethodIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method);
     void AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
      
 private:
