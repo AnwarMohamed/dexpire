@@ -19,6 +19,7 @@
  */
 
 #include "cDexFile.h"
+#include <stdio.h>
 #define NO_INDEX 0xffffffff
 
 cDexFile::cDexFile(CHAR* Filename): 
@@ -344,19 +345,185 @@ void cDexFile::DumpMethodInstructions(
         */
 
         CHAR Opcode;
-        for (UINT i=0; i<(*CodeAreaDef).InstructionsSize*2; i++)
+        for (UINT i=0; i<(*CodeAreaDef).InstructionsSize*2;)
         {
             Opcode = ((CHAR*)((*CodeAreaDef).Instructions))[i];
 
             UINT Width = OpcodesWidths[Opcode];
             UINT Format = OpcodesFormat[Opcode];
             UINT Flags = OpcodesFlags[Opcode];
+
+            DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION* Decoded =
+            DecodeOpcode(((CHAR*)((*CodeAreaDef).Instructions)) + i);
+
+            i+= Decoded->BytesSize;
         }
 
         //memcpy((*CodeArea).Instructions, (*CodeAreaDef).Instructions, (*CodeAreaDef).InstructionsSize);
     }
     else
         (*CodeArea).Instructions = NULL;
+}
+
+#define TEMP_STRING_SIZE 200
+
+DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION*
+    cDexFile::DecodeOpcode(
+    CHAR* Opcode
+    )
+{
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION* Decoded =
+        new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION;
+    memset(Decoded, 0, sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION));
+
+    Decoded->Opcode = (UCHAR*)OpcodesStrings[Opcode[0]];
+    Decoded->Format = (UCHAR*)OpcodesFormatStrings[OpcodesFormat[Opcode[0]]];
+    Decoded->Bytes = (UCHAR*)Opcode;
+    Decoded->BytesSize = 1;
+
+    CHAR* TempString = new CHAR[TEMP_STRING_SIZE];
+
+    switch(OpcodesFormat[Opcode[0]])
+    {
+    case OP_FORMAT_UNKNOWN:
+        sprintf_s(TempString, TEMP_STRING_SIZE, "<unknown>");
+        break;
+
+    case OP_FORMAT_10x:        // op
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+
+    case OP_FORMAT_12x:        // op vA, vB
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+
+    case OP_FORMAT_11n:        // op vA, #+B
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_11x:        // op vAA
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_10t:        // op +AA
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_20bc:       // op AA, thing@BBBB
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_20t:        // op +AAAA
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_22x:        // op vAA, vBBBB
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_21t:        // op vAA, +BBBB
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+
+    case OP_FORMAT_21s:        // op vAA, #+BBBB
+        Decoded->vA = Opcode[1];
+        Decoded->vB = (USHORT)Opcode[2];
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #int %d // #%0x", 
+            Decoded->Opcode,
+            Decoded->vA,
+            Decoded->vB,
+            Decoded->vB);
+        break;
+
+    case OP_FORMAT_21h:        // op vAA, #+BBBB00000[00000000]
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+
+    case OP_FORMAT_21c:        // op vAA, thing@BBBB
+        Decoded->vA = Opcode[1];
+        Decoded->vB = (USHORT)Opcode[2];
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, %s.%s:%s // field@%04x", 
+            Decoded->Opcode, 
+            Decoded->vA, 
+            StringItems[DexTypeIds[DexFieldIds[Decoded->vB].ClassIndex].StringIndex].Data,
+            StringItems[DexFieldIds[Decoded->vB].StringIndex].Data, 
+            StringItems[DexTypeIds[DexFieldIds[Decoded->vB].TypeIdex].StringIndex].Data,
+            Decoded->vB);
+        break;
+
+    case OP_FORMAT_23x:        // op vAA, vBB, vCC
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_22b:        // op vAA, vBB, #+CC
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+
+    case OP_FORMAT_22t:        // op vA, vB, +CCCC
+        Decoded->vA = Opcode[1] & 0x0F;
+        Decoded->vB = Opcode[1] >> 4;
+        Decoded->vC = (SHORT)Opcode[2];
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, %d // %c%04d", 
+            Decoded->Opcode,
+            Decoded->vA,
+            Decoded->vB,
+            0,
+            Decoded->vC>=0?'+':'-',
+            Decoded->vC);
+        break;
+
+    case OP_FORMAT_22s:        // op vA, vB, #+CCCC
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_22c:        // op vA, vB, thing@CCCC
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_22cs:       // [opt] op vA, vB, field offset CCCC
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_32x:        // op vAAAA, vBBBB
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_30t:        // op +AAAAAAAA
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_31t:        // op vAA, +BBBBBBBB
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_31i:        // op vAA, #+BBBBBBBB
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_31c:        // op vAA, thing@BBBBBBBB
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+
+    case OP_FORMAT_35c:        // op {vC, vD, vE, vF, vG}, thing@BBBB (B: count, A: vG)
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+
+    case OP_FORMAT_35ms:       // [opt] invoke-virtual+super
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_35fs:       // [opt] invoke-interface
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_3rc:        // op {vCCCC .. v(CCCC+AA-1)}, meth@BBBB
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_3rms:       // [opt] invoke-virtual+super/range
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_3rfs:       // [opt] invoke-interface/range
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_3inline:    // [opt] inline invoke
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    case OP_FORMAT_51l:        // op vAA, #+BBBBBBBBBBBBBBBB
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        break;
+    }
+
+    Decoded->Decoded = new UCHAR[strlen(TempString)+1];
+    strncpy_s((CHAR*)Decoded->Decoded, strlen(TempString)+1, TempString, TEMP_STRING_SIZE);
+    free(TempString);
+    return Decoded;
 }
 
 void cDexFile::DumpMethodParameters(

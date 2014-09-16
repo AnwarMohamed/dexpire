@@ -387,11 +387,19 @@ struct DEX_CLASS_STRUCTURE
                     CLASS_CODE_CATCH_HANDLER* CatchHandler;
                 } *Tries;
 
-
-
                 struct CLASS_CODE_INSTRUCTION
                 {
-                    UINT n;
+                    UCHAR* Opcode;
+                    UCHAR* Format;
+                    UCHAR  BytesSize;
+                    UCHAR* Bytes;
+                    UCHAR* Decoded;
+
+                    UINT      vA;
+                    UINT      vB;
+                    UINT64    vB_wide;        /* for OP_FORMAT_51l */
+                    UINT      vC;
+                    UINT      vArg[5]; 
                 }   *Instructions;
             }   *CodeArea;
 
@@ -1122,7 +1130,9 @@ public:
     void DumpMethodInstructions(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
     void DumpMethodParameters(UINT MethodIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method);
     void AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
-     
+    
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION* DecodeOpcode(CHAR* Opcode);
+
 private:
     BOOL    DumpDex();
     INT     ReadUnsignedLeb128(const UCHAR** pStream);
