@@ -358,7 +358,9 @@ struct DEX_CLASS_STRUCTURE
                 USHORT  OutsSize;
                 USHORT  TriesSize;
                 //UINT    DebugInfoOff;   
-                UINT    InstructionsSize;  
+                UINT    InstBufferSize; 
+                UINT    InstructionsSize;
+                UINT    Offset;
 
                 struct CLASS_CODE_DEBUG_INFO
                 {
@@ -390,6 +392,7 @@ struct DEX_CLASS_STRUCTURE
                 struct CLASS_CODE_INSTRUCTION
                 {
                     UCHAR* Opcode;
+                    UINT   Offset;
                     UCHAR* Format;
                     UCHAR  BytesSize;
                     UCHAR* Bytes;
@@ -399,8 +402,12 @@ struct DEX_CLASS_STRUCTURE
                     UINT      vB;
                     UINT64    vB_wide;        /* for OP_FORMAT_51l */
                     UINT      vC;
-                    UINT      vArg[5]; 
-                }   *Instructions;
+                    UINT      vD;
+                    UINT      vE;
+                    UINT      vF;
+                    UINT      vG;
+                    UINT      vH;
+                }   **Instructions;
             }   *CodeArea;
 
         }   *DirectMethods, 
@@ -1131,7 +1138,7 @@ public:
     void DumpMethodParameters(UINT MethodIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method);
     void AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
     
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION* DecodeOpcode(CHAR* Opcode);
+    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION* DecodeOpcode(UCHAR* Opcode);
 
 private:
     BOOL    DumpDex();

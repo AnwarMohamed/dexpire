@@ -44,7 +44,7 @@ void cDexFile::DumpClassInfo(
     if (DexClassDefs[ClassIndex].SourceFileIdx != NO_INDEX)
         (*Class).SourceFile = StringItems[DexClassDefs[ClassIndex].SourceFileIdx].Data;
     else
-        (*Class).SourceFile = (UCHAR*)"No Information Found";
+        (*Class).SourceFile = (UCHAR*)"";
 }
 
 void cDexFile::DumpClassDataInfo(
@@ -298,7 +298,7 @@ void cDexFile::DumpMethodCodeInfo(
     (*CodeArea).RegistersSize = (*CodeAreaDef).RegistersSize;
     (*CodeArea).OutsSize = (*CodeAreaDef).OutsSize;
     (*CodeArea).TriesSize = (*CodeAreaDef).TriesSize;
-    (*CodeArea).InstructionsSize = (*CodeAreaDef).InstructionsSize;
+    (*CodeArea).InstBufferSize = (*CodeAreaDef).InstructionsSize;
 }
 
 void cDexFile::DumpMethodDebugInfo(
@@ -338,28 +338,34 @@ void cDexFile::DumpMethodInstructions(
 {
     if ((*CodeAreaDef).InstructionsSize > 0)
     {
-        /*
+        
         (*CodeArea).Instructions = 
-            new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION
-            [(*CodeAreaDef).InstructionsSize];
-        */
+            (DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION**)
+            malloc( (*CodeArea).InstructionsSize * 
+            sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION*));
+        
+        (*CodeArea).Offset = (DWORD)(CodeAreaDef) - BaseAddress;
 
         CHAR Opcode;
         for (UINT i=0; i<(*CodeAreaDef).InstructionsSize*2;)
         {
             Opcode = ((CHAR*)((*CodeAreaDef).Instructions))[i];
 
-            UINT Width = OpcodesWidths[Opcode];
-            UINT Format = OpcodesFormat[Opcode];
-            UINT Flags = OpcodesFlags[Opcode];
+            //UINT Width = OpcodesWidths[Opcode];
+            //UINT Format = OpcodesFormat[Opcode];
+            //UINT Flags = OpcodesFlags[Opcode];
 
-            DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION* Decoded =
-            DecodeOpcode(((CHAR*)((*CodeAreaDef).Instructions)) + i);
+            (*CodeArea).Instructions = 
+                (DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION**)
+                realloc((*CodeArea).Instructions, ++(*CodeArea).InstructionsSize * 
+                sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION*));
 
-            i+= Decoded->BytesSize;
+            (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1] = DecodeOpcode(((UCHAR*)((*CodeAreaDef).Instructions)) + i);
+            (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1]->Offset = 
+                (DWORD)(CodeAreaDef->Instructions) - BaseAddress + i/2;
+
+            i+= (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1]->BytesSize; 
         }
-
-        //memcpy((*CodeArea).Instructions, (*CodeAreaDef).Instructions, (*CodeAreaDef).InstructionsSize);
     }
     else
         (*CodeArea).Instructions = NULL;
@@ -369,7 +375,7 @@ void cDexFile::DumpMethodInstructions(
 
 DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION*
     cDexFile::DecodeOpcode(
-    CHAR* Opcode
+    UCHAR* Opcode
     )
 {
     DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION* Decoded =
@@ -387,47 +393,98 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
     {
     case OP_FORMAT_UNKNOWN:
         sprintf_s(TempString, TEMP_STRING_SIZE, "<unknown>");
+        Decoded->BytesSize += 1;
         break;
 
     case OP_FORMAT_10x:        // op
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", 
+            Decoded->Opcode);
+        Decoded->BytesSize += 1;
         break;
 
     case OP_FORMAT_12x:        // op vA, vB
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1] & 0xF0;
+        Decoded->vB = Opcode[1] >> 4;
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d", 
+            Decoded->Opcode, 
+            Decoded->vA, 
+            Decoded->vB);
         break;
 
     case OP_FORMAT_11n:        // op vA, #+B
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1] & 0xF0;
+        Decoded->vB = Opcode[1] >> 4;
+        Decoded->BytesSize += 1;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #+%d", 
+            Decoded->Opcode, 
+            Decoded->vA, 
+            (INT)Decoded->vB);
         break;
+
     case OP_FORMAT_11x:        // op vAA
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->BytesSize += 1;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d", 
+            Decoded->Opcode, 
+            Decoded->vA);
         break;
+
     case OP_FORMAT_10t:        // op +AA
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->BytesSize += 1;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s +%d", 
+            Decoded->Opcode, 
+            Decoded->vA);
         break;
+
     case OP_FORMAT_20bc:       // op AA, thing@BBBB
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->vB = *(USHORT*)&Opcode[2];
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s %d, %s@%d", 
+            Decoded->Opcode, 
+            Decoded->vA, 
+            "thing", 
+            Decoded->vB);
         break;
+
     case OP_FORMAT_20t:        // op +AAAA
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = *(UINT*)&Opcode[1];
+        Decoded->BytesSize += 1;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s +%d", 
+            Decoded->Opcode, 
+            Decoded->vA);
         break;
+
     case OP_FORMAT_22x:        // op vAA, vBBBB
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->vB = *(USHORT*)&Opcode[2];
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d", 
+            Decoded->Opcode,
+            Decoded->vA,
+            Decoded->vB);
         break;
+
     case OP_FORMAT_21t:        // op vAA, +BBBB
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->vB = *(USHORT*)&Opcode[2];
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, +%d", 
+            Decoded->Opcode,
+            Decoded->vA,
+            Decoded->vB);
         break;
 
     case OP_FORMAT_21s:        // op vAA, #+BBBB
         Decoded->vA = Opcode[1];
         Decoded->vB = (USHORT)Opcode[2];
         Decoded->BytesSize += 3;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #int %d // #%0x", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #+%d", 
             Decoded->Opcode,
             Decoded->vA,
-            Decoded->vB,
-            Decoded->vB);
+            (INT)Decoded->vB);
         break;
 
     case OP_FORMAT_21h:        // op vAA, #+BBBB00000[00000000]
@@ -436,65 +493,157 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
 
     case OP_FORMAT_21c:        // op vAA, thing@BBBB
         Decoded->vA = Opcode[1];
-        Decoded->vB = (USHORT)Opcode[2];
+        Decoded->vB = *(USHORT*)&Opcode[2];
         Decoded->BytesSize += 3;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, %s.%s:%s // field@%04x", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, %s@%d", 
             Decoded->Opcode, 
-            Decoded->vA, 
-            StringItems[DexTypeIds[DexFieldIds[Decoded->vB].ClassIndex].StringIndex].Data,
-            StringItems[DexFieldIds[Decoded->vB].StringIndex].Data, 
-            StringItems[DexTypeIds[DexFieldIds[Decoded->vB].TypeIdex].StringIndex].Data,
+            Decoded->vA,
+            Opcode[0] == OP_CONST_STRING? "string" :
+            Opcode[0] == OP_CHECK_CAST || Opcode[0] == OP_CONST_CLASS? "class" :
+            Opcode[0] == OP_NEW_INSTANCE? "type" :
+            "field",
             Decoded->vB);
         break;
 
     case OP_FORMAT_23x:        // op vAA, vBB, vCC
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->vB = Opcode[2];
+        Decoded->vC = Opcode[3];
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, v%d", 
+            Decoded->Opcode,
+            Decoded->vA,
+            Decoded->vB,
+            Decoded->vC);
         break;
+
     case OP_FORMAT_22b:        // op vAA, vBB, #+CC
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->vB = Opcode[2];
+        Decoded->vC = Opcode[3];
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, #+%d", 
+            Decoded->Opcode,
+            Decoded->vA,
+            Decoded->vB,
+            Decoded->vC);
         break;
 
     case OP_FORMAT_22t:        // op vA, vB, +CCCC
         Decoded->vA = Opcode[1] & 0x0F;
         Decoded->vB = Opcode[1] >> 4;
-        Decoded->vC = (SHORT)Opcode[2];
+        Decoded->vC = *(SHORT*)&Opcode[2];
         Decoded->BytesSize += 3;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, %d // %c%04d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, +%d", 
             Decoded->Opcode,
             Decoded->vA,
             Decoded->vB,
-            0,
-            Decoded->vC>=0?'+':'-',
             Decoded->vC);
         break;
 
     case OP_FORMAT_22s:        // op vA, vB, #+CCCC
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1] & 0x0F;
+        Decoded->vB = Opcode[1] >> 4;
+        Decoded->vC = *(SHORT*)&Opcode[2];
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, #+%d", 
+            Decoded->Opcode,
+            Decoded->vA,
+            Decoded->vB,
+            Decoded->vC);
         break;
+
     case OP_FORMAT_22c:        // op vA, vB, thing@CCCC
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1] & 0x0F;
+        Decoded->vB = Opcode[1] >> 4;
+        Decoded->vC = *(SHORT*)&Opcode[2];
+        Decoded->BytesSize += 3;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, %s@%d", 
+            Decoded->Opcode,
+            Decoded->vA,
+            Decoded->vB,
+            Opcode[0] >= OP_IGET && Opcode[0] <= OP_IPUT_SHORT? "field" :
+            "class",
+            Decoded->vC);
         break;
+
     case OP_FORMAT_22cs:       // [opt] op vA, vB, field offset CCCC
         sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
         break;
     case OP_FORMAT_32x:        // op vAAAA, vBBBB
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = *(USHORT*)&Opcode[1];
+        Decoded->vB = *(USHORT*)&Opcode[3];
+        Decoded->BytesSize += 5;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d", 
+            Decoded->Opcode, 
+            Decoded->vA, 
+            Decoded->vB);
         break;
+
     case OP_FORMAT_30t:        // op +AAAAAAAA
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = *(UINT*)&Opcode[1];
+        Decoded->BytesSize += 5;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s +%d", 
+            Decoded->Opcode, 
+            Decoded->vA);
         break;
+
     case OP_FORMAT_31t:        // op vAA, +BBBBBBBB
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->vB = *(UINT*)&Opcode[2];
+        Decoded->BytesSize += 5;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, +%d", 
+            Decoded->Opcode, 
+            Decoded->vA, 
+            Decoded->vB);
         break;
+
     case OP_FORMAT_31i:        // op vAA, #+BBBBBBBB
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->vB = *(UINT*)&Opcode[2];
+        Decoded->BytesSize += 5;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #+%d", 
+            Decoded->Opcode, 
+            Decoded->vA, 
+            Decoded->vB);
         break;
+
     case OP_FORMAT_31c:        // op vAA, thing@BBBBBBBB
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->vB = *(UINT*)&Opcode[2];
+        Decoded->BytesSize += 5;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, string@%d", 
+            Decoded->Opcode, 
+            Decoded->vA, 
+            Decoded->vB);
         break;
 
     case OP_FORMAT_35c:        // op {vC, vD, vE, vF, vG}, thing@BBBB (B: count, A: vG)
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1] >> 4;
+        Decoded->vB = *(USHORT*)(&Opcode[2]);
+        Decoded->vC = Decoded->vA>0? Opcode[4] & 0x0F :0;
+        Decoded->vD = Decoded->vA>1? Opcode[4] >> 4 :0;
+        Decoded->vE = Decoded->vA>2? Opcode[5] & 0x0F :0;
+        Decoded->vF = Decoded->vA>3? Opcode[5] >> 4 :0;
+        Decoded->vG = Decoded->vA==5? Opcode[6] & 0x0F :0;
+        
+        Decoded->BytesSize += 5;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s {", Decoded->Opcode);
+        
+        if (Decoded->vA)
+            sprintf_s(TempString+strlen(TempString) , TEMP_STRING_SIZE-strlen(TempString), "v%d", Decoded->vC);
+        if (Decoded->vA>1)
+            sprintf_s(TempString+strlen(TempString) , TEMP_STRING_SIZE-strlen(TempString), " ,v%d", Decoded->vD);
+        if (Decoded->vA>2)
+            sprintf_s(TempString+strlen(TempString) , TEMP_STRING_SIZE-strlen(TempString), " ,v%d", Decoded->vE);
+        if (Decoded->vA>3)
+            sprintf_s(TempString+strlen(TempString) , TEMP_STRING_SIZE-strlen(TempString), " ,v%d", Decoded->vF);
+        if (Decoded->vA==5)
+            sprintf_s(TempString+strlen(TempString) , TEMP_STRING_SIZE-strlen(TempString), " ,v%d", Decoded->vG);
+
+        sprintf_s(TempString+strlen(TempString) , TEMP_STRING_SIZE-strlen(TempString), "}, %s@%d",
+            Opcode[0] == OP_FILLED_NEW_ARRAY? "class": "method",
+            Decoded->vB);
         break;
 
     case OP_FORMAT_35ms:       // [opt] invoke-virtual+super
@@ -516,7 +665,13 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
         sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
         break;
     case OP_FORMAT_51l:        // op vAA, #+BBBBBBBBBBBBBBBB
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->vB = *(UINT*)&Opcode[2];
+        Decoded->BytesSize += 9;
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #+%I64d", 
+            Decoded->Opcode, 
+            Decoded->vA, 
+            Decoded->vB);
         break;
     }
 
@@ -525,6 +680,8 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
     free(TempString);
     return Decoded;
 }
+
+
 
 void cDexFile::DumpMethodParameters(
     UINT MethodIndex, 
@@ -596,35 +753,50 @@ void cDexFile::DumpMethodCatchHandlers(
     )
 {
     (*CodeArea).CatchHandlersSize = ReadUnsignedLeb128((const UCHAR**)Buffer);
-    (*CodeArea).CatchHandlers = 
-        new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER
-        [(*CodeArea).CatchHandlersSize];
 
-    for (UINT k=0; k<(*CodeArea).CatchHandlersSize; k++)
-    {
-        (*CodeArea).CatchHandlers[k].TypeHandlersSize = ReadSignedLeb128((const UCHAR**)Buffer);
-        (*CodeArea).CatchHandlers[k].TypeHandlers = 
-            new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER::CLASS_CODE_CATCH_TYPE_PAIR
-            [abs((*CodeArea).CatchHandlers[k].TypeHandlersSize)];
-
-        for (UINT l=0; l<(UINT)abs((*CodeArea).CatchHandlers[k].TypeHandlersSize); l++)
+    if ((*CodeArea).CatchHandlersSize)
         {
-            (*CodeArea).CatchHandlers[k].TypeHandlers[l].TypeIndex = ReadUnsignedLeb128((const UCHAR**)Buffer);
-            (*CodeArea).CatchHandlers[k].TypeHandlers[l].Address = ReadUnsignedLeb128((const UCHAR**)Buffer);
+        (*CodeArea).CatchHandlers = 
+            new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER
+            [(*CodeArea).CatchHandlersSize];
 
-            if ((*CodeArea).CatchHandlers[k].TypeHandlers[l].TypeIndex == NO_INDEX)
-                (*CodeArea).CatchHandlers[k].TypeHandlers[l].Type = (UCHAR*)"<any>";
+        memset( (*CodeArea).CatchHandlers, NULL, 
+            sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER) * (*CodeArea).CatchHandlersSize);
+
+        for (UINT k=0; k<(*CodeArea).CatchHandlersSize; k++)
+        {
+            (*CodeArea).CatchHandlers[k].TypeHandlersSize = ReadSignedLeb128((const UCHAR**)Buffer);
+
+            if ((*CodeArea).CatchHandlers[k].TypeHandlersSize)
+            {
+                (*CodeArea).CatchHandlers[k].TypeHandlers = 
+                    new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER::CLASS_CODE_CATCH_TYPE_PAIR
+                    [abs((*CodeArea).CatchHandlers[k].TypeHandlersSize)];
+
+                memset((*CodeArea).CatchHandlers[k].TypeHandlers, NULL, 
+                    sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER::CLASS_CODE_CATCH_TYPE_PAIR) * 
+                    abs((*CodeArea).CatchHandlers[k].TypeHandlersSize));
+
+                for (UINT l=0; l<(UINT)abs((*CodeArea).CatchHandlers[k].TypeHandlersSize); l++)
+                {
+                    (*CodeArea).CatchHandlers[k].TypeHandlers[l].TypeIndex = ReadUnsignedLeb128((const UCHAR**)Buffer);
+                    (*CodeArea).CatchHandlers[k].TypeHandlers[l].Address = ReadUnsignedLeb128((const UCHAR**)Buffer);
+
+                    if ((*CodeArea).CatchHandlers[k].TypeHandlers[l].TypeIndex == NO_INDEX)
+                        (*CodeArea).CatchHandlers[k].TypeHandlers[l].Type = (UCHAR*)"<any>";
+                    else
+                        (*CodeArea).CatchHandlers[k].TypeHandlers[l].Type =
+                            StringItems[DexTypeIds[ (*CodeArea).CatchHandlers[k].TypeHandlers[l].TypeIndex ].StringIndex].Data;
+                }
+            }
+
+            if ((*CodeArea).CatchHandlers[k].TypeHandlersSize > 0)
+                (*CodeArea).CatchHandlers[k].CatchAllAddress = NULL;
             else
-                (*CodeArea).CatchHandlers[k].TypeHandlers[l].Type =
-                    StringItems[DexTypeIds[ (*CodeArea).CatchHandlers[k].TypeHandlers[l].TypeIndex ].StringIndex].Data;
+                (*CodeArea).CatchHandlers[k].CatchAllAddress = ReadUnsignedLeb128((const UCHAR**)Buffer);
+
+            (*CodeArea).CatchHandlers[k].TypeHandlersSize = abs((*CodeArea).CatchHandlers[k].TypeHandlersSize);
         }
-
-        if ((*CodeArea).CatchHandlers[k].TypeHandlersSize > 0)
-            (*CodeArea).CatchHandlers[k].CatchAllAddress = NULL;
-        else
-            (*CodeArea).CatchHandlers[k].CatchAllAddress = ReadUnsignedLeb128((const UCHAR**)Buffer);
-
-        (*CodeArea).CatchHandlers[k].TypeHandlersSize = abs((*CodeArea).CatchHandlers[k].TypeHandlersSize);
     }
 }
 
