@@ -30,7 +30,57 @@ int main()
     if (dex.isReady)
     {
         printf("Opened '%s', DEX version '%s'\n\n\n", dex.Filename, dex.DexVersion);
-        cDexDecompiler decompiled(&dex.DexClasses[300]);
+        cDexDecompiler decompiled(&dex);
+
+        for (UINT i=300; i<301/*dex.nClassDefinitions*/; i++)
+        {
+            printf("package %s;\n\n", decompiled.Classes[i].Package);
+
+            for (UINT j=0; j<decompiled.Classes[i].ImportsSize; j++)
+                printf("import %s;\n", decompiled.Classes[i].Imports[j]);
+            printf("\n");
+
+            printf("%s class %s", 
+                decompiled.Classes[i].AccessFlags,
+                decompiled.Classes[i].Name);
+
+            if (decompiled.Classes[i].ExtendsSize)
+                printf(" extends ");
+
+            for (UINT j=0; j<decompiled.Classes[i].ExtendsSize; j++)
+            {
+                if (j) printf(",");
+                printf("%s ", decompiled.Classes[i].Extends[j]);
+            }
+
+            printf("{\n\n");
+            
+            for (UINT j=0; j<decompiled.Classes[i].MethodsSize; j++)
+            {
+                if (decompiled.Classes[i].Methods[j]->Virtual)
+                    printf("    @Override\n");
+
+                printf("    %s %s %s(",
+                    decompiled.Classes[i].Methods[j]->AccessFlags,
+                    decompiled.Classes[i].Methods[j]->ReturnType,
+                    decompiled.Classes[i].Methods[j]->Name);
+
+                for (UINT k=0; k<decompiled.Classes[i].Methods[j]->ArgumentsSize; k++)
+                {
+                    if (k) printf(", ");
+                    printf("%s arg%d",
+                        decompiled.Classes[i].Methods[j]->Arguments[k]->Type,
+                        k);
+                }
+                printf(") {\n");
+
+
+
+                printf("    }\n\n");
+            }
+
+            printf("}\n\n");
+        }
 
         //for (UINT i=1; i< 2/*dex.nClassDefinitions*/; i++)
         /*{
