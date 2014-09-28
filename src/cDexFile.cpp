@@ -226,10 +226,61 @@ BOOL cDexFile::DumpDex()
                     (CurIndex += ReadUnsignedLeb128((const UCHAR**)&BufPtr)),
                     &DexClasses[i].ClassData->VirtualMethods[j],
                     &BufPtr);
+
+            /* Parsing Annotations */
+            DumpAnnotations(&DexClasses[i], DexClassDefs[i].AnnotationsOff);
         }
     }
 
     return TRUE;
+}
+
+void cDexFile::DumpAnnotations(
+    DEX_CLASS_STRUCTURE* DexClass, 
+    UINT Offset
+    )
+{
+    if (!Offset) return;
+    DEX_ANNOTATIONS_DIRECTORY_ITEM* Annotations = (DEX_ANNOTATIONS_DIRECTORY_ITEM*)(BaseAddress + Offset);
+    UCHAR* Ptr;
+    DEX_ANNOTATION_ITEM* ClassAnnotationItem;
+    DEX_ANNOTATION_SET_ITEM* ClassAnnotations;
+
+    if (Annotations->ClassAnnotationsOff)
+    {
+        ClassAnnotations = (DEX_ANNOTATION_SET_ITEM*)(BaseAddress + Annotations->ClassAnnotationsOff);
+        DexClass->ClassData->AnnotationsSize = ClassAnnotations->Size;
+        DexClass->ClassData->Annotations = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_ANNOTATION[DexClass->ClassData->AnnotationsSize];
+        memset(DexClass->ClassData->Annotations, NULL, DexClass->ClassData->AnnotationsSize * sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_ANNOTATION));
+
+        for (UINT i=0; i<ClassAnnotations->Size; i++)
+        {
+            ClassAnnotationItem = (DEX_ANNOTATION_ITEM*)(BaseAddress + ClassAnnotations->Entries[i].AnnotationOff);
+            Ptr = (UCHAR*)ClassAnnotationItem->Encoded;
+
+            DexClass->ClassData->Annotations[i].Type = StringItems[DexTypeIds[ReadUnsignedLeb128((const UCHAR**)&Ptr)].StringIndex].Data;
+            DexClass->ClassData->Annotations[i].Visibility = ClassAnnotationItem->Visibility;
+            DexClass->ClassData->Annotations[i].ElementsSize = ReadUnsignedLeb128((const UCHAR**)&Ptr);
+
+            if (DexClass->ClassData->Annotations[i].ElementsSize)
+            {
+                DexClass->ClassData->Annotations[i].Elements = 
+                    new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_ANNOTATION::CLASS_ANNOTATION_ELEMENT[DexClass->ClassData->Annotations[i].ElementsSize];
+                memset(DexClass->ClassData->Annotations[i].Elements, NULL, 
+                    DexClass->ClassData->Annotations[i].ElementsSize * sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_ANNOTATION::CLASS_ANNOTATION_ELEMENT));
+            }
+
+            for (UINT j=0; j<DexClass->ClassData->Annotations[i].ElementsSize; j++)
+            {
+                DexClass->ClassData->Annotations[i].Elements[j].Name = StringItems[ReadUnsignedLeb128((const UCHAR**)&Ptr)].Data;
+                DexClass->ClassData->Annotations[i].Elements[j].ValueType = *Ptr++;
+                DexClass->ClassData->Annotations[i].Elements[j].ValueSize = (DexClass->ClassData->Annotations[i].Elements[j].ValueType << 5) +1;
+                DexClass->ClassData->Annotations[i].Elements[j].Value = Ptr;
+                Ptr+= DexClass->ClassData->Annotations[i].Elements[j].ValueSize;
+                int n=0;
+            }
+        }
+    }
 }
 
 void cDexFile::DumpMethodById(

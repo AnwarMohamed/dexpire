@@ -132,6 +132,62 @@ struct DEX_LINK         { USHORT    Bleargh; };
 struct DEX_STRING_ID    { UINT      StringDataOff; };
 struct DEX_TYPE_ID      { UINT      StringIndex; };
 
+struct DEX_FIELD_ANNOTATION
+{
+    UINT    FieldIdx;
+    UINT    AnnotationsOff;
+};
+
+struct DEX_METHOD_ANNOTATION
+{
+    UINT    MethodIdx;
+    UINT    AnnotationsOff;
+};
+
+struct DEX_PARAMETER_ANNOTATION
+{
+    UINT    MethodIdx;
+    UINT    AnnotationsOff;
+};
+
+
+struct DEX_ANNOTATION_SET_REF_ITEM
+{
+    UINT AnnotationsOff;
+};
+
+struct DEX_ANNOTATION_SET_REF
+{
+    UINT Size;
+    DEX_ANNOTATION_SET_REF_ITEM List[1];
+};
+
+struct DEX_ANNOTATION_OFF_ITEM
+{
+    UINT AnnotationOff;
+};
+
+struct DEX_ANNOTATION_ITEM
+{
+    UCHAR   Visibility;
+    CHAR    Encoded[1];
+};
+
+struct DEX_ANNOTATION_SET_ITEM
+{
+    UINT Size;
+    DEX_ANNOTATION_OFF_ITEM Entries[1];
+};
+
+struct DEX_ANNOTATIONS_DIRECTORY_ITEM
+{
+    UINT    ClassAnnotationsOff;
+    UINT    FieldsSize;
+    UINT    MethodsSize;
+    UINT    ParametesrSize;
+
+};
+
 struct DEX_TYPE_LIST
 {
     UINT Size;
@@ -412,6 +468,22 @@ struct DEX_CLASS_STRUCTURE
 
         }   *DirectMethods, 
             *VirtualMethods;
+
+        UINT    AnnotationsSize;
+        struct CLASS_ANNOTATION
+        {
+            UCHAR   Visibility;
+            UCHAR*  Type;
+            UINT    ElementsSize;
+            struct CLASS_ANNOTATION_ELEMENT
+            {
+                UCHAR*  Name;
+                UCHAR   ValueSize;
+                UCHAR*  Value;
+                UCHAR   ValueType;
+            }* Elements;
+        } * Annotations;
+
 
     }*  ClassData;
 };
@@ -1138,6 +1210,8 @@ public:
     void DumpMethodParameters(UINT MethodIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method);
     void AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
     
+    void DumpAnnotations(DEX_CLASS_STRUCTURE* DexClass, UINT Offset);
+
     DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION* DecodeOpcode(UCHAR* Opcode);
 
 private:

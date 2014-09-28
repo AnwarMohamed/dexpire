@@ -51,6 +51,7 @@ public:
     void    DecompileClass(DEX_DECOMPILED_CLASS* Decompiled, DEX_CLASS_STRUCTURE* DexClass);
     void    AddToExtends(DEX_DECOMPILED_CLASS* Decompiled, CHAR* Superclass);
 
+    static CHAR* ExtractShortLType(CHAR* Type);
 private:
     CHAR* GetTypeDescription(CHAR* Type);
     CHAR* ExtractLType(CHAR* Type);

@@ -398,6 +398,15 @@ UINT cDexDecompiler::GetClassMethodArgs(
     return 0;
 }
 
+CHAR* cDexDecompiler::ExtractShortLType(CHAR* Type)
+{
+    CHAR* result = strrchr(Type, '.');
+    if (result)
+        return result+1;
+    else
+        return Type;
+}
+
 CHAR* cDexDecompiler::GetShortType(
     CHAR* Type
     )

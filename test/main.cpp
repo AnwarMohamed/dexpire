@@ -50,15 +50,16 @@ int main()
             for (UINT j=0; j<decompiled.Classes[i].ExtendsSize; j++)
             {
                 if (j) printf(",");
-                printf("%s ", decompiled.Classes[i].Extends[j]);
+                printf("%s ", cDexDecompiler::ExtractShortLType(decompiled.Classes[i].Extends[j]));
             }
 
             printf("{\n\n");
             
             for (UINT j=0; j<decompiled.Classes[i].MethodsSize; j++)
             {
-                if (decompiled.Classes[i].Methods[j]->Virtual)
-                    printf("    @Override\n");
+                if (strcmp(decompiled.Classes[i].Methods[j]->Name, "<init>") == 0 ||
+                    strcmp(decompiled.Classes[i].Methods[j]->Name, "<clinit>") == 0)
+                    continue;
 
                 printf("    %s %s %s(",
                     decompiled.Classes[i].Methods[j]->AccessFlags,
@@ -69,7 +70,7 @@ int main()
                 {
                     if (k) printf(", ");
                     printf("%s arg%d",
-                        decompiled.Classes[i].Methods[j]->Arguments[k]->Type,
+                        cDexDecompiler::ExtractShortLType(decompiled.Classes[i].Methods[j]->Arguments[k]->Type),
                         k);
                 }
                 printf(") {\n");
