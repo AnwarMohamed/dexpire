@@ -19,6 +19,7 @@
  */
 
 #include "..\src\cDexFile.h"
+#include "..\src\cDexDecompiler.h"
 #include <stdio.h>
 
 int main()
@@ -28,10 +29,11 @@ int main()
 
     if (dex.isReady)
     {
-        printf("Opened '%s', DEX version '%s'\n", dex.Filename, dex.DexVersion);
+        printf("Opened '%s', DEX version '%s'\n\n\n", dex.Filename, dex.DexVersion);
+        cDexDecompiler decompiled(&dex.DexClasses[300]);
 
-        for (UINT i=1; i< 2/*dex.nClassDefinitions*/; i++)
-        {
+        //for (UINT i=1; i< 2/*dex.nClassDefinitions*/; i++)
+        /*{
             printf("Class #%d header:\n", i);
             printf(	"class_idx           : %d\n"
                     "access_flags        : %d (0x%04x)\n"
@@ -185,8 +187,8 @@ int main()
                                     dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
                             }*/
 
-					    }
-				    }
+					//    }
+				    //}
 
 
 				    /*printf(	"      catches       : %s\n"
@@ -196,7 +198,7 @@ int main()
                             "		 0x0009 line=39\n"
                             "      locals        :\n"
 						    );*/
-                }
+            /*    }
                 else
                     printf( "      code          : (none)\n");
             }
@@ -276,8 +278,8 @@ int main()
                                     dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
                             }*/
 
-					    }
-				    }
+					//    }
+				    //}
 
 
 				    /*printf(	"      catches       : %s\n"
@@ -287,7 +289,7 @@ int main()
                             "		 0x0009 line=39\n"
                             "      locals        :\n"
 						    );*/
-                }
+                /*}
                 else
                     printf( "      code          : (none)\n");
 
@@ -297,7 +299,8 @@ int main()
 			printf("  source_file_idx   : %d (%s)\n\n", 
                 dex.DexClassDefs[i].SourceFileIdx,
                 dex.DexClasses[i].SourceFile);
-        }
+                
+        }*/
 
         system("pause");
     }

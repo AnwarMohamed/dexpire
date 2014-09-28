@@ -1104,7 +1104,7 @@ public:
     UINT nClasses;
     DEX_CLASS_STRUCTURE* DexClasses;
 
-    CHAR*   GetAccessMask(UINT Type, UINT AccessFlag);
+    static CHAR*   GetAccessMask(UINT Type, UINT AccessFlag);
 
     void DumpClassInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
     void DumpClassDataInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class, UCHAR** Buffer);

@@ -44,7 +44,7 @@ void cDexFile::DumpClassInfo(
     if (DexClassDefs[ClassIndex].SourceFileIdx != NO_INDEX)
         (*Class).SourceFile = StringItems[DexClassDefs[ClassIndex].SourceFileIdx].Data;
     else
-        (*Class).SourceFile = (UCHAR*)"";
+        (*Class).SourceFile = 0;
 }
 
 void cDexFile::DumpClassDataInfo(
@@ -414,12 +414,13 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
 
     case OP_FORMAT_11n:        // op vA, #+B
         Decoded->vA = Opcode[1] & 0xF0;
-        Decoded->vB = Opcode[1] >> 4;
+        Decoded->vB = (CHAR)(Opcode[1] >> 4);
         Decoded->BytesSize += 1;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #+%d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #%s%d", 
             Decoded->Opcode, 
-            Decoded->vA, 
-            (INT)Decoded->vB);
+            Decoded->vA,
+            (CHAR)Decoded->vB>=0?"+":"",
+            Decoded->vB);
         break;
 
     case OP_FORMAT_11x:        // op vAA
@@ -431,10 +432,11 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
         break;
 
     case OP_FORMAT_10t:        // op +AA
-        Decoded->vA = Opcode[1];
+        Decoded->vA = (CHAR)Opcode[1];
         Decoded->BytesSize += 1;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s +%d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s %s%d", 
             Decoded->Opcode, 
+            (CHAR)Decoded->vA>=0?"+":"",
             Decoded->vA);
         break;
 
@@ -450,10 +452,11 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
         break;
 
     case OP_FORMAT_20t:        // op +AAAA
-        Decoded->vA = *(UINT*)&Opcode[1];
+        Decoded->vA = *(SHORT*)&Opcode[1];
         Decoded->BytesSize += 1;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s +%d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s %s%d", 
             Decoded->Opcode, 
+            (SHORT)Decoded->vA>=0?"+":"",
             Decoded->vA);
         break;
 
@@ -469,22 +472,24 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
 
     case OP_FORMAT_21t:        // op vAA, +BBBB
         Decoded->vA = Opcode[1];
-        Decoded->vB = *(USHORT*)&Opcode[2];
+        Decoded->vB = *(SHORT*)&Opcode[2];
         Decoded->BytesSize += 3;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, +%d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, %s%d", 
             Decoded->Opcode,
             Decoded->vA,
+            (SHORT)Decoded->vB>=0?"+":"",
             Decoded->vB);
         break;
 
     case OP_FORMAT_21s:        // op vAA, #+BBBB
         Decoded->vA = Opcode[1];
-        Decoded->vB = (USHORT)Opcode[2];
+        Decoded->vB = *(SHORT*)&Opcode[2];
         Decoded->BytesSize += 3;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #+%d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #%s%d", 
             Decoded->Opcode,
             Decoded->vA,
-            (INT)Decoded->vB);
+            (SHORT)Decoded->vB>=0?"+":"",
+            Decoded->vB);
         break;
 
     case OP_FORMAT_21h:        // op vAA, #+BBBB00000[00000000]
@@ -520,12 +525,13 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
     case OP_FORMAT_22b:        // op vAA, vBB, #+CC
         Decoded->vA = Opcode[1];
         Decoded->vB = Opcode[2];
-        Decoded->vC = Opcode[3];
+        Decoded->vC = (CHAR)Opcode[3];
         Decoded->BytesSize += 3;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, #+%d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, #%s%d", 
             Decoded->Opcode,
             Decoded->vA,
             Decoded->vB,
+            (CHAR)Decoded->vC>=0?"+":"",
             Decoded->vC);
         break;
 
@@ -534,10 +540,11 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
         Decoded->vB = Opcode[1] >> 4;
         Decoded->vC = *(SHORT*)&Opcode[2];
         Decoded->BytesSize += 3;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, +%d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, %s%d", 
             Decoded->Opcode,
             Decoded->vA,
             Decoded->vB,
+            (SHORT)Decoded->vC>=0?"+":"",
             Decoded->vC);
         break;
 
@@ -546,10 +553,11 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
         Decoded->vB = Opcode[1] >> 4;
         Decoded->vC = *(SHORT*)&Opcode[2];
         Decoded->BytesSize += 3;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, #+%d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d, #%s%d", 
             Decoded->Opcode,
             Decoded->vA,
             Decoded->vB,
+            (SHORT)Decoded->vC>=0?"+":"",
             Decoded->vC);
         break;
 
@@ -581,30 +589,33 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
         break;
 
     case OP_FORMAT_30t:        // op +AAAAAAAA
-        Decoded->vA = *(UINT*)&Opcode[1];
+        Decoded->vA = *(INT*)&Opcode[1];
         Decoded->BytesSize += 5;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s +%d", 
-            Decoded->Opcode, 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s %s%d", 
+            Decoded->Opcode,
+            (INT)Decoded->vA<=0?"+":"",
             Decoded->vA);
         break;
 
     case OP_FORMAT_31t:        // op vAA, +BBBBBBBB
         Decoded->vA = Opcode[1];
-        Decoded->vB = *(UINT*)&Opcode[2];
+        Decoded->vB = *(INT*)&Opcode[2];
         Decoded->BytesSize += 5;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, +%d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, %s%d", 
             Decoded->Opcode, 
             Decoded->vA, 
+            (INT)Decoded->vB<=0?"+":"",
             Decoded->vB);
         break;
 
     case OP_FORMAT_31i:        // op vAA, #+BBBBBBBB
         Decoded->vA = Opcode[1];
-        Decoded->vB = *(UINT*)&Opcode[2];
+        Decoded->vB = *(INT*)&Opcode[2];
         Decoded->BytesSize += 5;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #+%d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #%s%d", 
             Decoded->Opcode, 
             Decoded->vA, 
+            (INT)Decoded->vB<=0?"+":"",
             Decoded->vB);
         break;
 
@@ -666,12 +677,13 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
         break;
     case OP_FORMAT_51l:        // op vAA, #+BBBBBBBBBBBBBBBB
         Decoded->vA = Opcode[1];
-        Decoded->vB = *(UINT*)&Opcode[2];
+        Decoded->vB_wide = *(INT64*)&Opcode[2];
         Decoded->BytesSize += 9;
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #+%I64d", 
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #%s%I64d", 
             Decoded->Opcode, 
             Decoded->vA, 
-            Decoded->vB);
+            (INT64)Decoded->vB_wide>=0?"+":"",
+            Decoded->vB_wide);
         break;
     }
 
@@ -712,7 +724,7 @@ void cDexFile::DumpMethodParameters(
         (*Method).Type[ParamStringLen] = '\0';
     }
     else
-        (*Method).Type = (UCHAR*)"";
+        (*Method).Type = 0;
 }
 
 void cDexFile::DumpMethodTryItems(
