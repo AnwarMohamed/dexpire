@@ -42,10 +42,10 @@ public:
     DEX_DECOMPILED_CLASS* Classes;
 
     void    GetClassDefinition(DEX_DECOMPILED_CLASS* Decompiled, DEX_CLASS_STRUCTURE* DexClass);
-    void    GetClassMethod(DEX_DECOMPILED_CLASS* Decompiled, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method, BOOL Virtual=FALSE);
+    void    GetClassMethod(DEX_DECOMPILED_CLASS* Decompiled, CLASS_METHOD* Method, BOOL Virtual=FALSE);
     void    AddToImports(DEX_DECOMPILED_CLASS* Decompiled, CHAR* Import);
-    UINT    GetClassMethodArgs(DEX_DECOMPILED_CLASS* Decompiled, DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD* dMethod, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method);
-    void    GetClassMethodCodes(DEX_DECOMPILED_CLASS* Decompiled, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method);
+    UINT    GetClassMethodArgs(DEX_DECOMPILED_CLASS* Decompiled, DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD* dMethod, CLASS_METHOD* Method);
+    void    GetClassMethodCodes(DEX_DECOMPILED_CLASS* Decompiled, CLASS_METHOD* Method);
     CHAR*   GetShortType(CHAR* Type);
 
     void    DecompileClass(DEX_DECOMPILED_CLASS* Decompiled, DEX_CLASS_STRUCTURE* DexClass);

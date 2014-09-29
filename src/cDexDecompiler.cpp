@@ -45,7 +45,7 @@ void cDexDecompiler::DecompileClass(
 
 void cDexDecompiler::GetClassMethod(
     DEX_DECOMPILED_CLASS* Decompiled, 
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method,
+    CLASS_METHOD* Method,
     BOOL Virtual
     )
 {
@@ -78,7 +78,7 @@ void cDexDecompiler::GetClassMethod(
 
 void cDexDecompiler::GetClassMethodCodes(
     DEX_DECOMPILED_CLASS* Decompiled, 
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method
+    CLASS_METHOD* Method
     )
 {
     for (UINT i=0; i<(Method->CodeArea? Method->CodeArea->InstructionsSize:0);)
@@ -355,7 +355,7 @@ void cDexDecompiler::GetClassMethodCodes(
 UINT cDexDecompiler::GetClassMethodArgs(
     DEX_DECOMPILED_CLASS* Decompiled,
     DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD* dMethod, 
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method    
+    CLASS_METHOD* Method    
     )
 {
     UCHAR argc = 0;

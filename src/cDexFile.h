@@ -185,7 +185,7 @@ struct DEX_ANNOTATIONS_DIRECTORY_ITEM
     UINT    FieldsSize;
     UINT    MethodsSize;
     UINT    ParametesrSize;
-
+    UCHAR   Ptr[1];
 };
 
 struct DEX_TYPE_LIST
@@ -375,6 +375,129 @@ static const CHAR* AccessMaskStrings[3][18] =
     },
 };
 
+
+/* Dex Class Structures */
+
+struct CLASS_ANNOTATION_ELEMENT
+{
+    UCHAR*  Name;
+    UCHAR   ValueSize;
+    UCHAR*  Value;
+    UCHAR   ValueType;
+};
+
+struct CLASS_ANNOTATION
+{
+    UCHAR   Visibility;
+    UCHAR*  Type;
+    UINT    ElementsSize;
+    CLASS_ANNOTATION_ELEMENT* Elements;
+};
+
+struct CLASS_FIELD 
+{
+    UCHAR* Name;
+    UINT AccessFlags;
+    UCHAR* Type;
+    CLASS_ANNOTATION* Annotations;
+}; 
+
+struct CLASS_CODE_DEBUG_INFO
+{
+    UINT LineStart;
+    UINT ParametersSize;
+    UCHAR** ParametersNames;
+};
+
+struct CLASS_CODE_CATCH_TYPE_PAIR
+{
+    UCHAR* Type;
+    UINT TypeIndex;
+    UINT Address;
+};
+
+struct CLASS_CODE_CATCH_HANDLER
+{
+    INT TypeHandlersSize;
+    CLASS_CODE_CATCH_TYPE_PAIR *TypeHandlers;
+    UINT CatchAllAddress;
+};
+
+struct CLASS_CODE_TRY
+{
+    UINT InstructionsStart;
+    UINT InstructionsEnd;
+    CLASS_CODE_CATCH_HANDLER* CatchHandler;
+};
+
+struct CLASS_CODE_INSTRUCTION
+{
+    UCHAR* Opcode;
+    UINT   Offset;
+    UCHAR* Format;
+    UCHAR  BytesSize;
+    UCHAR* Bytes;
+    UCHAR* Decoded;
+
+    UINT      vA;
+    UINT      vB;
+    UINT64    vB_wide;        /* for OP_FORMAT_51l */
+    UINT      vC;
+    UINT      vD;
+    UINT      vE;
+    UINT      vF;
+    UINT      vG;
+    UINT      vH;
+};
+
+struct CLASS_CODE
+{
+    USHORT  RegistersSize;
+    USHORT  InsSize;
+    USHORT  OutsSize;
+    //UINT    DebugInfoOff;   
+    UINT    InstBufferSize; 
+    UINT    Offset;
+
+    CLASS_CODE_DEBUG_INFO DebugInfo;
+
+    UINT CatchHandlersSize;
+    CLASS_CODE_CATCH_HANDLER *CatchHandlers;
+
+    CLASS_CODE_TRY *Tries;
+    USHORT  TriesSize;
+
+    CLASS_CODE_INSTRUCTION   **Instructions;
+    UINT    InstructionsSize;
+};
+
+struct CLASS_METHOD 
+{
+    UCHAR* Name;
+    UINT AccessFlags;
+    UCHAR* Type;
+    UCHAR* ProtoType;
+    CLASS_CODE  *CodeArea;
+    CLASS_ANNOTATION* Annotations;
+};
+
+struct CLASS_DATA
+{
+    UINT StaticFieldsSize;
+    UINT InstanceFieldsSize;
+    UINT DirectMethodsSize;
+    UINT VirtualMethodsSize;
+    
+    UINT InterfacesSize;
+    UCHAR** Interfaces;
+
+    CLASS_FIELD  *StaticFields, *InstanceFields;
+    CLASS_METHOD  *DirectMethods, *VirtualMethods;
+
+    UINT    AnnotationsSize;
+    CLASS_ANNOTATION * Annotations;
+};
+
 struct DEX_CLASS_STRUCTURE
 {
     UCHAR*  Descriptor;
@@ -382,111 +505,10 @@ struct DEX_CLASS_STRUCTURE
     UCHAR*  SuperClass;
     UCHAR*  SourceFile;
 
-    struct CLASS_DATA
-    {
-        UINT StaticFieldsSize;
-        UINT InstanceFieldsSize;
-        UINT DirectMethodsSize;
-        UINT VirtualMethodsSize;
-        UINT InterfacesSize;
-
-        UCHAR** Interfaces;
-
-        struct CLASS_FIELD 
-        {
-            UCHAR* Name;
-            UINT AccessFlags;
-            UCHAR* Type;
-        }   *StaticFields, 
-            *InstanceFields;
-
-        struct CLASS_METHOD 
-        {
-            UCHAR* Name;
-            UINT AccessFlags;
-            UCHAR* Type;
-            UCHAR* ProtoType;
-
-            struct CLASS_CODE
-            {
-                USHORT  RegistersSize;
-                USHORT  InsSize;
-                USHORT  OutsSize;
-                USHORT  TriesSize;
-                //UINT    DebugInfoOff;   
-                UINT    InstBufferSize; 
-                UINT    InstructionsSize;
-                UINT    Offset;
-
-                struct CLASS_CODE_DEBUG_INFO
-                {
-                    UINT LineStart;
-                    UINT ParametersSize;
-                UCHAR** ParametersNames;
-                } DebugInfo;
-
-                UINT CatchHandlersSize;
-                struct CLASS_CODE_CATCH_HANDLER
-                {
-                    INT TypeHandlersSize;
-                    struct CLASS_CODE_CATCH_TYPE_PAIR
-                    {
-                        UCHAR* Type;
-                        UINT TypeIndex;
-                        UINT Address;
-                    } *TypeHandlers;
-                    UINT CatchAllAddress;
-                } *CatchHandlers;
-
-                struct CLASS_CODE_TRY
-                {
-                    UINT InstructionsStart;
-                    UINT InstructionsEnd;
-                    CLASS_CODE_CATCH_HANDLER* CatchHandler;
-                } *Tries;
-
-                struct CLASS_CODE_INSTRUCTION
-                {
-                    UCHAR* Opcode;
-                    UINT   Offset;
-                    UCHAR* Format;
-                    UCHAR  BytesSize;
-                    UCHAR* Bytes;
-                    UCHAR* Decoded;
-
-                    UINT      vA;
-                    UINT      vB;
-                    UINT64    vB_wide;        /* for OP_FORMAT_51l */
-                    UINT      vC;
-                    UINT      vD;
-                    UINT      vE;
-                    UINT      vF;
-                    UINT      vG;
-                    UINT      vH;
-                }   **Instructions;
-            }   *CodeArea;
-
-        }   *DirectMethods, 
-            *VirtualMethods;
-
-        UINT    AnnotationsSize;
-        struct CLASS_ANNOTATION
-        {
-            UCHAR   Visibility;
-            UCHAR*  Type;
-            UINT    ElementsSize;
-            struct CLASS_ANNOTATION_ELEMENT
-            {
-                UCHAR*  Name;
-                UCHAR   ValueSize;
-                UCHAR*  Value;
-                UCHAR   ValueType;
-            }* Elements;
-        } * Annotations;
-
-
-    }*  ClassData;
+    struct CLASS_DATA * ClassData;
 };
+
+
 static const CHAR* OpcodesFormatStrings[32] = 
 {
     "?",
@@ -1181,38 +1203,40 @@ public:
     void DumpClassInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
     void DumpClassDataInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class, UCHAR** Buffer);
 
-    void DumpFieldByIndex(UINT FieldIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD* Field, UCHAR** Buffer);
+    void DumpFieldByIndex(UINT FieldIndex, CLASS_FIELD* Field, UCHAR** Buffer);
     void DumpInterfaceByIndex(UINT ClassIndex, UINT InterfaceIndex, UCHAR** Interface);
 
-    void DumpMethodTryItems(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
+    void DumpMethodTryItems(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
 
     void DumpMethodTryItemsInfo(
-        DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY* TryItem, 
+        CLASS_CODE_TRY* TryItem, 
         DEX_TRY_ITEM* TryItemInfo, 
-        DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER** CatchHandlers);
+        CLASS_CODE_CATCH_HANDLER** CatchHandlers);
 
     void DumpMethodCatchHandlers(
-        DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, 
+        CLASS_CODE* CodeArea, 
         UCHAR** Buffer);
 
     void DumpMethodDebugInfo(
-        DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_DEBUG_INFO* DebugInfo,
+        CLASS_CODE_DEBUG_INFO* DebugInfo,
         UCHAR** Buffer);
 
     void DumpMethodCodeInfo(
-        DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea,
+        CLASS_CODE* CodeArea,
         DEX_CODE* CodeAreaDef);
 
-    void DumpMethodCode(DEX_CODE* CodeAreaDef, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method);
-    void DumpMethodById(UINT MethodIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method, UCHAR** Buffer);
+    void DumpMethodCode(DEX_CODE* CodeAreaDef, CLASS_METHOD* Method);
+    void DumpMethodById(UINT MethodIndex, CLASS_METHOD* Method, UCHAR** Buffer);
 
-    void DumpMethodInstructions(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
-    void DumpMethodParameters(UINT MethodIndex, DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method);
+    void DumpMethodInstructions(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
+    void DumpMethodParameters(UINT MethodIndex, CLASS_METHOD* Method);
     void AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
     
     void DumpAnnotations(DEX_CLASS_STRUCTURE* DexClass, UINT Offset);
 
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION* DecodeOpcode(UCHAR* Opcode);
+    CLASS_CODE_INSTRUCTION* DecodeOpcode(UCHAR* Opcode);
+
+    void DumpAnnotationElementValue(CLASS_ANNOTATION_ELEMENT* Element, UCHAR** Ptr);
 
 private:
     BOOL    DumpDex();

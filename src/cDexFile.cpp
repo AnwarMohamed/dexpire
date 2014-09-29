@@ -68,28 +68,20 @@ void cDexFile::AllocateClassData(
     )
 {
     /* Allocating Static Fields */
-    (*Class).ClassData->StaticFields = 
-        new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD[(*Class).ClassData->StaticFieldsSize];
-    memset((*Class).ClassData->StaticFields, NULL, 
-        (*Class).ClassData->StaticFieldsSize * sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD));
+    (*Class).ClassData->StaticFields = new CLASS_FIELD[(*Class).ClassData->StaticFieldsSize];
+    memset((*Class).ClassData->StaticFields, NULL, (*Class).ClassData->StaticFieldsSize * sizeof(CLASS_FIELD));
 
     /* Allocating Instance Fields */
-    (*Class).ClassData->InstanceFields = 
-        new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD[(*Class).ClassData->InstanceFieldsSize];
-    memset((*Class).ClassData->InstanceFields, NULL, 
-        (*Class).ClassData->InstanceFieldsSize * sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD));
+    (*Class).ClassData->InstanceFields = new CLASS_FIELD[(*Class).ClassData->InstanceFieldsSize];
+    memset((*Class).ClassData->InstanceFields, NULL, (*Class).ClassData->InstanceFieldsSize * sizeof(CLASS_FIELD));
 
     /* Allocating Direct Methods */
-    (*Class).ClassData->DirectMethods = 
-        new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD[(*Class).ClassData->DirectMethodsSize];
-    memset((*Class).ClassData->DirectMethods, NULL, 
-        (*Class).ClassData->DirectMethodsSize * sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD));
+    (*Class).ClassData->DirectMethods = new CLASS_METHOD[(*Class).ClassData->DirectMethodsSize];
+    memset((*Class).ClassData->DirectMethods, NULL, (*Class).ClassData->DirectMethodsSize * sizeof(CLASS_METHOD));
 
     /* Allocating Virtual Methods */
-    (*Class).ClassData->VirtualMethods = 
-        new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD[(*Class).ClassData->VirtualMethodsSize];
-    memset((*Class).ClassData->VirtualMethods, NULL, 
-        (*Class).ClassData->VirtualMethodsSize * sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD));
+    (*Class).ClassData->VirtualMethods = new CLASS_METHOD[(*Class).ClassData->VirtualMethodsSize];
+    memset((*Class).ClassData->VirtualMethods, NULL, (*Class).ClassData->VirtualMethodsSize * sizeof(CLASS_METHOD));
             
     /* Allocating Interfaces */
     (*Class).ClassData->Interfaces = new UCHAR*[(*Class).ClassData->InterfacesSize];
@@ -98,7 +90,7 @@ void cDexFile::AllocateClassData(
 
 void cDexFile::DumpFieldByIndex(
     UINT FieldIndex, 
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_FIELD* Field, 
+    CLASS_FIELD* Field, 
     UCHAR** Buffer
     )
 {
@@ -181,7 +173,7 @@ BOOL cDexFile::DumpDex()
 
         if (DexClassDefs[i].ClassDataOff != NULL)
         {
-            DexClasses[i].ClassData = new DEX_CLASS_STRUCTURE::CLASS_DATA;
+            DexClasses[i].ClassData = new CLASS_DATA;
             DexClassData = (DEX_CLASS_DATA*)(BaseAddress + DexClassDefs[i].ClassDataOff);
 
             BufPtr = (UCHAR*)DexClassData;
@@ -250,8 +242,8 @@ void cDexFile::DumpAnnotations(
     {
         ClassAnnotations = (DEX_ANNOTATION_SET_ITEM*)(BaseAddress + Annotations->ClassAnnotationsOff);
         DexClass->ClassData->AnnotationsSize = ClassAnnotations->Size;
-        DexClass->ClassData->Annotations = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_ANNOTATION[DexClass->ClassData->AnnotationsSize];
-        memset(DexClass->ClassData->Annotations, NULL, DexClass->ClassData->AnnotationsSize * sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_ANNOTATION));
+        DexClass->ClassData->Annotations = new CLASS_ANNOTATION[DexClass->ClassData->AnnotationsSize];
+        memset(DexClass->ClassData->Annotations, NULL, DexClass->ClassData->AnnotationsSize * sizeof(CLASS_ANNOTATION));
 
         for (UINT i=0; i<ClassAnnotations->Size; i++)
         {
@@ -265,27 +257,40 @@ void cDexFile::DumpAnnotations(
             if (DexClass->ClassData->Annotations[i].ElementsSize)
             {
                 DexClass->ClassData->Annotations[i].Elements = 
-                    new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_ANNOTATION::CLASS_ANNOTATION_ELEMENT[DexClass->ClassData->Annotations[i].ElementsSize];
+                    new CLASS_ANNOTATION_ELEMENT[DexClass->ClassData->Annotations[i].ElementsSize];
                 memset(DexClass->ClassData->Annotations[i].Elements, NULL, 
-                    DexClass->ClassData->Annotations[i].ElementsSize * sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_ANNOTATION::CLASS_ANNOTATION_ELEMENT));
+                    DexClass->ClassData->Annotations[i].ElementsSize * sizeof(CLASS_ANNOTATION_ELEMENT));
             }
 
             for (UINT j=0; j<DexClass->ClassData->Annotations[i].ElementsSize; j++)
             {
                 DexClass->ClassData->Annotations[i].Elements[j].Name = StringItems[ReadUnsignedLeb128((const UCHAR**)&Ptr)].Data;
-                DexClass->ClassData->Annotations[i].Elements[j].ValueType = *Ptr++;
-                DexClass->ClassData->Annotations[i].Elements[j].ValueSize = (DexClass->ClassData->Annotations[i].Elements[j].ValueType << 5) +1;
-                DexClass->ClassData->Annotations[i].Elements[j].Value = Ptr;
-                Ptr+= DexClass->ClassData->Annotations[i].Elements[j].ValueSize;
-                int n=0;
+                DumpAnnotationElementValue(&DexClass->ClassData->Annotations[i].Elements[j], &Ptr);
             }
         }
     }
+
+    if (Annotations->FieldsSize)
+    {
+        DEX_FIELD_ANNOTATION* FieldAnnotations = (DEX_FIELD_ANNOTATION*)Annotations->Ptr;
+        for (UINT i=0; i<Annotations->FieldsSize; i++);
+    }
+}
+
+void cDexFile::DumpAnnotationElementValue(
+    CLASS_ANNOTATION_ELEMENT* Element, 
+    UCHAR** Ptr
+    )
+{
+    Element->ValueType = *((*Ptr)++);
+    Element->ValueSize = (Element->ValueType >> 5) +1;
+    Element->Value = *Ptr;
+    Ptr+= Element->ValueSize;
 }
 
 void cDexFile::DumpMethodById(
     UINT MethodIndex,
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method,
+    CLASS_METHOD* Method,
     UCHAR** Buffer)
 {
     (*Method).ProtoType = StringItems[DexTypeIds[DexProtoIds[DexMethodIds[
@@ -308,15 +313,15 @@ void cDexFile::DumpMethodById(
 
 void cDexFile::DumpMethodCode(
     DEX_CODE* CodeAreaDef,
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method
+    CLASS_METHOD* Method
     )
 {
     if ((DWORD)CodeAreaDef == BaseAddress)
         (*Method).CodeArea = NULL;
     else
     {
-        (*Method).CodeArea = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE;
-        memset((*Method).CodeArea, NULL, sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE));
+        (*Method).CodeArea = new CLASS_CODE;
+        memset((*Method).CodeArea, NULL, sizeof(CLASS_CODE));
 
         DumpMethodCodeInfo(
             (*Method).CodeArea,
@@ -341,7 +346,7 @@ void cDexFile::DumpMethodCode(
 }
 
 void cDexFile::DumpMethodCodeInfo(
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea,
+    CLASS_CODE* CodeArea,
     DEX_CODE* CodeAreaDef    
     )
 {
@@ -353,7 +358,7 @@ void cDexFile::DumpMethodCodeInfo(
 }
 
 void cDexFile::DumpMethodDebugInfo(
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_DEBUG_INFO* DebugInfo,
+    CLASS_CODE_DEBUG_INFO* DebugInfo,
     UCHAR** Buffer
     )
 {
@@ -383,18 +388,14 @@ void cDexFile::DumpMethodDebugInfo(
 }
 
 void cDexFile::DumpMethodInstructions(
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea,
+    CLASS_CODE* CodeArea,
     DEX_CODE* CodeAreaDef
     )
 {
     if ((*CodeAreaDef).InstructionsSize > 0)
     {
         
-        (*CodeArea).Instructions = 
-            (DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION**)
-            malloc( (*CodeArea).InstructionsSize * 
-            sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION*));
-        
+        (*CodeArea).Instructions = (CLASS_CODE_INSTRUCTION**)malloc( (*CodeArea).InstructionsSize * sizeof(CLASS_CODE_INSTRUCTION*));
         (*CodeArea).Offset = (DWORD)(CodeAreaDef) - BaseAddress;
 
         CHAR Opcode;
@@ -406,10 +407,8 @@ void cDexFile::DumpMethodInstructions(
             //UINT Format = OpcodesFormat[Opcode];
             //UINT Flags = OpcodesFlags[Opcode];
 
-            (*CodeArea).Instructions = 
-                (DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION**)
-                realloc((*CodeArea).Instructions, ++(*CodeArea).InstructionsSize * 
-                sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION*));
+            (*CodeArea).Instructions = (CLASS_CODE_INSTRUCTION**)
+                realloc((*CodeArea).Instructions, ++(*CodeArea).InstructionsSize * sizeof(CLASS_CODE_INSTRUCTION*));
 
             (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1] = DecodeOpcode(((UCHAR*)((*CodeAreaDef).Instructions)) + i);
             (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1]->Offset = 
@@ -424,14 +423,12 @@ void cDexFile::DumpMethodInstructions(
 
 #define TEMP_STRING_SIZE 200
 
-DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION*
-    cDexFile::DecodeOpcode(
+CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
     UCHAR* Opcode
     )
 {
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION* Decoded =
-        new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION;
-    memset(Decoded, 0, sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTION));
+    CLASS_CODE_INSTRUCTION* Decoded = new CLASS_CODE_INSTRUCTION;
+    memset(Decoded, 0, sizeof(CLASS_CODE_INSTRUCTION));
 
     Decoded->Opcode = (UCHAR*)OpcodesStrings[Opcode[0]];
     Decoded->Format = (UCHAR*)OpcodesFormatStrings[OpcodesFormat[Opcode[0]]];
@@ -748,7 +745,7 @@ DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_INSTRUCTIO
 
 void cDexFile::DumpMethodParameters(
     UINT MethodIndex, 
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD* Method
+    CLASS_METHOD* Method
     )
 {
     if (DexProtoIds[DexMethodIds[MethodIndex].PrototypeIndex].ParametersOff)
@@ -779,15 +776,14 @@ void cDexFile::DumpMethodParameters(
 }
 
 void cDexFile::DumpMethodTryItems(
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea,
+    CLASS_CODE* CodeArea,
     DEX_CODE* CodeAreaDef
     )
 {
     if ((*CodeAreaDef).TriesSize > 0)
     {
-        (*CodeArea).Tries = new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY[(*CodeAreaDef).TriesSize];
-        memset((*CodeArea).Tries, NULL, 
-            sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY) * (*CodeAreaDef).TriesSize);
+        (*CodeArea).Tries = new CLASS_CODE_TRY[(*CodeAreaDef).TriesSize];
+        memset((*CodeArea).Tries, NULL, sizeof(CLASS_CODE_TRY) * (*CodeAreaDef).TriesSize);
                         
         USHORT* InstructionsEnd = &(((*CodeAreaDef).Instructions)[(*CodeAreaDef).InstructionsSize]);
         if ((((UINT)InstructionsEnd) & 3) != 0) { InstructionsEnd++; }
@@ -811,7 +807,7 @@ void cDexFile::DumpMethodTryItems(
 }
 
 void cDexFile::DumpMethodCatchHandlers(
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE* CodeArea, 
+    CLASS_CODE* CodeArea, 
     UCHAR** Buffer
     )
 {
@@ -819,12 +815,9 @@ void cDexFile::DumpMethodCatchHandlers(
 
     if ((*CodeArea).CatchHandlersSize)
         {
-        (*CodeArea).CatchHandlers = 
-            new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER
-            [(*CodeArea).CatchHandlersSize];
+        (*CodeArea).CatchHandlers = new CLASS_CODE_CATCH_HANDLER[(*CodeArea).CatchHandlersSize];
 
-        memset( (*CodeArea).CatchHandlers, NULL, 
-            sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER) * (*CodeArea).CatchHandlersSize);
+        memset( (*CodeArea).CatchHandlers, NULL, sizeof(CLASS_CODE_CATCH_HANDLER) * (*CodeArea).CatchHandlersSize);
 
         for (UINT k=0; k<(*CodeArea).CatchHandlersSize; k++)
         {
@@ -832,13 +825,9 @@ void cDexFile::DumpMethodCatchHandlers(
 
             if ((*CodeArea).CatchHandlers[k].TypeHandlersSize)
             {
-                (*CodeArea).CatchHandlers[k].TypeHandlers = 
-                    new DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER::CLASS_CODE_CATCH_TYPE_PAIR
-                    [abs((*CodeArea).CatchHandlers[k].TypeHandlersSize)];
-
+                (*CodeArea).CatchHandlers[k].TypeHandlers = new CLASS_CODE_CATCH_TYPE_PAIR[abs((*CodeArea).CatchHandlers[k].TypeHandlersSize)];
                 memset((*CodeArea).CatchHandlers[k].TypeHandlers, NULL, 
-                    sizeof(DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER::CLASS_CODE_CATCH_TYPE_PAIR) * 
-                    abs((*CodeArea).CatchHandlers[k].TypeHandlersSize));
+                    sizeof(CLASS_CODE_CATCH_TYPE_PAIR) * abs((*CodeArea).CatchHandlers[k].TypeHandlersSize));
 
                 for (UINT l=0; l<(UINT)abs((*CodeArea).CatchHandlers[k].TypeHandlersSize); l++)
                 {
@@ -864,9 +853,9 @@ void cDexFile::DumpMethodCatchHandlers(
 }
 
 void cDexFile::DumpMethodTryItemsInfo(
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_TRY* TryItem, 
+    CLASS_CODE_TRY* TryItem, 
     DEX_TRY_ITEM* TryItemInfo,
-    DEX_CLASS_STRUCTURE::CLASS_DATA::CLASS_METHOD::CLASS_CODE::CLASS_CODE_CATCH_HANDLER** CatchHandlers
+    CLASS_CODE_CATCH_HANDLER** CatchHandlers
     )
 {
     (*TryItem).InstructionsStart = (*TryItemInfo).StartAddress;
