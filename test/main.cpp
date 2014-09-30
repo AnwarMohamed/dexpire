@@ -69,13 +69,21 @@ int main()
                 for (UINT k=0; k<decompiled.Classes[i].Methods[j]->ArgumentsSize; k++)
                 {
                     if (k) printf(", ");
-                    printf("%s arg%d",
+                    printf("%s %s",
                         cDexDecompiler::ExtractShortLType(decompiled.Classes[i].Methods[j]->Arguments[k]->Type),
-                        k);
+                        cDexDecompiler::ExtractShortLType(decompiled.Classes[i].Methods[j]->Arguments[k]->Name));
                 }
                 printf(") {\n");
 
-
+                for (UINT k=0; k<decompiled.Classes[i].Methods[j]->LinesSize; k++)
+                {
+                    if (k) printf("\n");
+                    for (UINT l=0; l<decompiled.Classes[i].Methods[j]->Lines[k]->InstructionsSize; l++)
+                    {
+                        printf("        %s\n",
+                            decompiled.Classes[i].Methods[j]->Lines[k]->Instructions[l]->Decoded);
+                    }
+                }
 
                 printf("    }\n\n");
             }
@@ -83,7 +91,7 @@ int main()
             printf("}\n\n");
         }
 
-        //for (UINT i=1; i< 2/*dex.nClassDefinitions*/; i++)
+        //for (UINT i=300; i< 301/*dex.nClassDefinitions*/; i++)
         /*{
             printf("Class #%d header:\n", i);
             printf(	"class_idx           : %d\n"
@@ -231,25 +239,16 @@ int main()
 							    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsStart,
 							    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsEnd);
 
-                            /*for (UINT l=0; l<(UINT)dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
-                            {
-                                printf("          %s -> 0x%04x\n", 
-                                    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Type,
-                                    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
-                            }*/
+                            //for (UINT l=0; l<(UINT)dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
+                            //{
+                            //    printf("          %s -> 0x%04x\n", 
+                            //        dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Type,
+                            //        dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
+                            //}
 
-					//    }
-				    //}
-
-
-				    /*printf(	"      catches       : %s\n"
-                            "      positions     :\n" 
-                            "	     0x0000 line=36\n"
-                            "	     0x0006 line=37\n"
-                            "		 0x0009 line=39\n"
-                            "      locals        :\n"
-						    );*/
-            /*    }
+					    }
+				    }
+                }
                 else
                     printf( "      code          : (none)\n");
             }
@@ -322,25 +321,16 @@ int main()
 							    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].InstructionsStart,
 							    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].InstructionsEnd);
 
-                            /*for (UINT l=0; l<(UINT)dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
-                            {
-                                printf("          %s -> 0x%04x\n", 
-                                    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Type,
-                                    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
-                            }*/
+                            //for (UINT l=0; l<(UINT)dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
+                            //{
+                            //    printf("          %s -> 0x%04x\n", 
+                            //        dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Type,
+                            //        dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
+                            //}
 
-					//    }
-				    //}
-
-
-				    /*printf(	"      catches       : %s\n"
-                            "      positions     :\n" 
-                            "	     0x0000 line=36\n"
-                            "	     0x0006 line=37\n"
-                            "		 0x0009 line=39\n"
-                            "      locals        :\n"
-						    );*/
-                /*}
+					    }
+				    }
+                }
                 else
                     printf( "      code          : (none)\n");
 

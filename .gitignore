@@ -215,4 +215,8 @@ pip-log.txt
 .mr.developer.cfg
 
 
-classes.dex
+*.dex
+
+test/dex/
+*.suo
+*.dex

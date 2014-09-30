@@ -291,7 +291,8 @@ enum {
 };
 
 /* debug info opcodes and constants */
-enum {
+enum 
+{
     DBG_END_SEQUENCE         = 0x00,
     DBG_ADVANCE_PC           = 0x01,
     DBG_ADVANCE_LINE         = 0x02,
@@ -402,11 +403,38 @@ struct CLASS_FIELD
     CLASS_ANNOTATION* Annotations;
 }; 
 
+struct CLASS_CODE_DEBUG_STATE_REGISTERS
+{
+    UINT    Address;
+    UINT    Line;
+    CHAR*   SourceFile;
+    BOOL    PrologueEnd;
+    BOOL    EpilogueBegin;
+};
+
+struct CLASS_CODE_DEBUG_POSITION
+{
+    UINT    Line;
+    USHORT    Offset;
+};
+
+struct CLASS_CODE_DEBUG_REGISTER
+{
+    CONST CHAR *Name;
+    CONST CHAR *Descriptor;
+    CONST CHAR *Signature;
+    USHORT  StartAddress;
+    BOOL    Live;
+};
+
 struct CLASS_CODE_DEBUG_INFO
 {
-    UINT LineStart;
     UINT ParametersSize;
     UCHAR** ParametersNames;
+
+    UINT PositionsSize;
+    CLASS_CODE_DEBUG_POSITION** Positions;
+    CLASS_CODE_DEBUG_STATE_REGISTERS Registers;
 };
 
 struct CLASS_CODE_CATCH_TYPE_PAIR
@@ -1208,6 +1236,8 @@ public:
 
     void DumpMethodTryItems(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
 
+    void InsertDebugPosition(CLASS_CODE* CodeArea, UINT Line, USHORT Offset);
+
     void DumpMethodTryItemsInfo(
         CLASS_CODE_TRY* TryItem, 
         DEX_TRY_ITEM* TryItemInfo, 
@@ -1218,6 +1248,7 @@ public:
         UCHAR** Buffer);
 
     void DumpMethodDebugInfo(
+        CLASS_CODE* CodeArea,
         CLASS_CODE_DEBUG_INFO* DebugInfo,
         UCHAR** Buffer);
 

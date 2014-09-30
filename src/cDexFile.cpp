@@ -20,7 +20,9 @@
 
 #include "cDexFile.h"
 #include <stdio.h>
+
 #define NO_INDEX 0xffffffff
+#define Zero(b, s) memset(b, 0, s)
 
 cDexFile::cDexFile(CHAR* Filename): 
     cFile(Filename)
@@ -68,24 +70,39 @@ void cDexFile::AllocateClassData(
     )
 {
     /* Allocating Static Fields */
-    (*Class).ClassData->StaticFields = new CLASS_FIELD[(*Class).ClassData->StaticFieldsSize];
-    memset((*Class).ClassData->StaticFields, NULL, (*Class).ClassData->StaticFieldsSize * sizeof(CLASS_FIELD));
+    if ((*Class).ClassData->StaticFieldsSize)
+    {
+        (*Class).ClassData->StaticFields = new CLASS_FIELD[(*Class).ClassData->StaticFieldsSize];
+        Zero((*Class).ClassData->StaticFields, (*Class).ClassData->StaticFieldsSize * sizeof(CLASS_FIELD));
+    }
 
     /* Allocating Instance Fields */
-    (*Class).ClassData->InstanceFields = new CLASS_FIELD[(*Class).ClassData->InstanceFieldsSize];
-    memset((*Class).ClassData->InstanceFields, NULL, (*Class).ClassData->InstanceFieldsSize * sizeof(CLASS_FIELD));
+    if ((*Class).ClassData->InstanceFieldsSize)
+    {
+        (*Class).ClassData->InstanceFields = new CLASS_FIELD[(*Class).ClassData->InstanceFieldsSize];
+        Zero((*Class).ClassData->InstanceFields, (*Class).ClassData->InstanceFieldsSize * sizeof(CLASS_FIELD));
+    }
 
     /* Allocating Direct Methods */
-    (*Class).ClassData->DirectMethods = new CLASS_METHOD[(*Class).ClassData->DirectMethodsSize];
-    memset((*Class).ClassData->DirectMethods, NULL, (*Class).ClassData->DirectMethodsSize * sizeof(CLASS_METHOD));
+    if ((*Class).ClassData->DirectMethodsSize)
+    {
+        (*Class).ClassData->DirectMethods = new CLASS_METHOD[(*Class).ClassData->DirectMethodsSize];
+        Zero((*Class).ClassData->DirectMethods, (*Class).ClassData->DirectMethodsSize * sizeof(CLASS_METHOD));
+    }
 
     /* Allocating Virtual Methods */
-    (*Class).ClassData->VirtualMethods = new CLASS_METHOD[(*Class).ClassData->VirtualMethodsSize];
-    memset((*Class).ClassData->VirtualMethods, NULL, (*Class).ClassData->VirtualMethodsSize * sizeof(CLASS_METHOD));
-            
+    if ((*Class).ClassData->VirtualMethodsSize)
+    {
+        (*Class).ClassData->VirtualMethods = new CLASS_METHOD[(*Class).ClassData->VirtualMethodsSize];
+        Zero((*Class).ClassData->VirtualMethods, (*Class).ClassData->VirtualMethodsSize * sizeof(CLASS_METHOD));
+    }        
+
     /* Allocating Interfaces */
-    (*Class).ClassData->Interfaces = new UCHAR*[(*Class).ClassData->InterfacesSize];
-    memset((*Class).ClassData->Interfaces, NULL, (*Class).ClassData->InterfacesSize * sizeof(UCHAR*));
+    if ((*Class).ClassData->InterfacesSize)
+    {
+        (*Class).ClassData->Interfaces = new UCHAR*[(*Class).ClassData->InterfacesSize];
+        Zero((*Class).ClassData->Interfaces, (*Class).ClassData->InterfacesSize * sizeof(UCHAR*));
+    }
 }
 
 void cDexFile::DumpFieldByIndex(
@@ -129,7 +146,7 @@ BOOL cDexFile::DumpDex()
     nStringItems = nStringIDs;
     DexStringIds = (DEX_STRING_ID*)(BaseAddress + DexHeader->StringIdsOff);
     StringItems = (DEX_STRING_ITEM*)malloc(nStringItems * sizeof(DEX_STRING_ITEM));
-    memset(StringItems, NULL, nStringItems * sizeof(DEX_STRING_ITEM));
+    Zero(StringItems, nStringItems * sizeof(DEX_STRING_ITEM));
 
     for (UINT i=0; i<nStringIDs; i++)
     {
@@ -164,7 +181,7 @@ BOOL cDexFile::DumpDex()
     nClasses = nClassDefinitions;
 
     DexClasses = (DEX_CLASS_STRUCTURE*)malloc(nClasses * sizeof(DEX_CLASS_STRUCTURE));
-    memset(DexClasses, NULL, nClasses * sizeof(DEX_CLASS_STRUCTURE));
+    Zero(DexClasses, nClasses * sizeof(DEX_CLASS_STRUCTURE));
     DexClassDefs = (DEX_CLASS_DEF*)(BaseAddress + DexHeader->ClassDefsOff);
 
     for (UINT i=0; i<nClasses; i++)
@@ -174,6 +191,7 @@ BOOL cDexFile::DumpDex()
         if (DexClassDefs[i].ClassDataOff != NULL)
         {
             DexClasses[i].ClassData = new CLASS_DATA;
+            Zero(DexClasses[i].ClassData, sizeof(CLASS_DATA));
             DexClassData = (DEX_CLASS_DATA*)(BaseAddress + DexClassDefs[i].ClassDataOff);
 
             BufPtr = (UCHAR*)DexClassData;
@@ -243,7 +261,7 @@ void cDexFile::DumpAnnotations(
         ClassAnnotations = (DEX_ANNOTATION_SET_ITEM*)(BaseAddress + Annotations->ClassAnnotationsOff);
         DexClass->ClassData->AnnotationsSize = ClassAnnotations->Size;
         DexClass->ClassData->Annotations = new CLASS_ANNOTATION[DexClass->ClassData->AnnotationsSize];
-        memset(DexClass->ClassData->Annotations, NULL, DexClass->ClassData->AnnotationsSize * sizeof(CLASS_ANNOTATION));
+        Zero(DexClass->ClassData->Annotations, DexClass->ClassData->AnnotationsSize * sizeof(CLASS_ANNOTATION));
 
         for (UINT i=0; i<ClassAnnotations->Size; i++)
         {
@@ -258,7 +276,7 @@ void cDexFile::DumpAnnotations(
             {
                 DexClass->ClassData->Annotations[i].Elements = 
                     new CLASS_ANNOTATION_ELEMENT[DexClass->ClassData->Annotations[i].ElementsSize];
-                memset(DexClass->ClassData->Annotations[i].Elements, NULL, 
+                Zero(DexClass->ClassData->Annotations[i].Elements,
                     DexClass->ClassData->Annotations[i].ElementsSize * sizeof(CLASS_ANNOTATION_ELEMENT));
             }
 
@@ -321,7 +339,7 @@ void cDexFile::DumpMethodCode(
     else
     {
         (*Method).CodeArea = new CLASS_CODE;
-        memset((*Method).CodeArea, NULL, sizeof(CLASS_CODE));
+        Zero((*Method).CodeArea, sizeof(CLASS_CODE));
 
         DumpMethodCodeInfo(
             (*Method).CodeArea,
@@ -330,6 +348,7 @@ void cDexFile::DumpMethodCode(
         /* Debug Info */
         TempBuffer = (UCHAR*)(BaseAddress + (*CodeAreaDef).DebugInfoOff);
         DumpMethodDebugInfo(
+            (*Method).CodeArea,
             &((*Method).CodeArea->DebugInfo),
             &TempBuffer);
                   
@@ -358,33 +377,108 @@ void cDexFile::DumpMethodCodeInfo(
 }
 
 void cDexFile::DumpMethodDebugInfo(
+    CLASS_CODE* CodeArea,
     CLASS_CODE_DEBUG_INFO* DebugInfo,
     UCHAR** Buffer
     )
 {
-    (*DebugInfo).LineStart = ReadUnsignedLeb128((const UCHAR**)Buffer);
+    /* -------------------------------------------------------- */
+    UINT line = ReadUnsignedLeb128((const UCHAR**)Buffer);
+    UINT insnsSize = CodeArea->InstBufferSize/2;
+    USHORT argReg = CodeArea->RegistersSize - CodeArea->InsSize;
+    UINT address = 0;
+
     (*DebugInfo).ParametersSize = ReadUnsignedLeb128((const UCHAR**)Buffer);
 
     if ((*DebugInfo).ParametersSize > 0)
     {
         (*DebugInfo).ParametersNames = new UCHAR*[(*DebugInfo).ParametersSize];
-        memset((*DebugInfo).ParametersNames, NULL, (*DebugInfo).ParametersSize * sizeof(UCHAR*));
+        Zero((*DebugInfo).ParametersNames, (*DebugInfo).ParametersSize * sizeof(UCHAR*));
 
         UINT ParameterIndex;
         for (UINT k=0; k<(*DebugInfo).ParametersSize; k++)
         {
             ParameterIndex = ReadUnsignedLeb128((const UCHAR**)Buffer) - 1;
-
-            //if(ParameterIndex == NO_INDEX)
-            //    (*DebugInfo).ParametersNames[k] = (UCHAR*)"";
-            //else
-            //    (*DebugInfo).ParametersNames[k] = StringItems[ParameterIndex].Data;
+            if(ParameterIndex == NO_INDEX)
+                (*DebugInfo).ParametersNames[k] = NULL;
+            else
+                (*DebugInfo).ParametersNames[k] = StringItems[ParameterIndex].Data;
         }
-
-
     }
     else
         (*DebugInfo).ParametersNames = NULL;
+
+    UINT RegisterNumber;
+    UINT NameIndex;
+    UINT TypeIndex;
+    UINT SigIndex;
+
+    UCHAR Opcode;
+    while(TRUE)
+    {
+        Opcode = *(*Buffer)++;
+        switch (Opcode) 
+        {
+        case DBG_END_SEQUENCE:
+            return;
+
+        case DBG_ADVANCE_PC:
+            address += ReadUnsignedLeb128((const UCHAR**)Buffer);
+            break;
+
+        case DBG_ADVANCE_LINE:
+            line += ReadSignedLeb128((const UCHAR**)Buffer);
+            break;
+
+        case DBG_START_LOCAL:
+        case DBG_START_LOCAL_EXTENDED:
+            //printf("line=%d address=0x%04x\n", line, address);
+            InsertDebugPosition(CodeArea, line, address);
+            RegisterNumber = ReadUnsignedLeb128((const UCHAR**)Buffer);
+            NameIndex = ReadUnsignedLeb128((const UCHAR**)Buffer)-1;
+            TypeIndex = ReadUnsignedLeb128((const UCHAR**)Buffer)-1;
+            SigIndex = ReadUnsignedLeb128((const UCHAR**)Buffer)-1;
+            break;
+
+        case DBG_END_LOCAL:
+            //printf("line=%d address=0x%04x\n", line, address);
+            InsertDebugPosition(CodeArea, line, address);
+            RegisterNumber = ReadUnsignedLeb128((const UCHAR**)Buffer);
+            break;
+        case DBG_RESTART_LOCAL:
+            RegisterNumber = ReadUnsignedLeb128((const UCHAR**)Buffer);
+            break;
+
+        case DBG_SET_PROLOGUE_END:
+        case DBG_SET_EPILOGUE_BEGIN:
+            break;
+
+        case DBG_SET_FILE:
+            (*DebugInfo).Registers.SourceFile = (CHAR*)StringItems[ReadUnsignedLeb128((const UCHAR**)Buffer)-1].Data;
+            break;
+        default:
+            {
+                int new_opcode = Opcode - DBG_FIRST_SPECIAL;                
+                line += DBG_LINE_BASE + (new_opcode % DBG_LINE_RANGE);
+                address += new_opcode / DBG_LINE_RANGE;
+                //printf("line=%d address=0x%04x\n", line, address);
+                InsertDebugPosition(CodeArea, line, address);
+            }
+        };
+    }
+}
+
+void cDexFile::InsertDebugPosition(
+    CLASS_CODE* CodeArea,
+    UINT Line,
+    USHORT Offset
+    )
+{
+    CodeArea->DebugInfo.Positions = (CLASS_CODE_DEBUG_POSITION**)realloc
+        (CodeArea->DebugInfo.Positions, ++CodeArea->DebugInfo.PositionsSize *sizeof(CLASS_CODE_DEBUG_POSITION*));
+    CodeArea->DebugInfo.Positions[CodeArea->DebugInfo.PositionsSize-1] = new CLASS_CODE_DEBUG_POSITION;
+    CodeArea->DebugInfo.Positions[CodeArea->DebugInfo.PositionsSize-1]->Line = Line;
+    CodeArea->DebugInfo.Positions[CodeArea->DebugInfo.PositionsSize-1]->Offset = Offset;
 }
 
 void cDexFile::DumpMethodInstructions(
@@ -428,7 +522,7 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
     )
 {
     CLASS_CODE_INSTRUCTION* Decoded = new CLASS_CODE_INSTRUCTION;
-    memset(Decoded, 0, sizeof(CLASS_CODE_INSTRUCTION));
+    Zero(Decoded, sizeof(CLASS_CODE_INSTRUCTION));
 
     Decoded->Opcode = (UCHAR*)OpcodesStrings[Opcode[0]];
     Decoded->Format = (UCHAR*)OpcodesFormatStrings[OpcodesFormat[Opcode[0]]];
@@ -451,9 +545,9 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_12x:        // op vA, vB
-        Decoded->vA = Opcode[1] & 0xF0;
+        Decoded->vA = Opcode[1] & 0x0F;
         Decoded->vB = Opcode[1] >> 4;
-        Decoded->BytesSize += 3;
+        Decoded->BytesSize += 1;
         sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, v%d", 
             Decoded->Opcode, 
             Decoded->vA, 
@@ -461,7 +555,7 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_11n:        // op vA, #+B
-        Decoded->vA = Opcode[1] & 0xF0;
+        Decoded->vA = Opcode[1] & 0x0F;
         Decoded->vB = (CHAR)(Opcode[1] >> 4);
         Decoded->BytesSize += 1;
         sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #%s%d", 
@@ -541,7 +635,15 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_21h:        // op vAA, #+BBBB00000[00000000]
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        Decoded->vA = Opcode[1];
+        Decoded->vB = *(SHORT*)&Opcode[2];
+        Decoded->BytesSize += 3;
+
+        sprintf_s(TempString, TEMP_STRING_SIZE, "%s v%d, #%s%d", 
+            Decoded->Opcode,
+            Decoded->vA,
+            (SHORT)Decoded->vB>=0?"+":"",
+            Decoded->vB);
         break;
 
     case OP_FORMAT_21c:        // op vAA, thing@BBBB
@@ -783,7 +885,7 @@ void cDexFile::DumpMethodTryItems(
     if ((*CodeAreaDef).TriesSize > 0)
     {
         (*CodeArea).Tries = new CLASS_CODE_TRY[(*CodeAreaDef).TriesSize];
-        memset((*CodeArea).Tries, NULL, sizeof(CLASS_CODE_TRY) * (*CodeAreaDef).TriesSize);
+        Zero((*CodeArea).Tries, sizeof(CLASS_CODE_TRY) * (*CodeAreaDef).TriesSize);
                         
         USHORT* InstructionsEnd = &(((*CodeAreaDef).Instructions)[(*CodeAreaDef).InstructionsSize]);
         if ((((UINT)InstructionsEnd) & 3) != 0) { InstructionsEnd++; }
@@ -817,7 +919,7 @@ void cDexFile::DumpMethodCatchHandlers(
         {
         (*CodeArea).CatchHandlers = new CLASS_CODE_CATCH_HANDLER[(*CodeArea).CatchHandlersSize];
 
-        memset( (*CodeArea).CatchHandlers, NULL, sizeof(CLASS_CODE_CATCH_HANDLER) * (*CodeArea).CatchHandlersSize);
+        Zero((*CodeArea).CatchHandlers, sizeof(CLASS_CODE_CATCH_HANDLER) * (*CodeArea).CatchHandlersSize);
 
         for (UINT k=0; k<(*CodeArea).CatchHandlersSize; k++)
         {
@@ -826,7 +928,7 @@ void cDexFile::DumpMethodCatchHandlers(
             if ((*CodeArea).CatchHandlers[k].TypeHandlersSize)
             {
                 (*CodeArea).CatchHandlers[k].TypeHandlers = new CLASS_CODE_CATCH_TYPE_PAIR[abs((*CodeArea).CatchHandlers[k].TypeHandlersSize)];
-                memset((*CodeArea).CatchHandlers[k].TypeHandlers, NULL, 
+                Zero((*CodeArea).CatchHandlers[k].TypeHandlers, 
                     sizeof(CLASS_CODE_CATCH_TYPE_PAIR) * abs((*CodeArea).CatchHandlers[k].TypeHandlersSize));
 
                 for (UINT l=0; l<(UINT)abs((*CodeArea).CatchHandlers[k].TypeHandlersSize); l++)

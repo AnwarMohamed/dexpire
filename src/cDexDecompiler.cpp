@@ -24,7 +24,7 @@ cDexDecompiler::cDexDecompiler(cDexFile* DexFile)
     {
         Classes[i].Imports = (CHAR**)malloc(0);
         Classes[i].Extends = (CHAR**)malloc(0);
-        Classes[i].Methods = (DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD**)malloc(0);
+        Classes[i].Methods = (DEX_DECOMPILED_CLASS_METHOD**)malloc(0);
         DecompileClass(&Classes[i], &DexFile->DexClasses[i]);    
     }
 }
@@ -43,24 +43,62 @@ void cDexDecompiler::DecompileClass(
         GetClassMethod(Decompiled, &DexClass->ClassData->VirtualMethods[i], TRUE);
 }
 
+void cDexDecompiler::AddInstructionToLine(
+    DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+    CLASS_CODE_INSTRUCTION* Instruction
+    )
+{
+    Line->Instructions = (CLASS_CODE_INSTRUCTION**)realloc(Line->Instructions, ++Line->InstructionsSize*sizeof(CLASS_CODE_INSTRUCTION));
+    Line->Instructions[Line->InstructionsSize-1] = Instruction;
+}
+
 void cDexDecompiler::GetClassMethod(
     DEX_DECOMPILED_CLASS* Decompiled, 
     CLASS_METHOD* Method,
     BOOL Virtual
     )
 {
-    DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD* dMethod;
-    dMethod = new DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD;
-    Zero(dMethod, sizeof(DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD));
+    DEX_DECOMPILED_CLASS_METHOD* dMethod;
+    dMethod = new DEX_DECOMPILED_CLASS_METHOD;
+    Zero(dMethod, sizeof(DEX_DECOMPILED_CLASS_METHOD));
 
-    Decompiled->Methods = (DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD**)realloc(
-        Decompiled->Methods,++Decompiled->MethodsSize* sizeof(DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD*));
+    Decompiled->Methods = (DEX_DECOMPILED_CLASS_METHOD**)realloc
+        (Decompiled->Methods,++Decompiled->MethodsSize* sizeof(DEX_DECOMPILED_CLASS_METHOD*));
     Decompiled->Methods[Decompiled->MethodsSize-1] = dMethod;
 
-    dMethod->Arguments = (DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD::DEX_DECOMPILED_CLASS_METHOD_ARGUMENT**)malloc(0);
-
+    dMethod->Arguments = (DEX_DECOMPILED_CLASS_METHOD_ARGUMENT**)malloc(0);
     
     dMethod->Name = (CHAR*)Method->Name;
+    //dMethod->Positions = Method->CodeArea->DebugInfo.Positions;
+
+    dMethod->LinesSize =  Method->CodeArea->DebugInfo.PositionsSize;
+
+    if (dMethod->LinesSize)
+        dMethod->Lines = new DEX_DECOMPILED_CLASS_METHOD_LINE*[dMethod->LinesSize];
+
+    UINT InsIndex = 0, Size;
+    for (UINT i=0; i<dMethod->LinesSize; i++)
+    {
+        dMethod->Lines[i] = new DEX_DECOMPILED_CLASS_METHOD_LINE;
+        Zero(dMethod->Lines[i], sizeof(DEX_DECOMPILED_CLASS_METHOD_LINE));
+        
+        dMethod->Lines[i]->Instructions = (CLASS_CODE_INSTRUCTION**)malloc(0);
+
+        if (i+1 != dMethod->LinesSize)
+        {
+            Size = Method->CodeArea->DebugInfo.Positions[i+1]->Offset - Method->CodeArea->DebugInfo.Positions[i]->Offset;
+            while(InsIndex != Method->CodeArea->InstructionsSize && 
+                Size >= (Method->CodeArea->Instructions[InsIndex]->BytesSize/2) && Size >0)
+            {
+                Size -= Method->CodeArea->Instructions[InsIndex]->BytesSize/2;
+                AddInstructionToLine(dMethod->Lines[i], Method->CodeArea->Instructions[InsIndex++]);
+            }
+        }
+        else
+            while(InsIndex != Method->CodeArea->InstructionsSize)
+                AddInstructionToLine(dMethod->Lines[i], Method->CodeArea->Instructions[InsIndex++]);
+    }
+
     dMethod->ReturnType = Method->ProtoType[0] == 'L'? 
         ExtractLType((CHAR*)Method->ProtoType): GetTypeDescription((CHAR*)Method->ProtoType);
 
@@ -354,7 +392,7 @@ void cDexDecompiler::GetClassMethodCodes(
 
 UINT cDexDecompiler::GetClassMethodArgs(
     DEX_DECOMPILED_CLASS* Decompiled,
-    DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD* dMethod, 
+    DEX_DECOMPILED_CLASS_METHOD* dMethod, 
     CLASS_METHOD* Method    
     )
 {
@@ -375,16 +413,24 @@ UINT cDexDecompiler::GetClassMethodArgs(
             case 'J':
             case 'F':
             case 'D':
-                dMethod->Arguments = (DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD::DEX_DECOMPILED_CLASS_METHOD_ARGUMENT**)
-                    realloc(dMethod->Arguments, ++dMethod->ArgumentsSize*sizeof(DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD::DEX_DECOMPILED_CLASS_METHOD_ARGUMENT*));
-                dMethod->Arguments[dMethod->ArgumentsSize-1] = new DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD::DEX_DECOMPILED_CLASS_METHOD_ARGUMENT;
+                dMethod->Arguments = (DEX_DECOMPILED_CLASS_METHOD_ARGUMENT**)
+                    realloc(dMethod->Arguments, ++dMethod->ArgumentsSize*sizeof(DEX_DECOMPILED_CLASS_METHOD_ARGUMENT*));
+                dMethod->Arguments[dMethod->ArgumentsSize-1] = new DEX_DECOMPILED_CLASS_METHOD_ARGUMENT;
                 dMethod->Arguments[dMethod->ArgumentsSize-1]->Type = GetTypeDescription((CHAR*)&Method->Type[ptr]);
+
+                if (Method->CodeArea->DebugInfo.ParametersSize >argc)
+                    dMethod->Arguments[dMethod->ArgumentsSize-1]->Name = (CHAR*)Method->CodeArea->DebugInfo.ParametersNames[argc];
+
                 ptr++;  break;
             case 'L':
-                dMethod->Arguments = (DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD::DEX_DECOMPILED_CLASS_METHOD_ARGUMENT**)
-                    realloc(dMethod->Arguments, ++dMethod->ArgumentsSize*sizeof(DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD::DEX_DECOMPILED_CLASS_METHOD_ARGUMENT*));
-                dMethod->Arguments[dMethod->ArgumentsSize-1] = new DEX_DECOMPILED_CLASS::DEX_DECOMPILED_CLASS_METHOD::DEX_DECOMPILED_CLASS_METHOD_ARGUMENT;
+                dMethod->Arguments = (DEX_DECOMPILED_CLASS_METHOD_ARGUMENT**)
+                    realloc(dMethod->Arguments, ++dMethod->ArgumentsSize*sizeof(DEX_DECOMPILED_CLASS_METHOD_ARGUMENT*));
+                dMethod->Arguments[dMethod->ArgumentsSize-1] = new DEX_DECOMPILED_CLASS_METHOD_ARGUMENT;
                 dMethod->Arguments[dMethod->ArgumentsSize-1]->Type = ExtractLType((CHAR*)&Method->Type[ptr]);
+
+                if (Method->CodeArea->DebugInfo.ParametersSize >argc)
+                    dMethod->Arguments[dMethod->ArgumentsSize-1]->Name = (CHAR*)Method->CodeArea->DebugInfo.ParametersNames[argc];
+
                 AddToImports(Decompiled, dMethod->Arguments[dMethod->ArgumentsSize-1]->Type);
                 ptr+= strlen((CHAR*)Method->Type +ptr);              
                 break;
@@ -548,9 +594,4 @@ void cDexDecompiler::GetClassDefinition(
 
 cDexDecompiler::~cDexDecompiler()
 {
-    //if (tmpString)
-    {
-     //   delete tmpString;
-     //   tmpString = NULL;
-    }
 }
