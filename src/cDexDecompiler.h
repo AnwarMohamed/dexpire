@@ -17,6 +17,15 @@ struct DEX_DECOMPILED_CLASS_METHOD_LINE
     CHAR*   Decompiled;
 };
 
+struct DEX_DECOMPILED_CLASS_FIELD
+{
+    CHAR*   AccessFlags;
+    CHAR*   Name;
+    CHAR*   ReturnType;
+    BOOL    Static;
+    CHAR*   Value;
+};
+
 struct DEX_DECOMPILED_CLASS_METHOD
 {
     CHAR*   AccessFlags;
@@ -46,6 +55,13 @@ struct DEX_DECOMPILED_CLASS
 
     DEX_DECOMPILED_CLASS_METHOD** Methods;
     UINT    MethodsSize;
+
+    DEX_DECOMPILED_CLASS_FIELD** Fields;
+    UINT    FieldsSize;
+};
+
+struct DEX_DECOMPILED_CLASS_METHOD_REGISTER
+{
 };
 
 class DLLEXPORT cDexDecompiler
@@ -60,18 +76,26 @@ public:
     void    GetClassMethod(DEX_DECOMPILED_CLASS* Decompiled, CLASS_METHOD* Method, BOOL Virtual=FALSE);
     void    AddToImports(DEX_DECOMPILED_CLASS* Decompiled, CHAR* Import);
     UINT    GetClassMethodArgs(DEX_DECOMPILED_CLASS* Decompiled, DEX_DECOMPILED_CLASS_METHOD* dMethod, CLASS_METHOD* Method);
-    void    GetClassMethodCodes(DEX_DECOMPILED_CLASS* Decompiled, CLASS_METHOD* Method);
+    void    GetClassMethodCodes(DEX_DECOMPILED_CLASS* Decompiled, DEX_DECOMPILED_CLASS_METHOD* dMethod, CLASS_METHOD* Method);
     CHAR*   GetShortType(CHAR* Type);
+
+    void    GetClassField(DEX_DECOMPILED_CLASS* Decompiled, CLASS_FIELD* Field, BOOL Static=FALSE);
 
     void    DecompileClass(DEX_DECOMPILED_CLASS* Decompiled, DEX_CLASS_STRUCTURE* DexClass);
     void    AddToExtends(DEX_DECOMPILED_CLASS* Decompiled, CHAR* Superclass);
 
+    void    GetClassMethodCodesLine(DEX_DECOMPILED_CLASS_METHOD_LINE * Line, DEX_DECOMPILED_CLASS_METHOD_REGISTER* Registers);
+
     static CHAR* ExtractShortLType(CHAR* Type);
 private:
-    CHAR* GetTypeDescription(CHAR* Type);
-    CHAR* ExtractLType(CHAR* Type);
-    CHAR* ExtractAccessFlags(CHAR Type, UINT AccessFlags);
+    CHAR*   GetTypeDescription(CHAR* Type, UINT ArraySize=0);
+    UINT    GetArrayTypeSize(CHAR* Type);
+    CHAR*   ExtractLType(CHAR* Type);
+    CHAR*   ExtractArrayType(CHAR* Type, UINT ArraySize);
+    CHAR*   ExtractAccessFlags(CHAR Type, UINT AccessFlags);
 
-    void  AddInstructionToLine(DEX_DECOMPILED_CLASS_METHOD_LINE* Line, CLASS_CODE_INSTRUCTION* Instruction);
+    void    AddInstructionToLine(DEX_DECOMPILED_CLASS_METHOD_LINE* Line, CLASS_CODE_INSTRUCTION* Instruction);
+
+    cDexFile* DexFile;
 };
 

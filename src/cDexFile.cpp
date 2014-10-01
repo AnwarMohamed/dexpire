@@ -22,6 +22,7 @@
 #include <stdio.h>
 
 #define NO_INDEX 0xffffffff
+#define TEMP_STRING_SIZE 200
 #define Zero(b, s) memset(b, 0, s)
 
 cDexFile::cDexFile(CHAR* Filename): 
@@ -127,6 +128,79 @@ void cDexFile::DumpInterfaceByIndex(
     ].StringIndex].Data;
 }
 
+void cDexFile::DumpFieldsValues(
+    UINT Offset,
+    CLASS_DATA* ClassData
+    )
+{
+    if (!Offset) return;
+
+    UCHAR* Ptr = (UCHAR*)(BaseAddress + Offset);
+    UINT size = ReadUnsignedLeb128((CONST UCHAR**)&Ptr);
+
+    UCHAR val_type, val_size;
+    CHAR* temp = new CHAR[TEMP_STRING_SIZE];
+
+    for (UINT i=0; i<size; i++)
+    {
+        val_type = *Ptr++;
+        val_size = (val_type >> 5) +1;
+
+        Zero(temp,TEMP_STRING_SIZE);
+
+        switch(val_type)
+        {    
+        case VALUE_BYTE:
+            _itoa_s(*(CHAR*)Ptr, temp, TEMP_STRING_SIZE, 10);
+            Ptr += 1;
+            break;
+        case VALUE_SHORT:
+            _itoa_s((*(SHORT*)Ptr) << ((2-val_size)*8) >> ((2-val_size)*8), temp, TEMP_STRING_SIZE, 10);
+            Ptr += val_size;
+            break;
+        case VALUE_CHAR:
+            _itoa_s((*(UCHAR*)Ptr) << ((2-val_size)*8) >> ((2-val_size)*8) , temp, TEMP_STRING_SIZE, 10);
+            Ptr += val_size;
+            break;
+        case VALUE_INT:
+            _itoa_s((*(INT*)Ptr) << ((4-val_size)*8) >> ((4-val_size)*8), temp, TEMP_STRING_SIZE, 10);
+            Ptr += val_size;
+            break;
+        case VALUE_LONG:
+            _ltoa_s((*(LONG*)Ptr) << ((8-val_size)*8) >> ((8-val_size)*8), temp, TEMP_STRING_SIZE, 10);
+            Ptr += val_size;
+            break;
+        case VALUE_FLOAT:
+        case VALUE_DOUBLE:
+            Ptr += val_size;
+            break;
+        case VALUE_STRING:
+            sprintf_s(temp, TEMP_STRING_SIZE, "\"%s\"", StringItems[(*(UINT*)Ptr) << ((4-val_size)*8) >> ((4-val_size)*8)].Data);
+            Ptr  += val_size;
+            break;
+        case VALUE_TYPE:
+        case VALUE_FIELD:
+        case VALUE_METHOD:
+        case VALUE_ENUM:
+            Ptr += val_size;
+            break;
+        case VALUE_ARRAY:
+        case VALUE_ANNOTATION:
+        case VALUE_NULL:
+            sprintf_s(temp, TEMP_STRING_SIZE, "null");
+            break;
+        case VALUE_BOOLEAN:
+        case VALUE_SENTINEL:
+            break;
+        }
+
+        ClassData->StaticFields[i].Value = new UCHAR[strlen(temp)+1];
+        memcpy(ClassData->StaticFields[i].Value, temp, strlen(temp)+1);
+    }
+
+    delete temp;
+}
+
 BOOL cDexFile::DumpDex()
 {
     UCHAR* BufPtr;
@@ -212,6 +286,9 @@ BOOL cDexFile::DumpDex()
                     (CurIndex += ReadUnsignedLeb128((const UCHAR**)&BufPtr)),
                     &DexClasses[i].ClassData->StaticFields[j], 
                     &BufPtr);
+
+            /* Parsing Static Fields Vales */
+            DumpFieldsValues(DexClassDefs[i].StaticValuesOff, DexClasses[i].ClassData);
 
             /* Parsing Instance Fields */
             CurIndex = 0;
@@ -379,6 +456,7 @@ void cDexFile::DumpMethodCodeInfo(
 void cDexFile::DumpMethodDebugInfo(
     CLASS_CODE* CodeArea,
     CLASS_CODE_DEBUG_INFO* DebugInfo,
+     
     UCHAR** Buffer
     )
 {
@@ -408,6 +486,15 @@ void cDexFile::DumpMethodDebugInfo(
     else
         (*DebugInfo).ParametersNames = NULL;
 
+
+    if (CodeArea->RegistersSize)
+    {
+        CodeArea->Locals = new CLASS_CODE_LOCAL[CodeArea->RegistersSize];
+        Zero(CodeArea->Locals, CodeArea->LocalsSize * sizeof(CLASS_CODE_LOCAL));
+        CodeArea->LocalsSize = CodeArea->RegistersSize;
+    }
+     
+
     UINT RegisterNumber;
     UINT NameIndex;
     UINT TypeIndex;
@@ -434,10 +521,28 @@ void cDexFile::DumpMethodDebugInfo(
         case DBG_START_LOCAL_EXTENDED:
             //printf("line=%d address=0x%04x\n", line, address);
             InsertDebugPosition(CodeArea, line, address);
+
             RegisterNumber = ReadUnsignedLeb128((const UCHAR**)Buffer);
+            if (RegisterNumber > CodeArea->RegistersSize)
+                return;
+            
             NameIndex = ReadUnsignedLeb128((const UCHAR**)Buffer)-1;
+            if (NameIndex != NO_INDEX)
+                CodeArea->Locals[RegisterNumber].Name = (CHAR*)StringItems[NameIndex].Data;
+
             TypeIndex = ReadUnsignedLeb128((const UCHAR**)Buffer)-1;
-            SigIndex = ReadUnsignedLeb128((const UCHAR**)Buffer)-1;
+            if (TypeIndex != NO_INDEX)
+                CodeArea->Locals[RegisterNumber].Type = (CHAR*)StringItems[TypeIndex].Data;
+
+            if (Opcode == DBG_START_LOCAL_EXTENDED)
+            {
+                SigIndex = ReadUnsignedLeb128((const UCHAR**)Buffer)-1;
+                if (SigIndex != NO_INDEX)
+                    CodeArea->Locals[RegisterNumber].Signature = (CHAR*)StringItems[SigIndex].Data;
+            }
+            
+            CodeArea->Locals[RegisterNumber].OffsetStart = address;
+
             break;
 
         case DBG_END_LOCAL:
@@ -497,10 +602,6 @@ void cDexFile::DumpMethodInstructions(
         {
             Opcode = ((CHAR*)((*CodeAreaDef).Instructions))[i];
 
-            //UINT Width = OpcodesWidths[Opcode];
-            //UINT Format = OpcodesFormat[Opcode];
-            //UINT Flags = OpcodesFlags[Opcode];
-
             (*CodeArea).Instructions = (CLASS_CODE_INSTRUCTION**)
                 realloc((*CodeArea).Instructions, ++(*CodeArea).InstructionsSize * sizeof(CLASS_CODE_INSTRUCTION*));
 
@@ -514,8 +615,6 @@ void cDexFile::DumpMethodInstructions(
     else
         (*CodeArea).Instructions = NULL;
 }
-
-#define TEMP_STRING_SIZE 200
 
 CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
     UCHAR* Opcode
@@ -531,7 +630,7 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
 
     CHAR* TempString = new CHAR[TEMP_STRING_SIZE];
 
-    switch(OpcodesFormat[Opcode[0]])
+    switch(OpcodesFormat[(UCHAR)Opcode[0]])
     {
     case OP_FORMAT_UNKNOWN:
         sprintf_s(TempString, TEMP_STRING_SIZE, "<unknown>");
@@ -539,9 +638,33 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_10x:        // op
-        sprintf_s(TempString, TEMP_STRING_SIZE, "%s", 
-            Decoded->Opcode);
-        Decoded->BytesSize += 1;
+        if (*Opcode == OP_NOP) 
+            switch(Opcode[0] | (Opcode[1] << 8))
+            {
+            case kPackedSwitchSignature:
+                sprintf_s(TempString, TEMP_STRING_SIZE, "packed-switch-data");
+                Decoded->BytesSize = ((*(USHORT*)(Opcode+2))*2)+4;
+                Decoded->BytesSize*=4;
+                break;
+            case kSparseSwitchSignature:
+                sprintf_s(TempString, TEMP_STRING_SIZE, "sparse-switch-data");
+                Decoded->BytesSize = ((*(USHORT*)(Opcode+2)) * 4) + 2;
+                Decoded->BytesSize*=4;
+                break;
+            case kArrayDataSignature:
+                sprintf_s(TempString, TEMP_STRING_SIZE, "array-data");
+                Decoded->BytesSize = ((*(USHORT*)(Opcode+2)) * (*(UINT*)(Opcode+4)) + 1) / 2 + 4;
+                Decoded->BytesSize*=4;
+                break;
+            default:
+                sprintf_s(TempString, TEMP_STRING_SIZE, "nop");
+                Decoded->BytesSize += 1;
+            }
+        else
+        {
+            sprintf_s(TempString, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+            Decoded->BytesSize += 1;
+        }
         break;
 
     case OP_FORMAT_12x:        // op vA, vB
@@ -974,7 +1097,7 @@ void cDexFile::CreateOpcodesFormatTable()
     {
         Format = OP_FORMAT_UNKNOWN;
 
-        switch ((CHAR)i) 
+        switch ((UCHAR)i) 
         {
         case OP_GOTO:
             Format = OP_FORMAT_10t;
@@ -1307,7 +1430,7 @@ void cDexFile::CreateOpcodesFormatTable()
          */
         }
 
-        OpcodesFormat[(CHAR)i] = Format;
+        OpcodesFormat[(UCHAR)i] = Format;
     }
 }
 

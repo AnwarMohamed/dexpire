@@ -24,73 +24,89 @@
 
 int main()
 {
-    cDexFile dex("classes.dex");
-    printf("Processing '%s'...\n", dex.Filename);
+    cDexFile* dex = new cDexFile("classes.dex");
+    printf("Processing '%s'...\n", dex->Filename);
 
-    if (dex.isReady)
+    if (dex->isReady)
     {
-        printf("Opened '%s', DEX version '%s'\n\n\n", dex.Filename, dex.DexVersion);
-        cDexDecompiler decompiled(&dex);
+        printf("Opened '%s', DEX version '%s'\n\n\n", dex->Filename, dex->DexVersion);
+        
+        cDexDecompiler* decompiled = new cDexDecompiler(dex);
 
-        for (UINT i=300; i<301/*dex.nClassDefinitions*/; i++)
+        
+        for (UINT i=1; i<2/*dex->nClasses*/; i++)
         {
-            printf("package %s;\n\n", decompiled.Classes[i].Package);
+            printf("package %s;\n\n", decompiled->Classes[i].Package);
 
-            for (UINT j=0; j<decompiled.Classes[i].ImportsSize; j++)
-                printf("import %s;\n", decompiled.Classes[i].Imports[j]);
+            for (UINT j=0; j<decompiled->Classes[i].ImportsSize; j++)
+                printf("import %s;\n", decompiled->Classes[i].Imports[j]);
             printf("\n");
 
             printf("%s class %s", 
-                decompiled.Classes[i].AccessFlags,
-                decompiled.Classes[i].Name);
+                decompiled->Classes[i].AccessFlags,
+                decompiled->Classes[i].Name);
 
-            if (decompiled.Classes[i].ExtendsSize)
+            if (decompiled->Classes[i].ExtendsSize)
                 printf(" extends ");
 
-            for (UINT j=0; j<decompiled.Classes[i].ExtendsSize; j++)
+            for (UINT j=0; j<decompiled->Classes[i].ExtendsSize; j++)
             {
                 if (j) printf(",");
-                printf("%s ", cDexDecompiler::ExtractShortLType(decompiled.Classes[i].Extends[j]));
+                printf("%s ", cDexDecompiler::ExtractShortLType(decompiled->Classes[i].Extends[j]));
             }
 
             printf("{\n\n");
             
-            for (UINT j=0; j<decompiled.Classes[i].MethodsSize; j++)
+
+            for (UINT j=0; j<decompiled->Classes[i].FieldsSize; j++)
+                printf("    %s %s %s%s%s;\n",
+                    decompiled->Classes[i].Fields[j]->AccessFlags,
+                    decompiled->Classes[i].Fields[j]->ReturnType,
+                    decompiled->Classes[i].Fields[j]->Name,
+                    decompiled->Classes[i].Fields[j]->Static? (decompiled->Classes[i].Fields[j]->Value?" = ":""):"",
+                    decompiled->Classes[i].Fields[j]->Static? (decompiled->Classes[i].Fields[j]->Value?decompiled->Classes[i].Fields[j]->Value:""):"");
+            printf("\n");
+
+            for (UINT j=0; j<decompiled->Classes[i].MethodsSize; j++)
             {
-                if (strcmp(decompiled.Classes[i].Methods[j]->Name, "<init>") == 0 ||
-                    strcmp(decompiled.Classes[i].Methods[j]->Name, "<clinit>") == 0)
+                if (strcmp(decompiled->Classes[i].Methods[j]->Name, "<init>") == 0 ||
+                    strcmp(decompiled->Classes[i].Methods[j]->Name, "<clinit>") == 0)
                     continue;
 
                 printf("    %s %s %s(",
-                    decompiled.Classes[i].Methods[j]->AccessFlags,
-                    decompiled.Classes[i].Methods[j]->ReturnType,
-                    decompiled.Classes[i].Methods[j]->Name);
+                    decompiled->Classes[i].Methods[j]->AccessFlags,
+                    cDexDecompiler::ExtractShortLType(decompiled->Classes[i].Methods[j]->ReturnType),
+                    decompiled->Classes[i].Methods[j]->Name);
 
-                for (UINT k=0; k<decompiled.Classes[i].Methods[j]->ArgumentsSize; k++)
+                for (UINT k=0; k<decompiled->Classes[i].Methods[j]->ArgumentsSize; k++)
                 {
                     if (k) printf(", ");
                     printf("%s %s",
-                        cDexDecompiler::ExtractShortLType(decompiled.Classes[i].Methods[j]->Arguments[k]->Type),
-                        cDexDecompiler::ExtractShortLType(decompiled.Classes[i].Methods[j]->Arguments[k]->Name));
+                        cDexDecompiler::ExtractShortLType(decompiled->Classes[i].Methods[j]->Arguments[k]->Type),
+                        cDexDecompiler::ExtractShortLType(decompiled->Classes[i].Methods[j]->Arguments[k]->Name));
                 }
                 printf(") {\n");
 
-                for (UINT k=0; k<decompiled.Classes[i].Methods[j]->LinesSize; k++)
+                for (UINT k=0; k<decompiled->Classes[i].Methods[j]->LinesSize; k++)
                 {
                     if (k) printf("\n");
-                    for (UINT l=0; l<decompiled.Classes[i].Methods[j]->Lines[k]->InstructionsSize; l++)
-                    {
-                        printf("        %s\n",
-                            decompiled.Classes[i].Methods[j]->Lines[k]->Instructions[l]->Decoded);
-                    }
+
+                    if (decompiled->Classes[i].Methods[j]->Lines[k]->Decompiled)
+                        printf("        %s;\n", decompiled->Classes[i].Methods[j]->Lines[k]->Decompiled);
+                    else
+                        for (UINT l=0; l<decompiled->Classes[i].Methods[j]->Lines[k]->InstructionsSize; l++)
+                            printf("        %s\n", decompiled->Classes[i].Methods[j]->Lines[k]->Instructions[l]->Decoded);
+
                 }
 
                 printf("    }\n\n");
             }
 
             printf("}\n\n");
+ 
         }
-
+        
+        delete decompiled;
         //for (UINT i=300; i< 301/*dex.nClassDefinitions*/; i++)
         /*{
             printf("Class #%d header:\n", i);
@@ -343,6 +359,7 @@ int main()
                 
         }*/
 
+        delete dex;
         system("pause");
     }
     else 

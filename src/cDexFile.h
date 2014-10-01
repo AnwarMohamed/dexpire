@@ -308,6 +308,30 @@ enum
     DBG_LINE_RANGE           = 15,
 };
 
+enum
+{
+    VALUE_BYTE       = 0x00,
+    VALUE_SHORT      = 0x02,
+    VALUE_CHAR       = 0x03,
+    VALUE_INT        = 0x04,
+    VALUE_LONG       = 0x06,
+    VALUE_FLOAT      = 0x10,
+    VALUE_DOUBLE     = 0x11,
+    VALUE_STRING     = 0x17,
+    VALUE_TYPE       = 0x18,
+    VALUE_FIELD      = 0x19,
+    VALUE_METHOD     = 0x1a,
+    VALUE_ENUM       = 0x1b,
+    VALUE_ARRAY      = 0x1c,
+    VALUE_ANNOTATION = 0x1d,
+    VALUE_NULL       = 0x1e,
+    VALUE_BOOLEAN    = 0x1f,
+    VALUE_SENTINEL   = 0xff
+};
+
+#define kPackedSwitchSignature  0x0100
+#define kSparseSwitchSignature  0x0200
+#define kArrayDataSignature     0x0300
 
 static const CHAR* AccessMaskStrings[3][18] = 
 {
@@ -400,6 +424,7 @@ struct CLASS_FIELD
     UCHAR* Name;
     UINT AccessFlags;
     UCHAR* Type;
+    UCHAR* Value;
     CLASS_ANNOTATION* Annotations;
 }; 
 
@@ -478,6 +503,16 @@ struct CLASS_CODE_INSTRUCTION
     UINT      vH;
 };
 
+struct CLASS_CODE_LOCAL
+{
+    UINT    Register;
+    CHAR*   Name;
+    CHAR*   Type;
+    CHAR*   Signature;
+    USHORT  OffsetStart;
+    USHORT  OffsetEnd;
+};
+
 struct CLASS_CODE
 {
     USHORT  RegistersSize;
@@ -497,6 +532,9 @@ struct CLASS_CODE
 
     CLASS_CODE_INSTRUCTION   **Instructions;
     UINT    InstructionsSize;
+
+    UINT LocalsSize;
+    CLASS_CODE_LOCAL* Locals;
 };
 
 struct CLASS_METHOD 
@@ -533,7 +571,7 @@ struct DEX_CLASS_STRUCTURE
     UCHAR*  SuperClass;
     UCHAR*  SourceFile;
 
-    struct CLASS_DATA * ClassData;
+    CLASS_DATA * ClassData;
 };
 
 
@@ -570,7 +608,7 @@ static const CHAR* OpcodesFormatStrings[32] =
     "[opt] invoke-virtual+super/range",
     "[opt] invoke-interface/range",
     "[opt] inline invoke",
-    "op vAA, #+BBBBBBBBBBBBBBBB"
+    "op vAA, #+BBBBBBBBBBBBBBBB",
 };
 
 static const CHAR* OpcodesStrings[256] =
@@ -712,7 +750,7 @@ static const CHAR* OpcodesStrings[256] =
     "invoke-interface/range",
 
     "?",
-    "?"
+    "?",
 
     "neg-int",
     "not-int",
@@ -738,8 +776,8 @@ static const CHAR* OpcodesStrings[256] =
 
     "add-int",
     "sub-int",
-    "mul-int",",",
-    "div-int",",",
+    "mul-int",
+    "div-int",
     "rem-int",
     "and-int",
     "or-int",
@@ -1194,6 +1232,11 @@ enum DEX_OP_CODES_FORMAT
     OP_FORMAT_51l,        // op vAA, #+BBBBBBBBBBBBBBBB
 };
 
+struct DEX_FIELD_STATIC_VALUE
+{
+
+};
+
 class DLLEXPORT cDexFile: public cFile
 {
 public:
@@ -1215,6 +1258,7 @@ public:
     DEX_STRING_ID*  DexStringIds;
     DEX_TYPE_ID*    DexTypeIds;
     DEX_FIELD_ID*   DexFieldIds;
+    DEX_FIELD_STATIC_VALUE* DexFieldsValues;
     DEX_METHOD_ID*  DexMethodIds;
     DEX_PROTO_ID*   DexProtoIds;
     DEX_CLASS_DEF*  DexClassDefs;
@@ -1231,43 +1275,29 @@ public:
     void DumpClassInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
     void DumpClassDataInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class, UCHAR** Buffer);
 
+    void DumpFieldsValues(UINT Offset, CLASS_DATA* ClassData);
+
     void DumpFieldByIndex(UINT FieldIndex, CLASS_FIELD* Field, UCHAR** Buffer);
     void DumpInterfaceByIndex(UINT ClassIndex, UINT InterfaceIndex, UCHAR** Interface);
-
-    void DumpMethodTryItems(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
-
+    
     void InsertDebugPosition(CLASS_CODE* CodeArea, UINT Line, USHORT Offset);
 
-    void DumpMethodTryItemsInfo(
-        CLASS_CODE_TRY* TryItem, 
-        DEX_TRY_ITEM* TryItemInfo, 
-        CLASS_CODE_CATCH_HANDLER** CatchHandlers);
-
-    void DumpMethodCatchHandlers(
-        CLASS_CODE* CodeArea, 
-        UCHAR** Buffer);
-
-    void DumpMethodDebugInfo(
-        CLASS_CODE* CodeArea,
-        CLASS_CODE_DEBUG_INFO* DebugInfo,
-        UCHAR** Buffer);
-
-    void DumpMethodCodeInfo(
-        CLASS_CODE* CodeArea,
-        DEX_CODE* CodeAreaDef);
-
+    void DumpMethodTryItems(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
+    void DumpMethodTryItemsInfo(CLASS_CODE_TRY* TryItem, DEX_TRY_ITEM* TryItemInfo, CLASS_CODE_CATCH_HANDLER** CatchHandlers);
+    void DumpMethodCatchHandlers(CLASS_CODE* CodeArea, UCHAR** Buffer);
+    void DumpMethodDebugInfo(CLASS_CODE* CodeArea, CLASS_CODE_DEBUG_INFO* DebugInfo, UCHAR** Buffer);
+    void DumpMethodCodeInfo(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
     void DumpMethodCode(DEX_CODE* CodeAreaDef, CLASS_METHOD* Method);
     void DumpMethodById(UINT MethodIndex, CLASS_METHOD* Method, UCHAR** Buffer);
-
     void DumpMethodInstructions(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
     void DumpMethodParameters(UINT MethodIndex, CLASS_METHOD* Method);
-    void AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
     
+    void AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
+
     void DumpAnnotations(DEX_CLASS_STRUCTURE* DexClass, UINT Offset);
+    void DumpAnnotationElementValue(CLASS_ANNOTATION_ELEMENT* Element, UCHAR** Ptr);
 
     CLASS_CODE_INSTRUCTION* DecodeOpcode(UCHAR* Opcode);
-
-    void DumpAnnotationElementValue(CLASS_ANNOTATION_ELEMENT* Element, UCHAR** Ptr);
 
 private:
     BOOL    DumpDex();
