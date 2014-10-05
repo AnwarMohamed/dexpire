@@ -1,28 +1,16 @@
 #include "cDexDecompiler.h"
 
-#define MAX_STRING_BUFFER_SIZE 200
-#define MAX_DECOMPILE_BUFFER_SIZE 10000
-
-#define OP_TYPE_V   "void"
-#define OP_TYPE_Z   "boolean"
-#define OP_TYPE_B   "byte"
-#define OP_TYPE_S   "short"
-#define OP_TYPE_C   "char"
-#define OP_TYPE_I   "int"
-#define OP_TYPE_J   "long"
-#define OP_TYPE_F   "float"
-#define OP_TYPE_D   "double"
-
-#define Zero(b, s) memset(b, 0, s)
-
 cDexDecompiler::cDexDecompiler(cDexFile* DexFile)
 {
-    Classes = 0;
+    Classes = NULL;
+    nClasses = 0;
     if (!DexFile->isReady) return;
+
+    LineCounter = 0;
 
     this->DexFile = DexFile;
     Classes = new DEX_DECOMPILED_CLASS[DexFile->nClasses];
-    Zero(Classes, DexFile->nClasses* sizeof(DEX_DECOMPILED_CLASS));
+    ZERO(Classes, DexFile->nClasses* sizeof(DEX_DECOMPILED_CLASS));
 
     for (UINT i=0; i<DexFile->nClasses; i++)
     {
@@ -34,42 +22,42 @@ cDexDecompiler::cDexDecompiler(cDexFile* DexFile)
 }
 
 void cDexDecompiler::DecompileClass(
-    DEX_DECOMPILED_CLASS*Decompiled, 
+    DEX_DECOMPILED_CLASS*dClass, 
     DEX_CLASS_STRUCTURE* DexClass
     )
 {
-    GetClassDefinition(Decompiled, DexClass);
+    GetClassDefinition(dClass, DexClass);
 
     for (UINT i=0; i<(DexClass->ClassData?DexClass->ClassData->InstanceFieldsSize:0); i++)
-        GetClassField(Decompiled,  &DexClass->ClassData->InstanceFields[i]);
+        GetClassField(dClass,  &DexClass->ClassData->InstanceFields[i]);
 
     for (UINT i=0; i<(DexClass->ClassData?DexClass->ClassData->StaticFieldsSize:0); i++)
-        GetClassField(Decompiled,  &DexClass->ClassData->StaticFields[i], TRUE);
+        GetClassField(dClass,  &DexClass->ClassData->StaticFields[i], TRUE);
 
     for (UINT i=0; i<(DexClass->ClassData?DexClass->ClassData->DirectMethodsSize:0); i++)
-        GetClassMethod(Decompiled, &DexClass->ClassData->DirectMethods[i]);
+        GetClassMethod(dClass, &DexClass->ClassData->DirectMethods[i]);
 
     for (UINT i=0; i<(DexClass->ClassData?DexClass->ClassData->VirtualMethodsSize:0); i++)
-        GetClassMethod(Decompiled, &DexClass->ClassData->VirtualMethods[i], TRUE);
+        GetClassMethod(dClass, &DexClass->ClassData->VirtualMethods[i], TRUE);
 }
 
 void cDexDecompiler::GetClassField(
-    DEX_DECOMPILED_CLASS* Decompiled, 
+    DEX_DECOMPILED_CLASS* dClass, 
     CLASS_FIELD* Field,
     BOOL Static
     )
 {
     DEX_DECOMPILED_CLASS_FIELD* dField = new DEX_DECOMPILED_CLASS_FIELD;
-    Zero(dField, sizeof(DEX_DECOMPILED_CLASS_FIELD));
+    ZERO(dField, sizeof(DEX_DECOMPILED_CLASS_FIELD));
 
-    Decompiled->Fields = (DEX_DECOMPILED_CLASS_FIELD**)realloc
-        (Decompiled->Fields,++Decompiled->FieldsSize* sizeof(DEX_DECOMPILED_CLASS_FIELD*));
-    Decompiled->Fields[Decompiled->FieldsSize-1] = dField;
+    dClass->Fields = (DEX_DECOMPILED_CLASS_FIELD**)realloc
+        (dClass->Fields,++dClass->FieldsSize* sizeof(DEX_DECOMPILED_CLASS_FIELD*));
+    dClass->Fields[dClass->FieldsSize-1] = dField;
     
     dField->Name = (CHAR*)Field->Name;
-    dField->AccessFlags = ExtractAccessFlags(2, Field->AccessFlags);
+    dField->AccessFlags = cDexString::ExtractAccessFlags(2, Field->AccessFlags);
     dField->Static = Static;
-    dField->ReturnType = GetTypeDescription((CHAR*)Field->Type);
+    dField->ReturnType = cDexString::GetTypeDescription((CHAR*)Field->Type);
     dField->Value = (CHAR*)Field->Value;
 }
 
@@ -83,26 +71,24 @@ void cDexDecompiler::AddInstructionToLine(
 }
 
 void cDexDecompiler::GetClassMethod(
-    DEX_DECOMPILED_CLASS* Decompiled, 
+    DEX_DECOMPILED_CLASS* dClass, 
     CLASS_METHOD* Method,
     BOOL Virtual
     )
 {
     DEX_DECOMPILED_CLASS_METHOD* dMethod = new DEX_DECOMPILED_CLASS_METHOD;
-    Zero(dMethod, sizeof(DEX_DECOMPILED_CLASS_METHOD));
+    ZERO(dMethod, sizeof(DEX_DECOMPILED_CLASS_METHOD));
 
-    Decompiled->Methods = (DEX_DECOMPILED_CLASS_METHOD**)realloc
-        (Decompiled->Methods,++Decompiled->MethodsSize* sizeof(DEX_DECOMPILED_CLASS_METHOD*));
-    Decompiled->Methods[Decompiled->MethodsSize-1] = dMethod;
-
-    dMethod->Arguments = (DEX_DECOMPILED_CLASS_METHOD_ARGUMENT**)malloc(0);
+    dClass->Methods = (DEX_DECOMPILED_CLASS_METHOD**)realloc
+        (dClass->Methods,++dClass->MethodsSize* sizeof(DEX_DECOMPILED_CLASS_METHOD*));
+    dClass->Methods[dClass->MethodsSize-1] = dMethod;
     
     dMethod->Name = (CHAR*)Method->Name;
-    //dMethod->Positions = Method->CodeArea->DebugInfo.Positions;
 
     if (Method->CodeArea)
         dMethod->LinesSize =  Method->CodeArea->DebugInfo.PositionsSize;
 
+    LineCounter++;
     if (dMethod->LinesSize)
         dMethod->Lines = new DEX_DECOMPILED_CLASS_METHOD_LINE*[dMethod->LinesSize];
 
@@ -110,7 +96,7 @@ void cDexDecompiler::GetClassMethod(
     for (UINT i=0; i<dMethod->LinesSize; i++)
     {
         dMethod->Lines[i] = new DEX_DECOMPILED_CLASS_METHOD_LINE;
-        Zero(dMethod->Lines[i], sizeof(DEX_DECOMPILED_CLASS_METHOD_LINE));
+        ZERO(dMethod->Lines[i], sizeof(DEX_DECOMPILED_CLASS_METHOD_LINE));
         
         dMethod->Lines[i]->Instructions = (CLASS_CODE_INSTRUCTION**)malloc(0);
 
@@ -118,7 +104,7 @@ void cDexDecompiler::GetClassMethod(
         {
             Size = Method->CodeArea->DebugInfo.Positions[i+1]->Offset - Method->CodeArea->DebugInfo.Positions[i]->Offset;
             while(InsIndex != Method->CodeArea->InstructionsSize && 
-                Size >= (Method->CodeArea->Instructions[InsIndex]->BytesSize/2) && Size >0)
+                Size >= (UINT)(Method->CodeArea->Instructions[InsIndex]->BytesSize/2) && Size >0)
             {
                 Size -= Method->CodeArea->Instructions[InsIndex]->BytesSize/2;
                 AddInstructionToLine(dMethod->Lines[i], Method->CodeArea->Instructions[InsIndex++]);
@@ -129,28 +115,126 @@ void cDexDecompiler::GetClassMethod(
                 AddInstructionToLine(dMethod->Lines[i], Method->CodeArea->Instructions[InsIndex++]);
     }
 
-    dMethod->ReturnType = GetTypeDescription((CHAR*)Method->ProtoType);
+    dMethod->ReturnType = cDexString::GetTypeDescription((CHAR*)Method->ProtoType);
 
-    AddToImports(Decompiled, dMethod->ReturnType);
+    AddToImports(dClass, dMethod->ReturnType);
 
-    dMethod->AccessFlags = ExtractAccessFlags(1, Method->AccessFlags);
+    dMethod->AccessFlags = cDexString::ExtractAccessFlags(1, Method->AccessFlags);
     dMethod->Virtual = Virtual;
 
     /* Method Arguments */
-    GetClassMethodArgs(Decompiled, dMethod, Method);
+    GetClassMethodArgs(dClass, dMethod, Method);
 
     /* Method Codes */
-    //GetClassMethodCodes(Decompiled, dMethod, Method);
+    if (Method->CodeArea)
+    {
+        DEX_DECOMPILED_CLASS_METHOD_REGISTER* Registers = NULL;
+        cDexCodeGen* CodeGenerator = NULL;
+        if (Method->CodeArea->RegistersSize)
+        {
+            Registers = new DEX_DECOMPILED_CLASS_METHOD_REGISTER[Method->CodeArea->RegistersSize];
+            ZERO(Registers, Method->CodeArea->RegistersSize* sizeof(DEX_DECOMPILED_CLASS_METHOD_REGISTER));
+        }
+
+        CodeGenerator = new cDexCodeGen(DexFile, dClass, dMethod, Method);
+        CodeGenerator->GenerateSourceCode();
+        delete CodeGenerator;
+
+        if (Registers)
+            delete Registers;
+    }
 }
 
-void cDexDecompiler::GetClassMethodCodesLine(
-    DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-    DEX_DECOMPILED_CLASS_METHOD_REGISTER* Registers
+UINT cDexDecompiler::GetClassMethodArgs(
+    DEX_DECOMPILED_CLASS* dClass,
+    DEX_DECOMPILED_CLASS_METHOD* dMethod, 
+    CLASS_METHOD* Method    
     )
 {
-    BOOL Done = FALSE;
-    CHAR* Temp = new CHAR[MAX_STRING_BUFFER_SIZE];
-    Zero(Temp, MAX_STRING_BUFFER_SIZE);
+    if (!Method->CodeArea || !Method->CodeArea->Locals || !Method->CodeArea->Locals->size() ||
+        Method->CodeArea->Locals->size() > Method->CodeArea->RegistersSize)
+        return 0;
+
+    dMethod->ArgumentsSize = Method->CodeArea->Locals->size();
+
+    map<UINT, CLASS_CODE_LOCAL*>::iterator LocalsIterator = Method->CodeArea->Locals->begin();
+
+    if (Method->CodeArea->Locals->begin()->second->Name &&
+        strcmp("this", Method->CodeArea->Locals->begin()->second->Name) == 0)
+    {
+        dMethod->ArgumentsSize--;
+        LocalsIterator++;
+    }
+
+    if (!dMethod->ArgumentsSize) return 0;
+    dMethod->Arguments = (CLASS_CODE_LOCAL**)malloc(dMethod->ArgumentsSize*sizeof(CLASS_CODE_LOCAL*));
+    for (UINT LocalsForIndex=0; LocalsIterator!=Method->CodeArea->Locals->end(); ++LocalsIterator, ++LocalsForIndex)
+    {
+        dMethod->Arguments[LocalsForIndex] = LocalsIterator->second;
+        AddToImports(dClass, LocalsIterator->second->Type); 
+    }
+
+    return dMethod->ArgumentsSize;
+}
+
+void cDexDecompiler::AddToImports(
+    DEX_DECOMPILED_CLASS* dClass, 
+    CHAR* Import
+    )
+{
+    if (!strrchr(Import, '.')) return;
+    for (UINT i=0; i<dClass->ImportsSize; i++)
+        if (strcmp(dClass->Imports[i], Import) == 0)
+            return;
+
+    dClass->Imports = (CHAR**)realloc(dClass->Imports, ++dClass->ImportsSize* sizeof(CHAR*));
+    dClass->Imports[dClass->ImportsSize-1] = Import;
+}
+
+void cDexDecompiler::AddToExtends(
+    DEX_DECOMPILED_CLASS* dClass,
+    CHAR* Superclass
+    )
+{
+    CHAR* Super = cDexString::GetTypeDescription(Superclass);
+    if (*Superclass == 'L')
+        AddToImports(dClass, Super);
+
+    dClass->Extends = (CHAR**)realloc(dClass->Extends, ++dClass->ExtendsSize* sizeof(CHAR*));
+    dClass->Extends[dClass->ExtendsSize-1] = Super;
+}
+
+void cDexDecompiler::GetClassDefinition(
+    DEX_DECOMPILED_CLASS* dClass, 
+    DEX_CLASS_STRUCTURE* DexClass
+    )
+{
+    /* Class Package */
+    dClass->Package = cDexString::GetTypeDescription((CHAR*)DexClass->Descriptor);
+
+    /* Class Name */
+    dClass->Name = strrchr(dClass->Package, '.');
+    *dClass->Name++ = NULL;
+
+    /* Class Source FileName */
+    dClass->SourceFile = (CHAR*)DexClass->SourceFile;
+
+    /* Class Access Flags */
+    dClass->AccessFlags = cDexString::ExtractAccessFlags(0, DexClass->AccessFlags);
+
+    /* Class Superclass */
+    if (DexClass->SuperClass)
+        AddToExtends(dClass, (CHAR*)DexClass->SuperClass);
+}
+
+/*
+void cDexDecompiler::GetClassMethodCodesLine(
+    DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+    CHAR** Registers
+    )
+{
+    Line->dClass = (CHAR*)malloc(MAX_DECOMPILED_STRING_SIZE);
+    ZERO(Line->dClass, MAX_DECOMPILED_STRING_SIZE);
 
     for (UINT i=0; i<Line->InstructionsSize; i++)
     {
@@ -175,8 +259,7 @@ void cDexDecompiler::GetClassMethodCodesLine(
             break;
 
         case OP_RETURN_VOID:
-            sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "return");
-            Done = TRUE;
+            sprintf_s(Line->dClass, MAX_STRING_BUFFER_SIZE, "return");
             break;
 
         case OP_RETURN:
@@ -285,12 +368,12 @@ void cDexDecompiler::GetClassMethodCodesLine(
             break;
 
         case OP_INVOKE_SUPER:
-            Done = Line->InstructionsSize == 1;
-            sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s%s(",
-                Done? "super.": ".",
-                DexFile->StringItems[DexFile->DexMethodIds[Line->Instructions[i]->vB].StringIndex].Data);
-
-            sprintf_s(Temp + strlen(Temp), MAX_STRING_BUFFER_SIZE, ")");
+            //Done = Line->InstructionsSize == 1;
+            //sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s%s(",
+            //    Done? "super.": ".",
+            //    DexFile->StringItems[DexFile->DexMethodIds[Line->Instructions[i]->vB].StringIndex].Data);
+            //
+            //sprintf_s(Temp + strlen(Temp), MAX_STRING_BUFFER_SIZE, ")");
             break;
 
         case OP_INVOKE_DIRECT:
@@ -435,268 +518,17 @@ void cDexDecompiler::GetClassMethodCodesLine(
         case OP_INVOKE_SUPER_QUICK_RANGE:
             break;
         }
-
-        if (Done)
-        {
-            Line->Decompiled = new CHAR[strlen(Temp)+1];
-            memcpy(Line->Decompiled, Temp, strlen(Temp)+1);
-            break;
-        }
     }
-    
-    //delete Temp;
-}
 
-void cDexDecompiler::GetClassMethodCodes(
-    DEX_DECOMPILED_CLASS* Decompiled, 
-    DEX_DECOMPILED_CLASS_METHOD* dMethod,
-    CLASS_METHOD* Method
-    )
-{
-    for (UINT i=0; i<dMethod->LinesSize; i++)
-        GetClassMethodCodesLine(dMethod->Lines[i], NULL);
-}
-
-UINT cDexDecompiler::GetClassMethodArgs(
-    DEX_DECOMPILED_CLASS* Decompiled,
-    DEX_DECOMPILED_CLASS_METHOD* dMethod, 
-    CLASS_METHOD* Method    
-    )
-{
-    UCHAR argc = 0;
-    if (Method->Type &&  strlen((CHAR*)Method->Type) >0)
+    if (!strlen(Line->dClass))
     {
-        UINT ptr= 0;
-        while(Method->Type[ptr])
-        {
-            switch(Method->Type[ptr])
-            {
-            case 'V':
-            case 'Z':
-            case 'B':
-            case 'S':
-            case 'C':
-            case 'I':
-            case 'J':
-            case 'F':
-            case 'D':
-                dMethod->Arguments = (DEX_DECOMPILED_CLASS_METHOD_ARGUMENT**)
-                    realloc(dMethod->Arguments, ++dMethod->ArgumentsSize*sizeof(DEX_DECOMPILED_CLASS_METHOD_ARGUMENT*));
-                dMethod->Arguments[dMethod->ArgumentsSize-1] = new DEX_DECOMPILED_CLASS_METHOD_ARGUMENT;
-                dMethod->Arguments[dMethod->ArgumentsSize-1]->Type = GetTypeDescription((CHAR*)&Method->Type[ptr]);
-
-                if (Method->CodeArea && Method->CodeArea->DebugInfo.ParametersSize >argc)
-                    dMethod->Arguments[dMethod->ArgumentsSize-1]->Name = (CHAR*)Method->CodeArea->DebugInfo.ParametersNames[argc];
-                else
-                    dMethod->Arguments[dMethod->ArgumentsSize-1]->Name = NULL;
-
-                ptr++;  break;
-            case 'L':
-            case '[':
-                dMethod->Arguments = (DEX_DECOMPILED_CLASS_METHOD_ARGUMENT**)
-                    realloc(dMethod->Arguments, ++dMethod->ArgumentsSize*sizeof(DEX_DECOMPILED_CLASS_METHOD_ARGUMENT*));
-                dMethod->Arguments[dMethod->ArgumentsSize-1] = new DEX_DECOMPILED_CLASS_METHOD_ARGUMENT;
-                dMethod->Arguments[dMethod->ArgumentsSize-1]->Type = GetTypeDescription((CHAR*)&Method->Type[ptr]);
-
-                if (Method->CodeArea && Method->CodeArea->DebugInfo.ParametersSize >argc)
-                    dMethod->Arguments[dMethod->ArgumentsSize-1]->Name = (CHAR*)Method->CodeArea->DebugInfo.ParametersNames[argc];
-                else
-                    dMethod->Arguments[dMethod->ArgumentsSize-1]->Name = NULL;
-
-                AddToImports(Decompiled, dMethod->Arguments[dMethod->ArgumentsSize-1]->Type); 
-                
-                if (Method->Type[ptr] == 'L')
-                    ptr+= strlen(dMethod->Arguments[dMethod->ArgumentsSize-1]->Type) + 2;   
-                else
-                    ptr+= GetArrayTypeSize((CHAR*)Method->Type +ptr);
-
-                break;
-            }
-        }
-
-        return argc;
+        free(Line->dClass);
+        Line->dClass = NULL;
     }
-    return 0;
-}
-
-UINT cDexDecompiler::GetArrayTypeSize(
-    CHAR* Type
-    )
-{
-    UINT size = 0;
-    while(TRUE)
-    {
-        switch(*Type++)
-        {
-        case 'V':
-        case 'Z':
-        case 'B':
-        case 'S':
-        case 'C':
-        case 'I':
-        case 'J':
-        case 'F':
-        case 'D':
-            return ++size;
-        case 'L':
-            while(*Type++ != ';') size++;
-            return size+2;
-        case '[':
-            size++;
-            break;
-        }
-    }
-}
-
-CHAR* cDexDecompiler::ExtractShortLType(CHAR* Type)
-{
-    if (!Type) return NULL;
-    CHAR* result = strrchr(Type, '.');
-    if (result)
-        return result+1;
     else
-        return Type;
+        Line->dClass = (CHAR*)realloc(Line->dClass, strlen(Line->dClass)+1);
 }
-
-CHAR* cDexDecompiler::GetShortType(
-    CHAR* Type
-    )
-{
-    return strrchr(Type, '.')?strrchr(Type, '.')+1: Type;
-}
-
-CHAR* cDexDecompiler::GetTypeDescription(
-    CHAR* Type,
-    UINT ArraySize
-    )
-{
-    switch(Type[0])
-    {
-    case 'V':
-        return ArraySize? ExtractArrayType(OP_TYPE_V, ArraySize): OP_TYPE_V;
-    case 'Z':
-        return ArraySize? ExtractArrayType(OP_TYPE_Z, ArraySize): OP_TYPE_Z;
-    case 'B':
-        return ArraySize? ExtractArrayType(OP_TYPE_B, ArraySize): OP_TYPE_B;
-    case 'S':
-        return ArraySize? ExtractArrayType(OP_TYPE_S, ArraySize): OP_TYPE_S;
-    case 'C':
-        return ArraySize? ExtractArrayType(OP_TYPE_C, ArraySize): OP_TYPE_C;
-    case 'I':
-        return ArraySize? ExtractArrayType(OP_TYPE_I, ArraySize): OP_TYPE_I;
-    case 'J':
-        return ArraySize? ExtractArrayType(OP_TYPE_J, ArraySize): OP_TYPE_J;
-    case 'F':
-        return ArraySize? ExtractArrayType(OP_TYPE_F, ArraySize): OP_TYPE_F;
-    case 'D':
-        return ArraySize? ExtractArrayType(OP_TYPE_D, ArraySize): OP_TYPE_D;
-    case 'L':
-        return ArraySize? ExtractArrayType(ExtractLType(Type), ArraySize): ExtractLType(Type);
-    case '[':
-        return GetTypeDescription(Type+1, ArraySize+1);
-    default:
-        return NULL;
-    }
-}
-
-CHAR* cDexDecompiler::ExtractArrayType(
-    CHAR* Type,
-    UINT ArraySize
-    )
-{
-    UINT resultLen = strlen(Type) + 2*ArraySize + 1;
-    CHAR* result = new CHAR[resultLen];
-    result[resultLen-1] = NULL;
-    sprintf_s(result, resultLen, "%s", Type);
-    for (UINT i=0; i<ArraySize; i++)
-        sprintf_s(result + strlen(result), 3, "[]");
-    return result;
-}
-
-CHAR* cDexDecompiler::ExtractLType(
-    CHAR* Type
-    )
-{
-    UINT descStrlen;
-    for(descStrlen=0; Type[descStrlen]!=';'; descStrlen++);
-    descStrlen++;
-
-    CHAR* result = new CHAR[descStrlen - 1];
-    result[descStrlen - 2] = NULL;
-    memcpy(result, Type+1, descStrlen - 2);
-    
-    for (UINT i=0; i<strlen(result); i++)
-        if (result[i] == '/')
-            result[i] = '.';
-    return result;
-}
-
-CHAR* cDexDecompiler::ExtractAccessFlags(
-    CHAR Type,
-    UINT AccessFlags
-    )
-{
-    CHAR* result;
-    CHAR* accessFlags = cDexFile::GetAccessMask(Type, AccessFlags);
-    result = new CHAR[strlen(accessFlags) + 1];
-    result[strlen(accessFlags)] = NULL;
-    memcpy(result, accessFlags, strlen(accessFlags));
-
-    for(UINT i=0; result[i] != NULL; i++)
-        result[i] = tolower(result[i]);
-    return result;
-}
-
-void cDexDecompiler::AddToImports(
-    DEX_DECOMPILED_CLASS* Decompiled, 
-    CHAR* Import
-    )
-{
-    if (!strrchr(Import, '.')) return;
-    for (UINT i=0; i<Decompiled->ImportsSize; i++)
-        if (strcmp(Decompiled->Imports[i], Import) == 0)
-            return;
-
-    Decompiled->Imports = (CHAR**)realloc(Decompiled->Imports, ++Decompiled->ImportsSize* sizeof(CHAR*));
-    Decompiled->Imports[Decompiled->ImportsSize-1] = Import;
-}
-
-void cDexDecompiler::AddToExtends(
-    DEX_DECOMPILED_CLASS* Decompiled,
-    CHAR* Superclass
-    )
-{
-    CHAR* Super = GetTypeDescription(Superclass);
-    if (*Superclass == 'L')
-        AddToImports(Decompiled, Super);
-
-    Decompiled->Extends = (CHAR**)realloc(Decompiled->Extends, ++Decompiled->ExtendsSize* sizeof(CHAR*));
-    Decompiled->Extends[Decompiled->ExtendsSize-1] = Super;
-}
-
-void cDexDecompiler::GetClassDefinition(
-    DEX_DECOMPILED_CLASS* Decompiled, 
-    DEX_CLASS_STRUCTURE* DexClass
-    )
-{
-    /* Class Package */
-    Decompiled->Package = GetTypeDescription((CHAR*)DexClass->Descriptor);
-
-    /* Class Name */
-    Decompiled->Name = strrchr(Decompiled->Package, '.');
-    *Decompiled->Name++ = NULL;
-
-    /* Class Source FileName */
-    Decompiled->SourceFile = (CHAR*)DexClass->SourceFile;
-
-    /* Class Access Flags */
-    Decompiled->AccessFlags = ExtractAccessFlags(0, DexClass->AccessFlags);
-
-    /* Class Supoerclass */
-    if (DexClass->SuperClass)
-        AddToExtends(Decompiled, (CHAR*)DexClass->SuperClass);
-}
-
+*/
 cDexDecompiler::~cDexDecompiler()
 {
 }

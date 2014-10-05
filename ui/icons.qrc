@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/document-open-folder.png</file>
+        <file>icons/document-save-as.png</file>
+        <file>icons/document-save.png</file>
+        <file>icons/Mimetypes-text-x-hex-icon.png</file>
+        <file>icons/android-platform-icon.png</file>
+        <file>icons/korganizer-icon.png</file>
+        <file>icons/Actions-view-list-tree-icon.png</file>
+    </qresource>
+</RCC>

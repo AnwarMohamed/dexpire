@@ -21,6 +21,14 @@
 #pragma once
 #include "dexpire.h"
 #include "cFile.h"
+#include "cDexString.h"
+#include <map>
+
+#define NO_INDEX 0xffffffff
+#define TEMP_STRING_SIZE 200
+#define ZERO(b, s) memset(b, 0, s)
+
+using namespace std;
 
 struct DEX_HEADER 
 {
@@ -333,72 +341,6 @@ enum
 #define kSparseSwitchSignature  0x0200
 #define kArrayDataSignature     0x0300
 
-static const CHAR* AccessMaskStrings[3][18] = 
-{
-    {   
-        /* class, inner class */
-        "PUBLIC",           /* 0x0001 */
-        "PRIVATE",          /* 0x0002 */
-        "PROTECTED",        /* 0x0004 */
-        "STATIC",           /* 0x0008 */
-        "FINAL",            /* 0x0010 */
-        "?",                /* 0x0020 */
-        "?",                /* 0x0040 */
-        "?",                /* 0x0080 */
-        "?",                /* 0x0100 */
-        "INTERFACE",        /* 0x0200 */
-        "ABSTRACT",         /* 0x0400 */
-        "?",                /* 0x0800 */
-        "SYNTHETIC",        /* 0x1000 */
-        "ANNOTATION",       /* 0x2000 */
-        "ENUM",             /* 0x4000 */
-        "?",                /* 0x8000 */
-        "VERIFIED",         /* 0x10000 */
-        "OPTIMIZED",        /* 0x20000 */
-    },
-    {
-        /* method */
-        "PUBLIC",           /* 0x0001 */
-        "PRIVATE",          /* 0x0002 */
-        "PROTECTED",        /* 0x0004 */
-        "STATIC",           /* 0x0008 */
-        "FINAL",            /* 0x0010 */
-        "SYNCHRONIZED",     /* 0x0020 */
-        "BRIDGE",           /* 0x0040 */
-        "VARARGS",          /* 0x0080 */
-        "NATIVE",           /* 0x0100 */
-        "?",                /* 0x0200 */
-        "ABSTRACT",         /* 0x0400 */
-        "STRICT",           /* 0x0800 */
-        "SYNTHETIC",        /* 0x1000 */
-        "?",                /* 0x2000 */
-        "?",                /* 0x4000 */
-        "MIRANDA",          /* 0x8000 */
-        "CONSTRUCTOR",      /* 0x10000 */
-        "DECLARED_SYNCHRONIZED", /* 0x20000 */
-    },
-    {
-        /* field */
-        "PUBLIC",           /* 0x0001 */
-        "PRIVATE",          /* 0x0002 */
-        "PROTECTED",        /* 0x0004 */
-        "STATIC",           /* 0x0008 */
-        "FINAL",            /* 0x0010 */
-        "?",                /* 0x0020 */
-        "VOLATILE",         /* 0x0040 */
-        "TRANSIENT",        /* 0x0080 */
-        "?",                /* 0x0100 */
-        "?",                /* 0x0200 */
-        "?",                /* 0x0400 */
-        "?",                /* 0x0800 */
-        "SYNTHETIC",        /* 0x1000 */
-        "?",                /* 0x2000 */
-        "ENUM",             /* 0x4000 */
-        "?",                /* 0x8000 */
-        "?",                /* 0x10000 */
-        "?",                /* 0x20000 */
-    },
-};
 
 
 /* Dex Class Structures */
@@ -428,38 +370,16 @@ struct CLASS_FIELD
     CLASS_ANNOTATION* Annotations;
 }; 
 
-struct CLASS_CODE_DEBUG_STATE_REGISTERS
-{
-    UINT    Address;
-    UINT    Line;
-    CHAR*   SourceFile;
-    BOOL    PrologueEnd;
-    BOOL    EpilogueBegin;
-};
-
 struct CLASS_CODE_DEBUG_POSITION
 {
     UINT    Line;
-    USHORT    Offset;
-};
-
-struct CLASS_CODE_DEBUG_REGISTER
-{
-    CONST CHAR *Name;
-    CONST CHAR *Descriptor;
-    CONST CHAR *Signature;
-    USHORT  StartAddress;
-    BOOL    Live;
+    USHORT  Offset;
 };
 
 struct CLASS_CODE_DEBUG_INFO
 {
-    UINT ParametersSize;
-    UCHAR** ParametersNames;
-
     UINT PositionsSize;
     CLASS_CODE_DEBUG_POSITION** Positions;
-    CLASS_CODE_DEBUG_STATE_REGISTERS Registers;
 };
 
 struct CLASS_CODE_CATCH_TYPE_PAIR
@@ -505,17 +425,24 @@ struct CLASS_CODE_INSTRUCTION
 
 struct CLASS_CODE_LOCAL
 {
-    UINT    Register;
     CHAR*   Name;
     CHAR*   Type;
-    CHAR*   Signature;
-    USHORT  OffsetStart;
-    USHORT  OffsetEnd;
+};
+
+struct CLASS_CODE_REGISTER
+{
+    CHAR*   Name;
+    CHAR*   Value;
+    USHORT  StartAddress;
+    USHORT  EndAddress;
+    CLASS_CODE_REGISTER* Next;
 };
 
 struct CLASS_CODE
 {
     USHORT  RegistersSize;
+    CLASS_CODE_REGISTER* Registers;
+    
     USHORT  InsSize;
     USHORT  OutsSize;
     //UINT    DebugInfoOff;   
@@ -533,8 +460,7 @@ struct CLASS_CODE
     CLASS_CODE_INSTRUCTION   **Instructions;
     UINT    InstructionsSize;
 
-    UINT LocalsSize;
-    CLASS_CODE_LOCAL* Locals;
+    map<UINT, CLASS_CODE_LOCAL*>* Locals;
 };
 
 struct CLASS_METHOD 
@@ -1270,7 +1196,7 @@ public:
     UINT nClasses;
     DEX_CLASS_STRUCTURE* DexClasses;
 
-    static CHAR*   GetAccessMask(UINT Type, UINT AccessFlag);
+   
 
     void DumpClassInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
     void DumpClassDataInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class, UCHAR** Buffer);
@@ -1285,7 +1211,8 @@ public:
     void DumpMethodTryItems(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
     void DumpMethodTryItemsInfo(CLASS_CODE_TRY* TryItem, DEX_TRY_ITEM* TryItemInfo, CLASS_CODE_CATCH_HANDLER** CatchHandlers);
     void DumpMethodCatchHandlers(CLASS_CODE* CodeArea, UCHAR** Buffer);
-    void DumpMethodDebugInfo(CLASS_CODE* CodeArea, CLASS_CODE_DEBUG_INFO* DebugInfo, UCHAR** Buffer);
+    void DumpMethodDebugInfo(CLASS_METHOD* Method, CLASS_CODE_DEBUG_INFO* DebugInfo, UCHAR** Buffer);
+    void DumpMethodLocals(CLASS_METHOD* Method, UCHAR** Buffer);
     void DumpMethodCodeInfo(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
     void DumpMethodCode(DEX_CODE* CodeAreaDef, CLASS_METHOD* Method);
     void DumpMethodById(UINT MethodIndex, CLASS_METHOD* Method, UCHAR** Buffer);
@@ -1318,6 +1245,8 @@ private:
     void    CreateOpcodesFormatTable();
 
     UCHAR* TempBuffer;
+
+    ULONG OpcodeCounter;
 };
 
 

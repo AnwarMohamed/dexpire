@@ -22,7 +22,6 @@
 #pragma warning (disable : 4251)
 #include <Windows.h>
 #else
-
 #define BOOL     bool
 #define UCHAR    unsigned char
 #define CHAR     char
@@ -35,8 +34,9 @@
 #define ULONGLONG unsigned long long
 #define FALSE    0
 #define TRUE     1
-
 #endif
+
+#define STRUCT struct
 
 #ifndef DLLEXPORT
 #ifdef _WIN32

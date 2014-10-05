@@ -34,7 +34,7 @@ int main()
         cDexDecompiler* decompiled = new cDexDecompiler(dex);
 
         
-        for (UINT i=1; i<2/*dex->nClasses*/; i++)
+        for (UINT i=300; i<301/*dex->nClasses*/; i++)
         {
             printf("package %s;\n\n", decompiled->Classes[i].Package);
 
@@ -52,7 +52,7 @@ int main()
             for (UINT j=0; j<decompiled->Classes[i].ExtendsSize; j++)
             {
                 if (j) printf(",");
-                printf("%s ", cDexDecompiler::ExtractShortLType(decompiled->Classes[i].Extends[j]));
+                printf("%s ", cDexString::ExtractShortLType(decompiled->Classes[i].Extends[j]));
             }
 
             printf("{\n\n");
@@ -75,15 +75,15 @@ int main()
 
                 printf("    %s %s %s(",
                     decompiled->Classes[i].Methods[j]->AccessFlags,
-                    cDexDecompiler::ExtractShortLType(decompiled->Classes[i].Methods[j]->ReturnType),
+                    cDexString::ExtractShortLType(decompiled->Classes[i].Methods[j]->ReturnType),
                     decompiled->Classes[i].Methods[j]->Name);
 
                 for (UINT k=0; k<decompiled->Classes[i].Methods[j]->ArgumentsSize; k++)
                 {
                     if (k) printf(", ");
                     printf("%s %s",
-                        cDexDecompiler::ExtractShortLType(decompiled->Classes[i].Methods[j]->Arguments[k]->Type),
-                        cDexDecompiler::ExtractShortLType(decompiled->Classes[i].Methods[j]->Arguments[k]->Name));
+                        cDexString::ExtractShortLType(decompiled->Classes[i].Methods[j]->Arguments[k]->Type),
+                        cDexString::ExtractShortLType(decompiled->Classes[i].Methods[j]->Arguments[k]->Name));
                 }
                 printf(") {\n");
 
@@ -359,11 +359,11 @@ int main()
                 
         }*/
 
-        delete dex;
         system("pause");
     }
     else 
         printf("Unable to load your dex file\n");
 
+    delete dex;
     return 0;
 }

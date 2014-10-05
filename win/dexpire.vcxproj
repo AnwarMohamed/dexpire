@@ -11,13 +11,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\cDexCodeGen.cpp" />
+    <ClCompile Include="..\src\cDexCodeWriter.cpp" />
     <ClCompile Include="..\src\cDexDecompiler.cpp" />
     <ClCompile Include="..\src\cDexFile.cpp" />
+    <ClCompile Include="..\src\cDexString.cpp" />
     <ClCompile Include="..\src\cFile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\cDexCodeGen.h" />
+    <ClInclude Include="..\src\cDexCodeWriter.h" />
     <ClInclude Include="..\src\cDexDecompiler.h" />
     <ClInclude Include="..\src\cDexFile.h" />
+    <ClInclude Include="..\src\cDexString.h" />
     <ClInclude Include="..\src\cFile.h" />
     <ClInclude Include="..\src\dexpire.h" />
   </ItemGroup>
