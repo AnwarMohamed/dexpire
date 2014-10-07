@@ -22,6 +22,9 @@
 #include "..\src\cDexDecompiler.h"
 #include <stdio.h>
 
+
+#define DECOMPILED_LINES
+
 int main()
 {
     cDexFile* dex = new cDexFile("classes.dex");
@@ -31,17 +34,20 @@ int main()
     {
         printf("Opened '%s', DEX version '%s'\n\n\n", dex->Filename, dex->DexVersion);
         
+        
         cDexDecompiler* decompiled = new cDexDecompiler(dex);
-
         
         for (UINT i=300; i<301/*dex->nClasses*/; i++)
         {
             printf("package %s;\n\n", decompiled->Classes[i].Package);
 
             for (UINT j=0; j<decompiled->Classes[i].ImportsSize; j++)
+            {
                 printf("import %s;\n", decompiled->Classes[i].Imports[j]);
-            printf("\n");
-
+                if (j+1 == decompiled->Classes[i].ImportsSize)
+                    printf("\n");
+            }
+            
             printf("%s class %s", 
                 decompiled->Classes[i].AccessFlags,
                 decompiled->Classes[i].Name);
@@ -59,17 +65,21 @@ int main()
             
 
             for (UINT j=0; j<decompiled->Classes[i].FieldsSize; j++)
+            {
                 printf("    %s %s %s%s%s;\n",
                     decompiled->Classes[i].Fields[j]->AccessFlags,
                     decompiled->Classes[i].Fields[j]->ReturnType,
                     decompiled->Classes[i].Fields[j]->Name,
                     decompiled->Classes[i].Fields[j]->Static? (decompiled->Classes[i].Fields[j]->Value?" = ":""):"",
                     decompiled->Classes[i].Fields[j]->Static? (decompiled->Classes[i].Fields[j]->Value?decompiled->Classes[i].Fields[j]->Value:""):"");
-            printf("\n");
-
+                if (j+1 == decompiled->Classes[i].FieldsSize)
+                    printf("\n");
+            }
+            
             for (UINT j=0; j<decompiled->Classes[i].MethodsSize; j++)
             {
-                if (strcmp(decompiled->Classes[i].Methods[j]->Name, "<init>") == 0 ||
+                if (!decompiled->Classes[i].Methods[j]->Name ||
+                    strcmp(decompiled->Classes[i].Methods[j]->Name, "<init>") == 0 ||
                     strcmp(decompiled->Classes[i].Methods[j]->Name, "<clinit>") == 0)
                     continue;
 
@@ -87,17 +97,33 @@ int main()
                 }
                 printf(") {\n");
 
+
                 for (UINT k=0; k<decompiled->Classes[i].Methods[j]->LinesSize; k++)
                 {
-                    if (k) printf("\n");
-
+#ifdef DECOMPILED_LINES
                     if (decompiled->Classes[i].Methods[j]->Lines[k]->Decompiled)
+                    {
+                        if (k) printf("\n");
                         printf("        %s;\n", decompiled->Classes[i].Methods[j]->Lines[k]->Decompiled);
+                    }
                     else
+                    {
+                        
                         for (UINT l=0; l<decompiled->Classes[i].Methods[j]->Lines[k]->InstructionsSize; l++)
+                        {
+                            if (k && !l) printf("\n");
                             printf("        %s\n", decompiled->Classes[i].Methods[j]->Lines[k]->Instructions[l]->Decoded);
-
+                        }
+                    }
+#else
+                    for (UINT l=0; l<decompiled->Classes[i].Methods[j]->Lines[k]->InstructionsSize; l++)
+                    {
+                        if (k && !l) printf("\n");
+                        printf("        %s;\n", decompiled->Classes[i].Methods[j]->Lines[k]->Instructions[l]->Decompiled);
+                    }
+#endif
                 }
+
 
                 printf("    }\n\n");
             }
@@ -107,7 +133,9 @@ int main()
         }
         
         delete decompiled;
-        //for (UINT i=300; i< 301/*dex.nClassDefinitions*/; i++)
+        
+
+        //for (UINT i=0; i<301 /*dex->nClassDefinitions*/; i++)
         /*{
             printf("Class #%d header:\n", i);
             printf(	"class_idx           : %d\n"
@@ -122,17 +150,17 @@ int main()
                     "direct_methods_size : %d\n"
                     "virtual_methods_size: %d\n\n",
                     
-                    dex.DexClassDefs[i].ClassIdx,
-                    dex.DexClassDefs[i].AccessFlags, dex.DexClassDefs[i].AccessFlags,
-                    dex.DexClassDefs[i].SuperclassIdx,
-                    dex.DexClassDefs[i].InterfacesOff, dex.DexClassDefs[i].InterfacesOff,
-                    dex.DexClassDefs[i].SourceFileIdx,
-                    dex.DexClassDefs[i].AnnotationsOff, dex.DexClassDefs[i].AnnotationsOff,
-                    dex.DexClassDefs[i].ClassDataOff, dex.DexClassDefs[i].ClassDataOff,
-                    dex.DexClassDefs[i].ClassDataOff ? dex.DexClasses[i].ClassData->StaticFieldsSize: 0,
-                    dex.DexClassDefs[i].ClassDataOff ? dex.DexClasses[i].ClassData->InstanceFieldsSize: 0,
-                    dex.DexClassDefs[i].ClassDataOff ? dex.DexClasses[i].ClassData->DirectMethodsSize: 0,
-                    dex.DexClassDefs[i].ClassDataOff ? dex.DexClasses[i].ClassData->VirtualMethodsSize: 0);
+                    dex->DexClassDefs[i].ClassIdx,
+                    dex->DexClassDefs[i].AccessFlags, dex->DexClassDefs[i].AccessFlags,
+                    dex->DexClassDefs[i].SuperclassIdx,
+                    dex->DexClassDefs[i].InterfacesOff, dex->DexClassDefs[i].InterfacesOff,
+                    dex->DexClassDefs[i].SourceFileIdx,
+                    dex->DexClassDefs[i].AnnotationsOff, dex->DexClassDefs[i].AnnotationsOff,
+                    dex->DexClassDefs[i].ClassDataOff, dex->DexClassDefs[i].ClassDataOff,
+                    dex->DexClassDefs[i].ClassDataOff ? dex->DexClasses[i].ClassData->StaticFieldsSize: 0,
+                    dex->DexClassDefs[i].ClassDataOff ? dex->DexClasses[i].ClassData->InstanceFieldsSize: 0,
+                    dex->DexClassDefs[i].ClassDataOff ? dex->DexClasses[i].ClassData->DirectMethodsSize: 0,
+                    dex->DexClassDefs[i].ClassDataOff ? dex->DexClasses[i].ClassData->VirtualMethodsSize: 0);
 
             printf(	"Class #%d            -\n"
                     "  Class descriptor  : '%s'\n"
@@ -140,68 +168,68 @@ int main()
                     "  Superclass        : '%s'\n",
                     
                     i,
-                    dex.DexClasses[i].Descriptor,
-                    dex.DexClasses[i].AccessFlags, dex.GetAccessMask(0, dex.DexClasses[i].AccessFlags),
-                    dex.DexClasses[i].SuperClass);
+                    dex->DexClasses[i].Descriptor,
+                    dex->DexClasses[i].AccessFlags, cDexString::GetAccessMask(0, dex->DexClasses[i].AccessFlags),
+                    dex->DexClasses[i].SuperClass);
 
 
             printf(	"  Interfaces        -\n");
-			for (UINT j=0; j<(dex.DexClassDefs[i].ClassDataOff?dex.DexClasses[i].ClassData->InterfacesSize:0); j++)
+			for (UINT j=0; j<(dex->DexClassDefs[i].ClassDataOff?dex->DexClasses[i].ClassData->InterfacesSize:0); j++)
 			{
 				printf(	"    #%d              : '%s'\n", 
-						j, dex.DexClasses[i].ClassData->Interfaces[j]);
+						j, dex->DexClasses[i].ClassData->Interfaces[j]);
 			}
 
 
             printf(	"  Static fields     -\n");
-			for (UINT j=0; j<(dex.DexClassDefs[i].ClassDataOff?dex.DexClasses[i].ClassData->StaticFieldsSize:0); j++)
+			for (UINT j=0; j<(dex->DexClassDefs[i].ClassDataOff?dex->DexClasses[i].ClassData->StaticFieldsSize:0); j++)
 			{
 				printf("    #%d              : (in %s)\n"
 					   "      name          : '%s'\n"
 					   "      type          : '%s'\n"
 					   "      access        : 0x%04x (%s)\n",
 					   
-					   j, dex.DexClasses[i].Descriptor,
-					   dex.DexClasses[i].ClassData->StaticFields[j].Name,
-					   dex.DexClasses[i].ClassData->StaticFields[j].Type,
-					   dex.DexClasses[i].ClassData->StaticFields[j].AccessFlags, 
-					   dex.GetAccessMask(2, dex.DexClasses[i].ClassData->StaticFields[j].AccessFlags)
+					   j, dex->DexClasses[i].Descriptor,
+					   dex->DexClasses[i].ClassData->StaticFields[j].Name,
+					   dex->DexClasses[i].ClassData->StaticFields[j].Type,
+					   dex->DexClasses[i].ClassData->StaticFields[j].AccessFlags, 
+					   cDexString::GetAccessMask(2, dex->DexClasses[i].ClassData->StaticFields[j].AccessFlags)
 					   );
 			}
 
 
             printf(	"  Instance fields   -\n");
-			for (UINT j=0; j<(dex.DexClassDefs[i].ClassDataOff?dex.DexClasses[i].ClassData->InstanceFieldsSize:0); j++)
+			for (UINT j=0; j<(dex->DexClassDefs[i].ClassDataOff?dex->DexClasses[i].ClassData->InstanceFieldsSize:0); j++)
 			{
 				printf("    #%d              : (in %s)\n"
 					   "      name          : '%s'\n"
 					   "      type          : '%s'\n"
 					   "      access        : 0x%04x (%s)\n",
 					   
-					   j, dex.DexClasses[i].Descriptor,
-					   dex.DexClasses[i].ClassData->InstanceFields[j].Name,
-					   dex.DexClasses[i].ClassData->InstanceFields[j].Type,
-					   dex.DexClasses[i].ClassData->InstanceFields[j].AccessFlags, 
-					   dex.GetAccessMask(2, dex.DexClasses[i].ClassData->InstanceFields[j].AccessFlags)
+					   j, dex->DexClasses[i].Descriptor,
+					   dex->DexClasses[i].ClassData->InstanceFields[j].Name,
+					   dex->DexClasses[i].ClassData->InstanceFields[j].Type,
+					   dex->DexClasses[i].ClassData->InstanceFields[j].AccessFlags, 
+					   cDexString::GetAccessMask(2, dex->DexClasses[i].ClassData->InstanceFields[j].AccessFlags)
 					   );
 			}
 
 
             printf(	"  Direct methods    -\n");
-            for (UINT j=0; j<(dex.DexClassDefs[i].ClassDataOff?dex.DexClasses[i].ClassData->DirectMethodsSize:0); j++)
+            for (UINT j=0; j<(dex->DexClassDefs[i].ClassDataOff?dex->DexClasses[i].ClassData->DirectMethodsSize:0); j++)
             {
                 printf ("    #%d              : (in %s)\n"
                         "      name          : '%s'\n"
                         "      type          : '(%s)%s'\n"
                         "      access        : 0x%04x (%s)\n",
 
-                        j, dex.DexClasses[i].Descriptor,
-                        dex.DexClasses[i].ClassData->DirectMethods[j].Name,
-						dex.DexClasses[i].ClassData->DirectMethods[j].Type, dex.DexClasses[i].ClassData->DirectMethods[j].ProtoType,
-						dex.DexClasses[i].ClassData->DirectMethods[j].AccessFlags,  
-						dex.GetAccessMask(1, dex.DexClasses[i].ClassData->DirectMethods[j].AccessFlags));
+                        j, dex->DexClasses[i].Descriptor,
+                        dex->DexClasses[i].ClassData->DirectMethods[j].Name,
+						dex->DexClasses[i].ClassData->DirectMethods[j].Type, dex->DexClasses[i].ClassData->DirectMethods[j].ProtoType,
+						dex->DexClasses[i].ClassData->DirectMethods[j].AccessFlags,  
+						cDexString::GetAccessMask(1, dex->DexClasses[i].ClassData->DirectMethods[j].AccessFlags));
 
-                if (dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea)
+                if (dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea)
                 {
                     printf( "      code          -\n"
                             "      registers     : %d\n"
@@ -209,57 +237,55 @@ int main()
                             "      outs          : %d\n"
                             "      insns size    : %d 16-bit code units\n",
 
-						    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->RegistersSize,
-						    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->InsSize,
-						    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->OutsSize,
-						    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->InstBufferSize);
+						    dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->RegistersSize,
+						    dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->InsSize,
+						    dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->OutsSize,
+						    dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->InstBufferSize);
 
 
                     printf("%06x:                                        |[%06x] %s.%s:(%s)%s\n", 
-                        dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Offset & 0x00FFFFFF,
-                        dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Offset & 0x00FFFFFF,
-                        dex.DexClasses[i].Descriptor,
-                        dex.DexClasses[i].ClassData->DirectMethods[j].Name,
-                        dex.DexClasses[i].ClassData->DirectMethods[j].Type,
-                        dex.DexClasses[i].ClassData->DirectMethods[j].ProtoType);
+                        dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Offset & 0x00FFFFFF,
+                        dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Offset & 0x00FFFFFF,
+                        dex->DexClasses[i].Descriptor,
+                        dex->DexClasses[i].ClassData->DirectMethods[j].Name,
+                        dex->DexClasses[i].ClassData->DirectMethods[j].Type? dex->DexClasses[i].ClassData->DirectMethods[j].Type: (UCHAR*)"",
+                        dex->DexClasses[i].ClassData->DirectMethods[j].ProtoType);
 
                     UINT line = 0;
-                    for (UINT k=0; k<dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->InstructionsSize; k++)
+                    for (UINT k=0; k<dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->InstructionsSize; k++)
                     {
-                        printf("%06x: ", dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->Offset & 0x00FFFFFF);
-                        for (UINT l=0; l<dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->BytesSize; l++)
-                        {
-                            printf("%02x", dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->Bytes[l]);
-                            if ((l+1)%2 == 0) printf(" ");
-                        }
+                        printf("%06x: ", dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->Offset & 0x00FFFFFF);
+                        for (UINT l=0; l<(UINT)(dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->BufferSize>7?7:
+                            dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->BufferSize); l++)
+                            printf("%04x ", SWAP_SHORT(dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->Buffer[l]));
 
-                        for (UINT l=0; l<39 - (dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->BytesSize*2) - 
-                            (dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->BytesSize/2) ; l++)
+                        for (UINT l=0; l<39 - (UINT)(dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->BufferSize>7?7:
+                            dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->BufferSize)*5; l++)
                             printf(" ");
 
                         printf("|%04x: %s\n", line,
-                            dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->Decoded);
-                        line += dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->BytesSize/2;
+                            dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->Decoded);
+                        line += dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Instructions[k]->BufferSize/2;
                     }
 
-				    if (!dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize)
+				    if (!dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize)
 					    printf("      catches       : (none)\n");
 				    else
 				    {
 					    printf("      catches       : %d\n", 
-					    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize);
+					    dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize);
 
-					    for (UINT k=0; k<dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize; k++)
+					    for (UINT k=0; k<dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->TriesSize; k++)
 					    {
 						    printf("        0x%04x - 0x%04x\n", 
-							    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsStart,
-							    dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsEnd);
+							    dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsStart,
+							    dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].InstructionsEnd);
 
-                            //for (UINT l=0; l<(UINT)dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
+                            //for (UINT l=0; l<(UINT)dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
                             //{
                             //    printf("          %s -> 0x%04x\n", 
-                            //        dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Type,
-                            //        dex.DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
+                            //        dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Type,
+                            //        dex->DexClasses[i].ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
                             //}
 
 					    }
@@ -272,76 +298,75 @@ int main()
 
             
 			printf(	"  Virtual methods   -\n");
-            for (UINT j=0; j<(dex.DexClassDefs[i].ClassDataOff?dex.DexClasses[i].ClassData->VirtualMethodsSize:0); j++)
+            for (UINT j=0; j<(dex->DexClassDefs[i].ClassDataOff?dex->DexClasses[i].ClassData->VirtualMethodsSize:0); j++)
             {
                 printf ("    #%d              : (in %s)\n"
                         "      name          : '%s'\n"
                         "      type          : '(%s)%s'\n"
                         "      access        : 0x%04x (%s)\n",
 
-                        j, dex.DexClasses[i].Descriptor,
-                        dex.DexClasses[i].ClassData->VirtualMethods[j].Name,
-						dex.DexClasses[i].ClassData->VirtualMethods[j].Type, dex.DexClasses[i].ClassData->VirtualMethods[j].ProtoType,
-						dex.DexClasses[i].ClassData->VirtualMethods[j].AccessFlags,  
-						dex.GetAccessMask(1, dex.DexClasses[i].ClassData->VirtualMethods[j].AccessFlags));
+                        j, dex->DexClasses[i].Descriptor,
+                        dex->DexClasses[i].ClassData->VirtualMethods[j].Name,
+						dex->DexClasses[i].ClassData->VirtualMethods[j].Type, dex->DexClasses[i].ClassData->VirtualMethods[j].ProtoType,
+						dex->DexClasses[i].ClassData->VirtualMethods[j].AccessFlags,  
+						cDexString::GetAccessMask(1, dex->DexClasses[i].ClassData->VirtualMethods[j].AccessFlags));
 
-                if (dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea)
+                if (dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea)
                 {
                     printf( "      code          -\n"
                             "      registers     : %d\n"
                             "      ins           : %d\n"
                             "      outs          : %d\n"
                             "      insns size    : %d 16-bit code units\n",
-						    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->RegistersSize,
-						    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->InsSize,
-						    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->OutsSize,
-						    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->InstBufferSize);
+						    dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->RegistersSize,
+						    dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->InsSize,
+						    dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->OutsSize,
+						    dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->InstBufferSize);
                 
                     printf("%06x:                                        |[%06x] %s.%s:(%s)%s\n", 
-                        dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Offset & 0x00FFFFFF,
-                        dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Offset & 0x00FFFFFF,
-                        dex.DexClasses[i].Descriptor,
-                        dex.DexClasses[i].ClassData->VirtualMethods[j].Name,
-                        dex.DexClasses[i].ClassData->VirtualMethods[j].Type,
-                        dex.DexClasses[i].ClassData->VirtualMethods[j].ProtoType);
+                        dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Offset & 0x00FFFFFF,
+                        dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Offset & 0x00FFFFFF,
+                        dex->DexClasses[i].Descriptor,
+                        dex->DexClasses[i].ClassData->VirtualMethods[j].Name,
+                        dex->DexClasses[i].ClassData->VirtualMethods[j].Type? dex->DexClasses[i].ClassData->VirtualMethods[j].Type: (UCHAR*)"",
+                        dex->DexClasses[i].ClassData->VirtualMethods[j].ProtoType);
 
                     UINT line = 0;
-                    for (UINT k=0; k<dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->InstructionsSize; k++)
+                    for (UINT k=0; k<dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->InstructionsSize; k++)
                     {
-                        printf("%06x: ", dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->Offset & 0x00FFFFFF);
-                        for (UINT l=0; l<dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BytesSize; l++)
-                        {
-                            printf("%02x", dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->Bytes[l]);
-                            if ((l+1)%2 == 0) printf(" ");
-                        }
+                        printf("%06x: ", dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->Offset & 0x00FFFFFF);
+                        for (UINT l=0; 
+                            l<(UINT)(dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BufferSize>7?7: 
+                            dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BufferSize); l++)
+                            printf("%04x ", SWAP_SHORT(dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->Buffer[l]));
 
-                        for (UINT l=0; l<39 - (dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BytesSize*2) - 
-                            (dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BytesSize/2) ; l++)
+                        for (UINT l=0; l<39 - (UINT)(dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BufferSize>7?7: 
+                            dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BufferSize)*5; l++)
                             printf(" ");
 
                         printf("|%04x: %s\n", line,
-                            dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->Decoded);
-                        line += dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BytesSize/2;
+                            dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->Decoded);
+                        line += dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BufferSize/2;
                     }
 
-				    if (!dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->TriesSize)
+				    if (!dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->TriesSize)
 					    printf("      catches       : (none)\n");
 				    else
 				    {
 					    printf("      catches       : %d\n", 
-					    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->TriesSize);
+					    dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->TriesSize);
 
-					    for (UINT k=0; k<dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->TriesSize; k++)
+					    for (UINT k=0; k<dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->TriesSize; k++)
 					    {
 						    printf("        0x%04x - 0x%04x\n", 
-							    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].InstructionsStart,
-							    dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].InstructionsEnd);
+							    dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].InstructionsStart,
+							    dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].InstructionsEnd);
 
-                            //for (UINT l=0; l<(UINT)dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
+                            //for (UINT l=0; l<(UINT)dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
                             //{
                             //    printf("          %s -> 0x%04x\n", 
-                            //        dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Type,
-                            //        dex.DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
+                            //        dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Type,
+                            //        dex->DexClasses[i].ClassData->VirtualMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlers[l].Address);
                             //}
 
 					    }
@@ -354,10 +379,11 @@ int main()
 			
 
 			printf("  source_file_idx   : %d (%s)\n\n", 
-                dex.DexClassDefs[i].SourceFileIdx,
-                dex.DexClasses[i].SourceFile);
+                dex->DexClassDefs[i].SourceFileIdx,
+                dex->DexClasses[i].SourceFile);
                 
-        }*/
+        }
+        */
 
         system("pause");
     }

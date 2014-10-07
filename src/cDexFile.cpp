@@ -132,35 +132,35 @@ void cDexFile::DumpFieldsValues(
     UINT ValuesSize = ReadUnsignedLeb128((CONST UCHAR**)&Ptr);
 
     UCHAR ValueType, ValueSize;
-    CHAR* Temp = new CHAR[TEMP_STRING_SIZE];
+    CHAR* Temp = new CHAR[MAX_STRING_BUFFER_SIZE];
 
     for (UINT i=0; i<ValuesSize; i++)
     {
         ValueType = *Ptr++;
         ValueSize = (ValueType >> 5) +1;
 
-        ZERO(Temp,TEMP_STRING_SIZE);
+        ZERO(Temp,MAX_STRING_BUFFER_SIZE);
 
         switch(ValueType)
         {    
         case VALUE_BYTE:
-            _itoa_s(*(CHAR*)Ptr, Temp, TEMP_STRING_SIZE, 10);
+            _itoa_s(*(CHAR*)Ptr, Temp, MAX_STRING_BUFFER_SIZE, 10);
             Ptr += 1;
             break;
         case VALUE_SHORT:
-            _itoa_s((*(SHORT*)Ptr) << ((2-ValueSize)*8) >> ((2-ValueSize)*8), Temp, TEMP_STRING_SIZE, 10);
+            _itoa_s((*(SHORT*)Ptr) << ((2-ValueSize)*8) >> ((2-ValueSize)*8), Temp, MAX_STRING_BUFFER_SIZE, 10);
             Ptr += ValueSize;
             break;
         case VALUE_CHAR:
-            _itoa_s((*(UCHAR*)Ptr) << ((2-ValueSize)*8) >> ((2-ValueSize)*8) , Temp, TEMP_STRING_SIZE, 10);
+            _itoa_s((*(UCHAR*)Ptr) << ((2-ValueSize)*8) >> ((2-ValueSize)*8) , Temp, MAX_STRING_BUFFER_SIZE, 10);
             Ptr += ValueSize;
             break;
         case VALUE_INT:
-            _itoa_s((*(INT*)Ptr) << ((4-ValueSize)*8) >> ((4-ValueSize)*8), Temp, TEMP_STRING_SIZE, 10);
+            _itoa_s((*(INT*)Ptr) << ((4-ValueSize)*8) >> ((4-ValueSize)*8), Temp, MAX_STRING_BUFFER_SIZE, 10);
             Ptr += ValueSize;
             break;
         case VALUE_LONG:
-            _ltoa_s((*(LONG*)Ptr) << ((8-ValueSize)*8) >> ((8-ValueSize)*8), Temp, TEMP_STRING_SIZE, 10);
+            _ltoa_s((*(LONG*)Ptr) << ((8-ValueSize)*8) >> ((8-ValueSize)*8), Temp, MAX_STRING_BUFFER_SIZE, 10);
             Ptr += ValueSize;
             break;
         case VALUE_FLOAT:
@@ -168,7 +168,7 @@ void cDexFile::DumpFieldsValues(
             Ptr += ValueSize;
             break;
         case VALUE_STRING:
-            sprintf_s(Temp, TEMP_STRING_SIZE, "\"%s\"", StringItems[(*(UINT*)Ptr) << ((4-ValueSize)*8) >> ((4-ValueSize)*8)].Data);
+            sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "\"%s\"", StringItems[(*(UINT*)Ptr) << ((4-ValueSize)*8) >> ((4-ValueSize)*8)].Data);
             Ptr  += ValueSize;
             break;
         case VALUE_TYPE:
@@ -180,7 +180,7 @@ void cDexFile::DumpFieldsValues(
         case VALUE_ARRAY:
         case VALUE_ANNOTATION:
         case VALUE_NULL:
-            sprintf_s(Temp, TEMP_STRING_SIZE, "null");
+            sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "null");
             break;
         case VALUE_BOOLEAN:
         case VALUE_SENTINEL:
@@ -455,7 +455,7 @@ void cDexFile::DumpMethodLocals(
     CLASS_METHOD* Method, 
     UCHAR** Buffer)
 {
-    Method->CodeArea->Locals = new map<UINT, CLASS_CODE_LOCAL*>();
+    Method->CodeArea->Locals = new LOCALS_MAP();
     USHORT LocalsIndex = Method->CodeArea->RegistersSize - Method->CodeArea->InsSize;
 
     CLASS_CODE_LOCAL* Local;
@@ -525,7 +525,8 @@ void cDexFile::DumpMethodDebugInfo(
     /* -------------------------------------------------------- */
     UINT line = ReadUnsignedLeb128((CONST UCHAR**)Buffer);
     UINT insnsSize = Method->CodeArea->InstBufferSize/2;
-    UINT address = 0;
+    
+    UINT address = 0, old_address, old_line, new_opcode;
 
     DumpMethodLocals(Method, Buffer);
 
@@ -561,7 +562,7 @@ void cDexFile::DumpMethodDebugInfo(
 
         case DBG_START_LOCAL:
         case DBG_START_LOCAL_EXTENDED:
-            InsertDebugPosition(Method->CodeArea, line, address);
+            //InsertDebugPosition(Method->CodeArea, line, address);
             RegisterNumber = ReadUnsignedLeb128((CONST UCHAR**)Buffer);
             if (RegisterNumber > Method->CodeArea->RegistersSize)
                 return;
@@ -588,7 +589,7 @@ void cDexFile::DumpMethodDebugInfo(
             break;
 
         case DBG_END_LOCAL:
-            InsertDebugPosition(Method->CodeArea, line, address);
+            //InsertDebugPosition(Method->CodeArea, line, address);
             RegisterNumber = ReadUnsignedLeb128((CONST UCHAR**)Buffer);
             break;
         case DBG_RESTART_LOCAL:
@@ -603,13 +604,10 @@ void cDexFile::DumpMethodDebugInfo(
             //(*DebugInfo).Registers.SourceFile = (CHAR*)StringItems[ReadUnsignedLeb128((CONST UCHAR**)Buffer)-1].Data;
             break;
         default:
-            {
-                int new_opcode = Opcode - DBG_FIRST_SPECIAL;                
-                line += DBG_LINE_BASE + (new_opcode % DBG_LINE_RANGE);
-                address += new_opcode / DBG_LINE_RANGE;
-                //printf("line=%d address=0x%04x\n", line, address);
-                InsertDebugPosition(Method->CodeArea, line, address);
-            }
+            new_opcode = Opcode - DBG_FIRST_SPECIAL; 
+            line += DBG_LINE_BASE + (new_opcode % DBG_LINE_RANGE);
+            address += new_opcode / DBG_LINE_RANGE;
+            InsertDebugPosition(Method->CodeArea, line, address);
         };
     }
 }
@@ -635,21 +633,21 @@ void cDexFile::DumpMethodInstructions(
     if ((*CodeAreaDef).InstructionsSize > 0)
     {
         
-        (*CodeArea).Instructions = (CLASS_CODE_INSTRUCTION**)malloc( (*CodeArea).InstructionsSize * sizeof(CLASS_CODE_INSTRUCTION*));
+        (*CodeArea).Instructions = (CLASS_CODE_INSTRUCTION**)malloc(0);
         (*CodeArea).Offset = (DWORD)(CodeAreaDef) - BaseAddress;
 
         CHAR Opcode;
-        for (UINT i=0; i<(*CodeAreaDef).InstructionsSize*2;)
+        for (UINT i=0; i<(*CodeAreaDef).InstructionsSize;)
         {
-            Opcode = ((CHAR*)((*CodeAreaDef).Instructions))[i];
+            Opcode = LOW_BYTE((*CodeAreaDef).Instructions[i]);
 
             (*CodeArea).Instructions = (CLASS_CODE_INSTRUCTION**)
                 realloc((*CodeArea).Instructions, ++(*CodeArea).InstructionsSize * sizeof(CLASS_CODE_INSTRUCTION*));
 
-            (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1] = DecodeOpcode(((UCHAR*)((*CodeAreaDef).Instructions)) + i);
+            (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1] = DecodeOpcode(&(*CodeAreaDef).Instructions[i]);
             (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1]->Offset = (DWORD)(CodeAreaDef->Instructions) - BaseAddress + i/2;
 
-            i+= (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1]->BytesSize; 
+            i+= (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1]->BufferSize; 
         }
     }
     else
@@ -657,71 +655,69 @@ void cDexFile::DumpMethodInstructions(
 }
 
 CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
-    UCHAR* Opcode
+    USHORT* Opcode
     )
 {
     CLASS_CODE_INSTRUCTION* Decoded = new CLASS_CODE_INSTRUCTION;
     ZERO(Decoded, sizeof(CLASS_CODE_INSTRUCTION));
 
-    Decoded->Opcode = (UCHAR*)OpcodesStrings[Opcode[0]];
-    Decoded->Format = (UCHAR*)OpcodesFormatStrings[OpcodesFormat[Opcode[0]]];
-    Decoded->Bytes = (UCHAR*)Opcode;
-    Decoded->BytesSize = 1;
+    Decoded->OpcodeSig = LOW_BYTE(*Opcode);
+    Decoded->Opcode = (UCHAR*)OpcodesStrings[LOW_BYTE(*Opcode)];
+    Decoded->Format = (UCHAR*)OpcodesFormatStrings[OpcodesFormat[LOW_BYTE(*Opcode)]];
+    Decoded->Buffer = (USHORT*)Opcode;
+    Decoded->BufferSize = 1;
 
-    CHAR* Temp = new CHAR[TEMP_STRING_SIZE];
+    CHAR* Temp = new CHAR[MAX_STRING_BUFFER_SIZE];
 
-    switch(OpcodesFormat[(UCHAR)Opcode[0]])
+    switch(OpcodesFormat[LOW_BYTE(*Opcode)])
     {
     case OP_FORMAT_UNKNOWN:
-        sprintf_s(Temp, TEMP_STRING_SIZE, "<unknown>");
-        Decoded->BytesSize += 1;
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "<unknown>");
         break;
 
     case OP_FORMAT_10x:        // op
-        if (*Opcode == OP_NOP) 
-            switch(Opcode[0] | (Opcode[1] << 8))
+        if (LOW_BYTE(*Opcode) == OP_NOP) 
+            switch(LOW_BYTE(*Opcode) | (HIGH_BYTE(*Opcode) << 8))
             {
             case kPackedSwitchSignature:
-                sprintf_s(Temp, TEMP_STRING_SIZE, "packed-switch-data");
-                Decoded->BytesSize = ((*(USHORT*)(Opcode+2))*2)+4;
-                Decoded->BytesSize*=4;
+                sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "packed-switch-data");
+                Decoded->BufferSize = (Opcode[1] * 2) + 4;
                 break;
+
             case kSparseSwitchSignature:
-                sprintf_s(Temp, TEMP_STRING_SIZE, "sparse-switch-data");
-                Decoded->BytesSize = ((*(USHORT*)(Opcode+2)) * 4) + 2;
-                Decoded->BytesSize*=4;
+                sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "sparse-switch-data");
+                Decoded->BufferSize = (Opcode[1] * 4) + 2;
                 break;
+
             case kArrayDataSignature:
-                sprintf_s(Temp, TEMP_STRING_SIZE, "array-data");
-                Decoded->BytesSize = ((*(USHORT*)(Opcode+2)) * (*(UINT*)(Opcode+4)) + 1) / 2 + 4;
-                Decoded->BytesSize*=4;
+                sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "array-data");
+                Decoded->BufferSize = (Opcode[1] * (*(UINT*)&Opcode[2]) + 1) / 2 + 4;
                 break;
+
             default:
-                sprintf_s(Temp, TEMP_STRING_SIZE, "nop");
-                Decoded->BytesSize += 1;
+                sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "nop");
             }
         else
         {
-            sprintf_s(Temp, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
-            Decoded->BytesSize += 1;
+            sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s", Decoded->Opcode);
         }
         break;
 
     case OP_FORMAT_12x:        // op vA, vB
-        Decoded->vA = Opcode[1] & 0x0F;
-        Decoded->vB = Opcode[1] >> 4;
-        Decoded->BytesSize += 1;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, v%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode) & 0x0F;
+        Decoded->vB = HIGH_BYTE(*Opcode) >> 4;
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, v%d", 
             Decoded->Opcode, 
             Decoded->vA, 
             Decoded->vB);
         break;
 
     case OP_FORMAT_11n:        // op vA, #+B
-        Decoded->vA = Opcode[1] & 0x0F;
-        Decoded->vB = (CHAR)(Opcode[1] >> 4);
-        Decoded->BytesSize += 1;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, #%s%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode) & 0x0F;
+        Decoded->vB = (CHAR)(HIGH_BYTE(*Opcode) >> 4);
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, #%s%d", 
             Decoded->Opcode, 
             Decoded->vA,
             (CHAR)Decoded->vB>=0?"+":"",
@@ -729,27 +725,28 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_11x:        // op vAA
-        Decoded->vA = Opcode[1];
-        Decoded->BytesSize += 1;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d", 
             Decoded->Opcode, 
             Decoded->vA);
         break;
 
     case OP_FORMAT_10t:        // op +AA
-        Decoded->vA = (CHAR)Opcode[1];
-        Decoded->BytesSize += 1;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s %s%d", 
+        Decoded->vA = (CHAR)HIGH_BYTE(*Opcode);
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s %s%d", 
             Decoded->Opcode, 
             (CHAR)Decoded->vA>=0?"+":"",
             Decoded->vA);
         break;
 
     case OP_FORMAT_20bc:       // op AA, thing@BBBB
-        Decoded->vA = Opcode[1];
-        Decoded->vB = *(USHORT*)&Opcode[2];
-        Decoded->BytesSize += 3;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s %d, %s@%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = Opcode[1];
+        Decoded->BufferSize += 1;
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s %d, %s@%d", 
             Decoded->Opcode, 
             Decoded->vA, 
             "thing", 
@@ -757,29 +754,32 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_20t:        // op +AAAA
-        Decoded->vA = *(SHORT*)&Opcode[1];
-        Decoded->BytesSize += 1;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s %s%d", 
+        Decoded->vA = *(SHORT*)HALF_SHORT(Opcode);
+        Decoded->BufferSize += 1;
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s %s%d", 
             Decoded->Opcode, 
             (SHORT)Decoded->vA>=0?"+":"",
             Decoded->vA);
         break;
 
     case OP_FORMAT_22x:        // op vAA, vBBBB
-        Decoded->vA = Opcode[1];
-        Decoded->vB = *(USHORT*)&Opcode[2];
-        Decoded->BytesSize += 3;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, v%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = Opcode[1];
+        Decoded->BufferSize += 1;
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, v%d", 
             Decoded->Opcode,
             Decoded->vA,
             Decoded->vB);
         break;
 
     case OP_FORMAT_21t:        // op vAA, +BBBB
-        Decoded->vA = Opcode[1];
-        Decoded->vB = *(SHORT*)&Opcode[2];
-        Decoded->BytesSize += 3;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, %s%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = (SHORT)Opcode[1];
+        Decoded->BufferSize += 1;
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, %s%d", 
             Decoded->Opcode,
             Decoded->vA,
             (SHORT)Decoded->vB>=0?"+":"",
@@ -787,10 +787,11 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_21s:        // op vAA, #+BBBB
-        Decoded->vA = Opcode[1];
-        Decoded->vB = *(SHORT*)&Opcode[2];
-        Decoded->BytesSize += 3;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, #%s%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = (SHORT)Opcode[1];
+        Decoded->BufferSize += 1;
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, #%s%d", 
             Decoded->Opcode,
             Decoded->vA,
             (SHORT)Decoded->vB>=0?"+":"",
@@ -798,11 +799,11 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_21h:        // op vAA, #+BBBB00000[00000000]
-        Decoded->vA = Opcode[1];
-        Decoded->vB = *(SHORT*)&Opcode[2];
-        Decoded->BytesSize += 3;
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = (SHORT)Opcode[1];
+        Decoded->BufferSize += 1;
 
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, #%s%d", 
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, #%s%d", 
             Decoded->Opcode,
             Decoded->vA,
             (SHORT)Decoded->vB>=0?"+":"",
@@ -810,25 +811,27 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_21c:        // op vAA, thing@BBBB
-        Decoded->vA = Opcode[1];
-        Decoded->vB = *(USHORT*)&Opcode[2];
-        Decoded->BytesSize += 3;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, %s@%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = Opcode[1];
+        Decoded->BufferSize += 1;
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, %s@%d", 
             Decoded->Opcode, 
             Decoded->vA,
-            Opcode[0] == OP_CONST_STRING? "string" :
-            Opcode[0] == OP_CHECK_CAST || Opcode[0] == OP_CONST_CLASS? "class" :
-            Opcode[0] == OP_NEW_INSTANCE? "type" :
+            LOW_BYTE(*Opcode) == OP_CONST_STRING? "string" :
+            LOW_BYTE(*Opcode) == OP_CHECK_CAST || LOW_BYTE(*Opcode) == OP_CONST_CLASS? "class" :
+            LOW_BYTE(*Opcode) == OP_NEW_INSTANCE? "type" :
             "field",
             Decoded->vB);
         break;
 
     case OP_FORMAT_23x:        // op vAA, vBB, vCC
-        Decoded->vA = Opcode[1];
-        Decoded->vB = Opcode[2];
-        Decoded->vC = Opcode[3];
-        Decoded->BytesSize += 3;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, v%d, v%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = LOW_BYTE(Opcode[1]);
+        Decoded->vC = HIGH_BYTE(Opcode[1]);
+        Decoded->BufferSize += 1;
+        
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, v%d, v%d", 
             Decoded->Opcode,
             Decoded->vA,
             Decoded->vB,
@@ -836,11 +839,12 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_22b:        // op vAA, vBB, #+CC
-        Decoded->vA = Opcode[1];
-        Decoded->vB = Opcode[2];
-        Decoded->vC = (CHAR)Opcode[3];
-        Decoded->BytesSize += 3;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, v%d, #%s%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = LOW_BYTE(Opcode[1]);
+        Decoded->vC = (CHAR)HIGH_BYTE(Opcode[1]);
+        Decoded->BufferSize += 1;
+
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, v%d, #%s%d", 
             Decoded->Opcode,
             Decoded->vA,
             Decoded->vB,
@@ -849,11 +853,12 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_22t:        // op vA, vB, +CCCC
-        Decoded->vA = Opcode[1] & 0x0F;
-        Decoded->vB = Opcode[1] >> 4;
-        Decoded->vC = *(SHORT*)&Opcode[2];
-        Decoded->BytesSize += 3;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, v%d, %s%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode) & 0x0F;
+        Decoded->vB = HIGH_BYTE(*Opcode) >> 4;
+        Decoded->vC = (SHORT)Opcode[1];
+        Decoded->BufferSize += 1;
+
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, v%d, %s%d", 
             Decoded->Opcode,
             Decoded->vA,
             Decoded->vB,
@@ -862,11 +867,12 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_22s:        // op vA, vB, #+CCCC
-        Decoded->vA = Opcode[1] & 0x0F;
-        Decoded->vB = Opcode[1] >> 4;
-        Decoded->vC = *(SHORT*)&Opcode[2];
-        Decoded->BytesSize += 3;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, v%d, #%s%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode) & 0x0F;
+        Decoded->vB = HIGH_BYTE(*Opcode) >> 4;
+        Decoded->vC = (SHORT)Opcode[1];
+        Decoded->BufferSize += 1;
+
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, v%d, #%s%d", 
             Decoded->Opcode,
             Decoded->vA,
             Decoded->vB,
@@ -875,46 +881,51 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_22c:        // op vA, vB, thing@CCCC
-        Decoded->vA = Opcode[1] & 0x0F;
-        Decoded->vB = Opcode[1] >> 4;
-        Decoded->vC = *(SHORT*)&Opcode[2];
-        Decoded->BytesSize += 3;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, v%d, %s@%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode) & 0x0F;
+        Decoded->vB = HIGH_BYTE(*Opcode) >> 4;
+        Decoded->vC = (SHORT)Opcode[1];
+        Decoded->BufferSize += 1;
+
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, v%d, %s@%d", 
             Decoded->Opcode,
             Decoded->vA,
             Decoded->vB,
-            Opcode[0] >= OP_IGET && Opcode[0] <= OP_IPUT_SHORT? "field" :
+            LOW_BYTE(*Opcode) >= OP_IGET && LOW_BYTE(*Opcode) <= OP_IPUT_SHORT? "field" :
             "class",
             Decoded->vC);
         break;
 
     case OP_FORMAT_22cs:       // [opt] op vA, vB, field offset CCCC
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s", Decoded->Opcode);
         break;
+
     case OP_FORMAT_32x:        // op vAAAA, vBBBB
-        Decoded->vA = *(USHORT*)&Opcode[1];
-        Decoded->vB = *(USHORT*)&Opcode[3];
-        Decoded->BytesSize += 5;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, v%d", 
+        Decoded->vA = *(USHORT*)HALF_SHORT(Opcode);
+        Decoded->vB = *(USHORT*)HALF_SHORT(&Opcode[1]);
+        Decoded->BufferSize += 2;
+
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, v%d", 
             Decoded->Opcode, 
             Decoded->vA, 
             Decoded->vB);
         break;
 
     case OP_FORMAT_30t:        // op +AAAAAAAA
-        Decoded->vA = *(INT*)&Opcode[1];
-        Decoded->BytesSize += 5;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s %s%d", 
+        Decoded->vA = *(INT*)HALF_SHORT(Opcode);
+        Decoded->BufferSize += 2;
+
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s %s%d", 
             Decoded->Opcode,
             (INT)Decoded->vA<=0?"+":"",
             Decoded->vA);
         break;
 
     case OP_FORMAT_31t:        // op vAA, +BBBBBBBB
-        Decoded->vA = Opcode[1];
-        Decoded->vB = *(INT*)&Opcode[2];
-        Decoded->BytesSize += 5;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, %s%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = *(INT*)HALF_SHORT(&Opcode[1]);
+        Decoded->BufferSize += 2;
+
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, %s%d", 
             Decoded->Opcode, 
             Decoded->vA, 
             (INT)Decoded->vB<=0?"+":"",
@@ -922,10 +933,11 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_31i:        // op vAA, #+BBBBBBBB
-        Decoded->vA = Opcode[1];
-        Decoded->vB = *(INT*)&Opcode[2];
-        Decoded->BytesSize += 5;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, #%s%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = *(INT*)HALF_SHORT(&Opcode[1]);
+        Decoded->BufferSize += 2;
+
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, #%s%d", 
             Decoded->Opcode, 
             Decoded->vA, 
             (INT)Decoded->vB<=0?"+":"",
@@ -933,66 +945,67 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
 
     case OP_FORMAT_31c:        // op vAA, thing@BBBBBBBB
-        Decoded->vA = Opcode[1];
-        Decoded->vB = *(UINT*)&Opcode[2];
-        Decoded->BytesSize += 5;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, string@%d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB = *(UINT*)HALF_SHORT(&Opcode[1]);
+        Decoded->BufferSize += 5;
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, string@%d", 
             Decoded->Opcode, 
             Decoded->vA, 
             Decoded->vB);
         break;
 
     case OP_FORMAT_35c:        // op {vC, vD, vE, vF, vG}, thing@BBBB (B: count, A: vG)
-        Decoded->vA = Opcode[1] >> 4;
-        Decoded->vB = *(USHORT*)(&Opcode[2]);
-        Decoded->vC = Decoded->vA>0? Opcode[4] & 0x0F :0;
-        Decoded->vD = Decoded->vA>1? Opcode[4] >> 4 :0;
-        Decoded->vE = Decoded->vA>2? Opcode[5] & 0x0F :0;
-        Decoded->vF = Decoded->vA>3? Opcode[5] >> 4 :0;
-        Decoded->vG = Decoded->vA==5? Opcode[6] & 0x0F :0;
+        Decoded->vA = HIGH_BYTE(*Opcode) >> 4;
+        Decoded->vB = Opcode[1];
+        Decoded->vC = Decoded->vA>0? LOW_BYTE(Opcode[2]) & 0x0F :0;
+        Decoded->vArg[0] = Decoded->vA>1? LOW_BYTE(Opcode[2]) >> 4 :0;
+        Decoded->vArg[1] = Decoded->vA>2? HIGH_BYTE(Opcode[2]) & 0x0F :0;
+        Decoded->vArg[2] = Decoded->vA>3? HIGH_BYTE(Opcode[2]) >> 4 :0;
+        Decoded->vArg[3] = Decoded->vA==5? LOW_BYTE(Opcode[3]) & 0x0F :0;
         
-        Decoded->BytesSize += 5;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s {", Decoded->Opcode);
+        Decoded->BufferSize += 2;
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s {", Decoded->Opcode);
         
         if (Decoded->vA)
-            sprintf_s(Temp+strlen(Temp) , TEMP_STRING_SIZE-strlen(Temp), "v%d", Decoded->vC);
-        if (Decoded->vA>1)
-            sprintf_s(Temp+strlen(Temp) , TEMP_STRING_SIZE-strlen(Temp), " ,v%d", Decoded->vD);
-        if (Decoded->vA>2)
-            sprintf_s(Temp+strlen(Temp) , TEMP_STRING_SIZE-strlen(Temp), " ,v%d", Decoded->vE);
-        if (Decoded->vA>3)
-            sprintf_s(Temp+strlen(Temp) , TEMP_STRING_SIZE-strlen(Temp), " ,v%d", Decoded->vF);
-        if (Decoded->vA==5)
-            sprintf_s(Temp+strlen(Temp) , TEMP_STRING_SIZE-strlen(Temp), " ,v%d", Decoded->vG);
+            sprintf_s(Temp+strlen(Temp) , MAX_STRING_BUFFER_SIZE-strlen(Temp), "v%d", Decoded->vC);
 
-        sprintf_s(Temp+strlen(Temp) , TEMP_STRING_SIZE-strlen(Temp), "}, %s@%d",
-            Opcode[0] == OP_FILLED_NEW_ARRAY? "class": "method",
+        for (UINT i=1; i<Decoded->vA; i++)
+            sprintf_s(Temp+strlen(Temp) , MAX_STRING_BUFFER_SIZE-strlen(Temp), " ,v%d", Decoded->vArg[i]);
+
+        sprintf_s(Temp+strlen(Temp) , MAX_STRING_BUFFER_SIZE-strlen(Temp), "}, %s@%d",
+            LOW_BYTE(*Opcode) == OP_FILLED_NEW_ARRAY? "class": "method",
             Decoded->vB);
         break;
 
     case OP_FORMAT_35ms:       // [opt] invoke-virtual+super
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s", Decoded->Opcode);
         break;
+
     case OP_FORMAT_35fs:       // [opt] invoke-interface
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s", Decoded->Opcode);
         break;
+
     case OP_FORMAT_3rc:        // op {vCCCC .. v(CCCC+AA-1)}, meth@BBBB
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s", Decoded->Opcode);
         break;
+
     case OP_FORMAT_3rms:       // [opt] invoke-virtual+super/range
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s", Decoded->Opcode);
         break;
+
     case OP_FORMAT_3rfs:       // [opt] invoke-interface/range
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s", Decoded->Opcode);
         break;
+
     case OP_FORMAT_3inline:    // [opt] inline invoke
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s", Decoded->Opcode);
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s", Decoded->Opcode);
         break;
+
     case OP_FORMAT_51l:        // op vAA, #+BBBBBBBBBBBBBBBB
-        Decoded->vA = Opcode[1];
-        Decoded->vB_wide = *(INT64*)&Opcode[2];
-        Decoded->BytesSize += 9;
-        sprintf_s(Temp, TEMP_STRING_SIZE, "%s v%d, #%s%I64d", 
+        Decoded->vA = HIGH_BYTE(*Opcode);
+        Decoded->vB_wide = *(INT64*)HALF_SHORT(&Opcode[1]);
+        Decoded->BufferSize += 4;
+        sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s v%d, #%s%I64d", 
             Decoded->Opcode, 
             Decoded->vA, 
             (INT64)Decoded->vB_wide>=0?"+":"",
@@ -1000,13 +1013,11 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
     }
 
-    Decoded->Decoded = new UCHAR[strlen(Temp)+1];
-    strncpy_s((CHAR*)Decoded->Decoded, strlen(Temp)+1, Temp, TEMP_STRING_SIZE);
+    Decoded->Decoded = new CHAR[strlen(Temp)+1];
+    strncpy_s((CHAR*)Decoded->Decoded, strlen(Temp)+1, Temp, MAX_STRING_BUFFER_SIZE);
     free(Temp);
     return Decoded;
 }
-
-
 
 void cDexFile::DumpMethodParameters(
     UINT MethodIndex, 

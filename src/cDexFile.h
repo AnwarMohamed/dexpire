@@ -25,10 +25,21 @@
 #include <map>
 
 #define NO_INDEX 0xffffffff
-#define TEMP_STRING_SIZE 200
 #define ZERO(b, s) memset(b, 0, s)
 
+#define MAX_STRING_BUFFER_SIZE 200
+#define MAX_DECOMPILE_BUFFER_SIZE 10000
+#define MAX_DECOMPILED_STRING_SIZE  400
+
+#define LOW_BYTE(s) (s & 0x00FF)
+#define HIGH_BYTE(s) (s & 0xFF00) >> 8
+#define HALF_SHORT(s) (UCHAR*)s + 1
+#define SWAP_SHORT(s) (LOW_BYTE(s) << 8) | HIGH_BYTE(s)
+
 using namespace std;
+
+typedef map<UINT, struct CLASS_CODE_LOCAL*>::iterator LOCALS_ITERATOR;
+typedef map<UINT, struct CLASS_CODE_LOCAL*> LOCALS_MAP;
 
 struct DEX_HEADER 
 {
@@ -405,22 +416,20 @@ struct CLASS_CODE_TRY
 
 struct CLASS_CODE_INSTRUCTION
 {
-    UCHAR* Opcode;
-    UINT   Offset;
-    UCHAR* Format;
-    UCHAR  BytesSize;
-    UCHAR* Bytes;
-    UCHAR* Decoded;
+    UCHAR*  Opcode;
+    UCHAR   OpcodeSig;
+    UINT    Offset;
+    UCHAR*  Format;
+    USHORT  BufferSize;
+    USHORT* Buffer;
+    CHAR*  Decoded;
+    CHAR*  Decompiled;
 
-    UINT      vA;
-    UINT      vB;
-    UINT64    vB_wide;        /* for OP_FORMAT_51l */
-    UINT      vC;
-    UINT      vD;
-    UINT      vE;
-    UINT      vF;
-    UINT      vG;
-    UINT      vH;
+    UINT    vA;
+    UINT    vB;
+    UINT64  vB_wide;        /* for OP_FORMAT_51l */
+    UINT    vC;
+    UINT    vArg[5];
 };
 
 struct CLASS_CODE_LOCAL
@@ -1224,7 +1233,7 @@ public:
     void DumpAnnotations(DEX_CLASS_STRUCTURE* DexClass, UINT Offset);
     void DumpAnnotationElementValue(CLASS_ANNOTATION_ELEMENT* Element, UCHAR** Ptr);
 
-    CLASS_CODE_INSTRUCTION* DecodeOpcode(UCHAR* Opcode);
+    CLASS_CODE_INSTRUCTION* DecodeOpcode(USHORT* Opcode);
 
 private:
     BOOL    DumpDex();

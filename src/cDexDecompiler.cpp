@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright (C) 2014  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to Anwar Mohamed
+ *  anwarelmakrahy[at]gmail.com
+ *
+ */
+
 #include "cDexDecompiler.h"
 
 cDexDecompiler::cDexDecompiler(cDexFile* DexFile)
@@ -76,6 +96,7 @@ void cDexDecompiler::GetClassMethod(
     BOOL Virtual
     )
 {
+
     DEX_DECOMPILED_CLASS_METHOD* dMethod = new DEX_DECOMPILED_CLASS_METHOD;
     ZERO(dMethod, sizeof(DEX_DECOMPILED_CLASS_METHOD));
 
@@ -104,9 +125,9 @@ void cDexDecompiler::GetClassMethod(
         {
             Size = Method->CodeArea->DebugInfo.Positions[i+1]->Offset - Method->CodeArea->DebugInfo.Positions[i]->Offset;
             while(InsIndex != Method->CodeArea->InstructionsSize && 
-                Size >= (UINT)(Method->CodeArea->Instructions[InsIndex]->BytesSize/2) && Size >0)
+                Size >= (UINT)(Method->CodeArea->Instructions[InsIndex]->BufferSize) && Size >0)
             {
-                Size -= Method->CodeArea->Instructions[InsIndex]->BytesSize/2;
+                Size -= Method->CodeArea->Instructions[InsIndex]->BufferSize;
                 AddInstructionToLine(dMethod->Lines[i], Method->CodeArea->Instructions[InsIndex++]);
             }
         }
@@ -157,7 +178,7 @@ UINT cDexDecompiler::GetClassMethodArgs(
 
     dMethod->ArgumentsSize = Method->CodeArea->Locals->size();
 
-    map<UINT, CLASS_CODE_LOCAL*>::iterator LocalsIterator = Method->CodeArea->Locals->begin();
+    LOCALS_ITERATOR LocalsIterator = Method->CodeArea->Locals->begin();
 
     if (Method->CodeArea->Locals->begin()->second->Name &&
         strcmp("this", Method->CodeArea->Locals->begin()->second->Name) == 0)
@@ -214,7 +235,8 @@ void cDexDecompiler::GetClassDefinition(
 
     /* Class Name */
     dClass->Name = strrchr(dClass->Package, '.');
-    *dClass->Name++ = NULL;
+    if (dClass->Name)
+        *dClass->Name++ = NULL;
 
     /* Class Source FileName */
     dClass->SourceFile = (CHAR*)DexClass->SourceFile;
