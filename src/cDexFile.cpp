@@ -666,7 +666,7 @@ void cDexFile::DumpMethodDebugInfo(
 
             TypeIndex = ReadUnsignedLeb128((CONST UCHAR**)Buffer)-1;
             if (TypeIndex != NO_INDEX)
-                Register->Type = (CHAR*)StringItems[DexTypeIds[TypeIndex].StringIndex].Data;
+                Register->Type = cDexString::GetTypeDescription((CHAR*)StringItems[DexTypeIds[TypeIndex].StringIndex].Data);
 
             if (Opcode == DBG_START_LOCAL_EXTENDED)
             {

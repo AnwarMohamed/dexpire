@@ -33,8 +33,6 @@ int main()
     if (dex->isReady)
     {
         printf("Opened '%s', DEX version '%s'\n\n\n", dex->Filename, dex->DexVersion);
-        
-        
         cDexDecompiler* decompiled = new cDexDecompiler(dex);
         
         for (UINT i=300; i<301/*dex->nClasses*/; i++)

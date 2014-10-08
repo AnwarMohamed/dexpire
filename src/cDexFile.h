@@ -29,7 +29,7 @@
 
 #define MAX_STRING_BUFFER_SIZE 200
 #define MAX_DECOMPILE_BUFFER_SIZE 10000
-#define MAX_DECOMPILED_STRING_SIZE  400
+#define MAX_DECOMPILED_STRING_SIZE  4000
 
 #define LOW_BYTE(s) (s & 0x00FF)
 #define HIGH_BYTE(s) (s & 0xFF00) >> 8
@@ -447,6 +447,7 @@ struct CLASS_CODE_REGISTER
     USHORT  EndAddress;
     CHAR*   Signature;
     BOOL    Local;
+    BOOL    Initialized;
     CLASS_CODE_REGISTER* Next;
 };
 

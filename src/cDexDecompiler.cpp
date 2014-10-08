@@ -32,7 +32,7 @@ cDexDecompiler::cDexDecompiler(cDexFile* DexFile)
     Classes = new DEX_DECOMPILED_CLASS[DexFile->nClasses];
     ZERO(Classes, DexFile->nClasses* sizeof(DEX_DECOMPILED_CLASS));
 
-    for (UINT i=0; i<DexFile->nClasses; i++)
+    for (UINT i=300; i<301/*DexFile->nClasses*/; i++)
     {
         Classes[i].Imports = (CHAR**)malloc(0);
         Classes[i].Extends = (CHAR**)malloc(0);

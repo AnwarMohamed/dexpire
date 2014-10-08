@@ -45,10 +45,31 @@ public:
 
     CHAR* GetRegisterName(
         UINT Index, 
+        UINT InstructionIndex,
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+        STRUCT CLASS_CODE_REGISTER** Registers);
+    CHAR* GetRegisterType(
+        UINT Index, 
         STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
         STRUCT CLASS_CODE_REGISTER** Registers);
     CHAR* GetRegisterValue(
         UINT Index, 
+        UINT InstructionIndex,
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+        STRUCT CLASS_CODE_REGISTER** Registers);
+    BOOL GetRegisterInitialized(
+        UINT Index, 
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+        STRUCT CLASS_CODE_REGISTER** Registers);
+    void GetInvokeArguments(
+        UINT Index,
+        DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+        CLASS_CODE_REGISTER** Registers,
+        BOOL SkipFirst=FALSE);
+    void SetRegisterValue(
+        UINT Index,
+        UINT InstructionIndex,
+        CHAR* Value,
         STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
         STRUCT CLASS_CODE_REGISTER** Registers);
 
