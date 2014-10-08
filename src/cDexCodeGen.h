@@ -59,6 +59,7 @@ public:
         STRUCT CLASS_CODE_REGISTER** Registers);
     BOOL GetRegisterInitialized(
         UINT Index, 
+        UINT InstructionIndex,
         STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
         STRUCT CLASS_CODE_REGISTER** Registers);
     void GetInvokeArguments(

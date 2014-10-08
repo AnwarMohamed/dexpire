@@ -34,6 +34,7 @@ cDexCodeGen::cDexCodeGen(
 
 BOOL cDexCodeGen::GetRegisterInitialized(
     UINT Index,
+    UINT InstructionIndex,
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
     STRUCT CLASS_CODE_REGISTER** Registers)
 {
@@ -232,7 +233,7 @@ void cDexCodeGen::DumpLineSingleInstruction(
     case OP_MOVE_WIDE_FROM16:
     case OP_MOVE_WIDE_16:
         {
-            BOOL RegInit = GetRegisterInitialized((*Line->Instructions)->vA, Line, Registers);
+            BOOL RegInit = GetRegisterInitialized((*Line->Instructions)->vA, 0, Line, Registers);
             sprintf_s(Line->Decompiled, MAX_DECOMPILED_STRING_SIZE, "%s%s%s = %s",
                 RegInit? "": GetRegisterType((*Line->Instructions)->vA, Line, Registers),
                 RegInit? "": " ",
@@ -270,7 +271,7 @@ void cDexCodeGen::DumpLineSingleInstruction(
     case OP_CONST_WIDE_16:
     case OP_CONST_WIDE_32:
         {
-            BOOL RegInit = GetRegisterInitialized((*Line->Instructions)->vA, Line, Registers);
+            BOOL RegInit = GetRegisterInitialized((*Line->Instructions)->vA, 0, Line, Registers);
             sprintf_s(Line->Decompiled, MAX_DECOMPILED_STRING_SIZE, "%s%s%s = %d",
                 RegInit? "": GetRegisterType((*Line->Instructions)->vA, Line, Registers),
                 RegInit? "": " ",
@@ -592,10 +593,11 @@ void cDexCodeGen::DumpLineMultiInstruction(
 
                 if (!strcmp(dMethod->ReturnType, "boolean"))
                 {
-                    sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
-                        MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
-                        "%s",
-                        atol(GetRegisterValue(Line->Instructions[j]->vA, j, Line, Registers))? "true":"false");
+                    if (GetRegisterValue(Line->Instructions[j]->vA, j, Line, Registers))
+                        sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
+                            MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
+                            "%s",
+                            atol(GetRegisterValue(Line->Instructions[j]->vA, j, Line, Registers))? "true":"false");
                 }
                 break;
             }

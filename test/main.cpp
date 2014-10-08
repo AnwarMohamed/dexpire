@@ -35,7 +35,7 @@ int main()
         printf("Opened '%s', DEX version '%s'\n\n\n", dex->Filename, dex->DexVersion);
         cDexDecompiler* decompiled = new cDexDecompiler(dex);
         
-        for (UINT i=300; i<301/*dex->nClasses*/; i++)
+        for (UINT i=299; i<310/*dex->nClasses*/; i++)
         {
             printf("package %s;\n\n", decompiled->Classes[i].Package);
 
@@ -74,6 +74,7 @@ int main()
                     printf("\n");
             }
             
+            /*
             for (UINT j=0; j<decompiled->Classes[i].MethodsSize; j++)
             {
                 if (!decompiled->Classes[i].Methods[j]->Name ||
@@ -103,7 +104,7 @@ int main()
                     {
                         printf("        %s;\n", decompiled->Classes[i].Methods[j]->Lines[k]->Decompiled);
                     }
-                    /*else
+                    else
                     {
                         
                         for (UINT l=0; l<decompiled->Classes[i].Methods[j]->Lines[k]->InstructionsSize; l++)
@@ -111,7 +112,7 @@ int main()
                             if (k && !l) printf("\n");
                             printf("        %s\n", decompiled->Classes[i].Methods[j]->Lines[k]->Instructions[l]->Decoded);
                         }
-                    }*/
+                    }
 #else
                     for (UINT l=0; l<decompiled->Classes[i].Methods[j]->Lines[k]->InstructionsSize; l++)
                     {
@@ -124,6 +125,7 @@ int main()
 
                 printf("    }\n\n");
             }
+            */
 
             printf("}\n\n");
  

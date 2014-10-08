@@ -141,48 +141,69 @@ void cDexFile::DumpFieldsValues(
 
         ZERO(Temp,MAX_STRING_BUFFER_SIZE);
 
-        switch(ValueType)
+        switch(ValueType & 0x1F)
         {    
         case VALUE_BYTE:
             _itoa_s(*(CHAR*)Ptr, Temp, MAX_STRING_BUFFER_SIZE, 10);
             Ptr += 1;
             break;
+
         case VALUE_SHORT:
             _itoa_s((*(SHORT*)Ptr) << ((2-ValueSize)*8) >> ((2-ValueSize)*8), Temp, MAX_STRING_BUFFER_SIZE, 10);
             Ptr += ValueSize;
             break;
+
         case VALUE_CHAR:
             _itoa_s((*(UCHAR*)Ptr) << ((2-ValueSize)*8) >> ((2-ValueSize)*8) , Temp, MAX_STRING_BUFFER_SIZE, 10);
             Ptr += ValueSize;
             break;
+
         case VALUE_INT:
             _itoa_s((*(INT*)Ptr) << ((4-ValueSize)*8) >> ((4-ValueSize)*8), Temp, MAX_STRING_BUFFER_SIZE, 10);
             Ptr += ValueSize;
             break;
+
         case VALUE_LONG:
             _ltoa_s((*(LONG*)Ptr) << ((8-ValueSize)*8) >> ((8-ValueSize)*8), Temp, MAX_STRING_BUFFER_SIZE, 10);
             Ptr += ValueSize;
             break;
+
         case VALUE_FLOAT:
         case VALUE_DOUBLE:
             Ptr += ValueSize;
             break;
+
         case VALUE_STRING:
             sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "\"%s\"", StringItems[(*(UINT*)Ptr) << ((4-ValueSize)*8) >> ((4-ValueSize)*8)].Data);
             Ptr  += ValueSize;
             break;
+
         case VALUE_TYPE:
         case VALUE_FIELD:
         case VALUE_METHOD:
         case VALUE_ENUM:
             Ptr += ValueSize;
             break;
+
         case VALUE_ARRAY:
+
+            printf("test-array");
+            break;
+
         case VALUE_ANNOTATION:
+            
+
+            printf("test-anno");
+            break;
+
         case VALUE_NULL:
             sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "null");
             break;
+
         case VALUE_BOOLEAN:
+            sprintf_s(Temp, MAX_STRING_BUFFER_SIZE, "%s", ValueSize+1?"true":"false");
+            break;
+
         case VALUE_SENTINEL:
             break;
         }
