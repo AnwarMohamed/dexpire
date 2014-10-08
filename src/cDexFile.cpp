@@ -449,6 +449,12 @@ void cDexFile::DumpMethodCodeInfo(
     (*CodeArea).OutsSize = (*CodeAreaDef).OutsSize;
     (*CodeArea).TriesSize = (*CodeAreaDef).TriesSize;
     (*CodeArea).InstBufferSize = (*CodeAreaDef).InstructionsSize;
+
+    if ((*CodeArea).RegistersSize)
+    {
+        (*CodeArea).Registers = new CLASS_CODE_REGISTER*[(*CodeArea).RegistersSize];
+        ZERO((*CodeArea).Registers, (*CodeArea).RegistersSize* sizeof(CLASS_CODE_REGISTER*));
+    }
 }
 
 void cDexFile::DumpMethodLocals(
@@ -459,12 +465,21 @@ void cDexFile::DumpMethodLocals(
     USHORT LocalsIndex = Method->CodeArea->RegistersSize - Method->CodeArea->InsSize;
 
     CLASS_CODE_LOCAL* Local;
+    CLASS_CODE_REGISTER* Register;
+    
     if (!(Method->AccessFlags & ACC_STATIC))
     {
         Local = new CLASS_CODE_LOCAL;
         Local->Name = "this";
         Local->Type = NULL;
         (*Method->CodeArea->Locals)[LocalsIndex++] = Local;
+
+        Register = new CLASS_CODE_REGISTER;
+        ZERO(Register, sizeof(CLASS_CODE_REGISTER));
+        Method->CodeArea->Registers[LocalsIndex-1] = Register;
+        Register->Name = Local->Name;
+        Register->Type = Local->Type;
+        Register->EndAddress = Method->CodeArea->InstBufferSize;
     }
 
     UINT LocalsSize = ReadUnsignedLeb128((CONST UCHAR**)Buffer);
@@ -475,11 +490,19 @@ void cDexFile::DumpMethodLocals(
         
         Local = new CLASS_CODE_LOCAL;
         (*Method->CodeArea->Locals)[LocalsIndex] = Local;
+        
+        Register = new CLASS_CODE_REGISTER;
+        ZERO(Register, sizeof(CLASS_CODE_REGISTER));
+
+        Method->CodeArea->Registers[LocalsIndex] = Register;
+        Register->EndAddress = Method->CodeArea->InstBufferSize;
 
         if(LocalNameIndex == NO_INDEX)
             Local->Name = NULL;
         else
             Local->Name = (CHAR*)StringItems[LocalNameIndex].Data;
+
+        Register->Name = Local->Name;        
 
         switch (Method->Type[TypePtr]) {
             case 'D':
@@ -503,17 +526,80 @@ void cDexFile::DumpMethodLocals(
         case 'F':
         case 'D':
             Local->Type = cDexString::GetTypeDescription((CHAR*)&Method->Type[TypePtr]);
+            Register->Type = Local->Type;
             TypePtr++;  break;
         case 'L':
         case '[':
             Local->Type = cDexString::GetTypeDescription((CHAR*)&Method->Type[TypePtr]);
+            Register->Type = Local->Type;
             if (Method->Type[TypePtr] == 'L')
                 TypePtr += strlen(Local->Type) + 2;   
             else
                 TypePtr += cDexString::GetArrayTypeSize((CHAR*)Method->Type + TypePtr);
             break;
-        }
+        }        
     }
+}
+
+CLASS_CODE_REGISTER* cDexFile::AddToRegisters(
+    UINT Index,
+    CLASS_CODE_REGISTER** Registers)
+{
+    CLASS_CODE_REGISTER** TempRegister = &Registers[Index];
+    
+    if (*TempRegister)
+    {
+        while((*TempRegister)->Next)
+            TempRegister = &(*TempRegister)->Next;
+    }
+
+    *TempRegister = new CLASS_CODE_REGISTER;
+    ZERO(*TempRegister, sizeof(CLASS_CODE_REGISTER));
+    return *TempRegister;
+}
+
+CLASS_CODE_REGISTER* cDexFile::GetUnendedRegister(
+    UINT Index,
+    CLASS_CODE_REGISTER** Registers)
+{
+    CLASS_CODE_REGISTER* TempRegister = Registers[Index];
+
+    if (!TempRegister)
+        return NULL;
+
+    while(TempRegister->Next)
+    {
+        if (!TempRegister->EndAddress)
+            return TempRegister;
+        TempRegister = TempRegister->Next;
+    }
+
+    if (!TempRegister->EndAddress)
+        return TempRegister;
+    else
+        return NULL;
+}
+
+CLASS_CODE_REGISTER* cDexFile::RestartRegister(
+    UINT Index, 
+    CLASS_CODE_REGISTER** Registers)
+{
+    CLASS_CODE_REGISTER* TempRegister = Registers[Index];
+
+    if (!TempRegister)
+        return NULL;
+
+    while(TempRegister->Next)
+        TempRegister = TempRegister->Next;
+
+    TempRegister->Next = new CLASS_CODE_REGISTER;
+    *TempRegister->Next = *TempRegister;
+    
+    TempRegister->Next->Next = NULL;
+    TempRegister->Next->StartAddress = 0;
+    TempRegister->Next->EndAddress = 0;
+
+    return TempRegister->Next;
 }
 
 void cDexFile::DumpMethodDebugInfo(
@@ -522,35 +608,39 @@ void cDexFile::DumpMethodDebugInfo(
     UCHAR** Buffer
     )
 {
-    /* -------------------------------------------------------- */
     UINT line = ReadUnsignedLeb128((CONST UCHAR**)Buffer);
-    UINT insnsSize = Method->CodeArea->InstBufferSize/2;
-    
     UINT address = 0, old_address, old_line, new_opcode;
 
     DumpMethodLocals(Method, Buffer);
-
-    if (Method->CodeArea->RegistersSize)
-    {
-        Method->CodeArea->Registers = new CLASS_CODE_REGISTER[Method->CodeArea->RegistersSize];
-        ZERO(Method->CodeArea->Registers, Method->CodeArea->RegistersSize* sizeof(CLASS_CODE_REGISTER));
-    }
-     
 
     UINT RegisterNumber;
     UINT NameIndex;
     UINT TypeIndex;
     UINT SigIndex;
+    CLASS_CODE_REGISTER* Register;
 
     UCHAR Opcode;
     while(TRUE)
     {
         Opcode = *(*Buffer)++;
-        OpcodeCounter++;
         switch (Opcode) 
         {
         case DBG_END_SEQUENCE:
-            return;
+            {
+                CLASS_CODE_REGISTER* TempRegister;
+                for (UINT i=0; i<Method->CodeArea->RegistersSize; i++)
+                {
+                    TempRegister = Method->CodeArea->Registers[i];
+                    while(TempRegister)
+                    {
+                        if (!TempRegister->EndAddress)
+                            TempRegister->EndAddress = Method->CodeArea->InstBufferSize;
+                        TempRegister = TempRegister->Next;
+                    }
+                }
+
+                return;
+            }
 
         case DBG_ADVANCE_PC:
             address += ReadUnsignedLeb128((CONST UCHAR**)Buffer);
@@ -562,38 +652,49 @@ void cDexFile::DumpMethodDebugInfo(
 
         case DBG_START_LOCAL:
         case DBG_START_LOCAL_EXTENDED:
-            //InsertDebugPosition(Method->CodeArea, line, address);
+            InsertDebugPosition(Method->CodeArea, line, address);
+
             RegisterNumber = ReadUnsignedLeb128((CONST UCHAR**)Buffer);
             if (RegisterNumber > Method->CodeArea->RegistersSize)
                 return;
-            
-            /*
+
+            Register = AddToRegisters(RegisterNumber, Method->CodeArea->Registers);            
+
             NameIndex = ReadUnsignedLeb128((CONST UCHAR**)Buffer)-1;
             if (NameIndex != NO_INDEX)
-                CodeArea->Locals[RegisterNumber].Name = (CHAR*)StringItems[NameIndex].Data;
+                Register->Name = (CHAR*)StringItems[NameIndex].Data;
 
             TypeIndex = ReadUnsignedLeb128((CONST UCHAR**)Buffer)-1;
             if (TypeIndex != NO_INDEX)
-                CodeArea->Locals[RegisterNumber].Type = (CHAR*)StringItems[TypeIndex].Data;
+                Register->Type = (CHAR*)StringItems[DexTypeIds[TypeIndex].StringIndex].Data;
 
             if (Opcode == DBG_START_LOCAL_EXTENDED)
             {
                 SigIndex = ReadUnsignedLeb128((CONST UCHAR**)Buffer)-1;
                 if (SigIndex != NO_INDEX)
-                    CodeArea->Locals[RegisterNumber].Signature = (CHAR*)StringItems[SigIndex].Data;
+                    Register->Signature = (CHAR*)StringItems[SigIndex].Data;
             }
             
-            CodeArea->Locals[RegisterNumber].OffsetStart = address;
-            */
-
+            Register->StartAddress = address;
+            Register->Local = TRUE;
             break;
 
         case DBG_END_LOCAL:
-            //InsertDebugPosition(Method->CodeArea, line, address);
+            InsertDebugPosition(Method->CodeArea, line, address);
+            
             RegisterNumber = ReadUnsignedLeb128((CONST UCHAR**)Buffer);
+            Register = GetUnendedRegister(RegisterNumber, Method->CodeArea->Registers);
+
+            if (Register)
+                Register->EndAddress = address;
             break;
+
         case DBG_RESTART_LOCAL:
             RegisterNumber = ReadUnsignedLeb128((CONST UCHAR**)Buffer);
+            Register = RestartRegister(RegisterNumber, Method->CodeArea->Registers);
+
+            if (Register)
+                Register->StartAddress = address;
             break;
 
         case DBG_SET_PROLOGUE_END:
@@ -645,7 +746,7 @@ void cDexFile::DumpMethodInstructions(
                 realloc((*CodeArea).Instructions, ++(*CodeArea).InstructionsSize * sizeof(CLASS_CODE_INSTRUCTION*));
 
             (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1] = DecodeOpcode(&(*CodeAreaDef).Instructions[i]);
-            (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1]->Offset = (DWORD)(CodeAreaDef->Instructions) - BaseAddress + i/2;
+            (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1]->Offset = /*(DWORD)(CodeAreaDef->Instructions) - BaseAddress +*/ i;
 
             i+= (*CodeArea).Instructions[(*CodeArea).InstructionsSize-1]->BufferSize; 
         }

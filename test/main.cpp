@@ -103,10 +103,9 @@ int main()
 #ifdef DECOMPILED_LINES
                     if (decompiled->Classes[i].Methods[j]->Lines[k]->Decompiled)
                     {
-                        if (k) printf("\n");
                         printf("        %s;\n", decompiled->Classes[i].Methods[j]->Lines[k]->Decompiled);
                     }
-                    else
+                    /*else
                     {
                         
                         for (UINT l=0; l<decompiled->Classes[i].Methods[j]->Lines[k]->InstructionsSize; l++)
@@ -114,7 +113,7 @@ int main()
                             if (k && !l) printf("\n");
                             printf("        %s\n", decompiled->Classes[i].Methods[j]->Lines[k]->Instructions[l]->Decoded);
                         }
-                    }
+                    }*/
 #else
                     for (UINT l=0; l<decompiled->Classes[i].Methods[j]->Lines[k]->InstructionsSize; l++)
                     {

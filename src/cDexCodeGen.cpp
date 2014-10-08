@@ -32,21 +32,46 @@ cDexCodeGen::cDexCodeGen(
     this->DexFile = DexFile;
 }
 
+CHAR* cDexCodeGen::GetRegisterName(
+    UINT Index,
+    STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+    STRUCT CLASS_CODE_REGISTER** Registers)
+{
+    if (Index < Method->CodeArea->RegistersSize && Registers)
+    {
+        CLASS_CODE_REGISTER* Register = Registers[Index];
+        while(Register)
+        {
+            if (Register->Name && 
+                Register->StartAddress <= (*Line->Instructions)->Offset &&
+                Register->EndAddress >= (*Line->Instructions)->Offset)
+                return Register->Name;
+            Register = Register->Next;
+        }
+        return "// [BUG]";
+    }
+    return "// [BUG]";
+}
+
+CHAR* cDexCodeGen::GetRegisterValue(
+    UINT Index, 
+    STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+    STRUCT CLASS_CODE_REGISTER** Registers)
+{
+    return "// [BUG]";
+}
+
 void cDexCodeGen::GenerateSourceCode()
 {
-    DEX_DECOMPILED_CLASS_METHOD_REGISTER* VMRegisters = NULL;
-    if (Method->CodeArea && Method->CodeArea->RegistersSize)
-        VMRegisters = new DEX_DECOMPILED_CLASS_METHOD_REGISTER[Method->CodeArea->RegistersSize];
-
     for (UINT i=0; i<dMethod->LinesSize; i++)
     {
         dMethod->Lines[i]->Decompiled = (CHAR*)malloc(MAX_DECOMPILED_STRING_SIZE);
         ZERO(dMethod->Lines[i]->Decompiled, MAX_DECOMPILED_STRING_SIZE);
 
         if (dMethod->Lines[i]->InstructionsSize == 1)
-            DumpLineSingleInstruction(dMethod, dMethod->Lines[i]);
+            DumpLineSingleInstruction(dMethod, dMethod->Lines[i], Method->CodeArea->Registers);
         else
-            DumpLineMultiInstruction(dMethod, dMethod->Lines[i]);
+            DumpLineMultiInstruction(dMethod, dMethod->Lines[i], Method->CodeArea->Registers);
         
         if (!strlen(dMethod->Lines[i]->Decompiled))
         {
@@ -57,32 +82,31 @@ void cDexCodeGen::GenerateSourceCode()
             dMethod->Lines[i]->Decompiled = (CHAR*)realloc
               (dMethod->Lines[i]->Decompiled, strlen(dMethod->Lines[i]->Decompiled)+1);
     }
-
-    if (VMRegisters)
-        delete VMRegisters;
 }
 
 void cDexCodeGen::DumpLineSingleInstruction(
     DEX_DECOMPILED_CLASS_METHOD* dMethod,
-    DEX_DECOMPILED_CLASS_METHOD_LINE* Line
+    DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+    CLASS_CODE_REGISTER** Registers
     )
 {
-    switch(LOW_BYTE(*(*Line->Instructions)->Buffer))
+    switch((*Line->Instructions)->OpcodeSig)
     {
     case OP_NOP:
+        sprintf_s(Line->Decompiled, MAX_DECOMPILED_STRING_SIZE, "// [BUG]");
+        break;
 
     case OP_MOVE:
-        if (Method->CodeArea->Locals->count((*Line->Instructions)->vA) &&
-            Method->CodeArea->Locals->count((*Line->Instructions)->vB))
-            sprintf_s(Line->Decompiled, MAX_STRING_BUFFER_SIZE, "%s = %s",
-                (*Method->CodeArea->Locals)[(*Line->Instructions)->vA]->Name,
-                (*Method->CodeArea->Locals)[(*Line->Instructions)->vB]->Name);
-        break;
     case OP_MOVE_FROM16:
     case OP_MOVE_16:
     case OP_MOVE_WIDE:
     case OP_MOVE_WIDE_FROM16:
     case OP_MOVE_WIDE_16:
+        sprintf_s(Line->Decompiled, MAX_DECOMPILED_STRING_SIZE, "%s = %s",
+            GetRegisterName((*Line->Instructions)->vA, Line, Registers),
+            GetRegisterName((*Line->Instructions)->vB, Line, Registers));
+        break;
+
     case OP_MOVE_OBJECT:
     case OP_MOVE_OBJECT_FROM16:
     case OP_MOVE_OBJECT_16:
@@ -94,7 +118,8 @@ void cDexCodeGen::DumpLineSingleInstruction(
         break;
 
     case OP_RETURN_VOID:
-        sprintf_s(Line->Decompiled, MAX_STRING_BUFFER_SIZE, "return");
+        if (strcmp("void", dMethod->ReturnType))
+            sprintf_s(Line->Decompiled, MAX_STRING_BUFFER_SIZE, "return");
         break;
 
     case OP_RETURN:
@@ -405,7 +430,8 @@ void cDexCodeGen::DumpLineSingleInstruction(
 
 void cDexCodeGen::DumpLineMultiInstruction(
     DEX_DECOMPILED_CLASS_METHOD* dMethod,
-    DEX_DECOMPILED_CLASS_METHOD_LINE* Line
+    DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+    CLASS_CODE_REGISTER** Registers
     )
 {
     for (UINT j=0; j<Line->InstructionsSize; j++)

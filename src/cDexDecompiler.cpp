@@ -149,20 +149,9 @@ void cDexDecompiler::GetClassMethod(
     /* Method Codes */
     if (Method->CodeArea)
     {
-        DEX_DECOMPILED_CLASS_METHOD_REGISTER* Registers = NULL;
-        cDexCodeGen* CodeGenerator = NULL;
-        if (Method->CodeArea->RegistersSize)
-        {
-            Registers = new DEX_DECOMPILED_CLASS_METHOD_REGISTER[Method->CodeArea->RegistersSize];
-            ZERO(Registers, Method->CodeArea->RegistersSize* sizeof(DEX_DECOMPILED_CLASS_METHOD_REGISTER));
-        }
-
-        CodeGenerator = new cDexCodeGen(DexFile, dClass, dMethod, Method);
+        cDexCodeGen* CodeGenerator = new cDexCodeGen(DexFile, dClass, dMethod, Method);
         CodeGenerator->GenerateSourceCode();
         delete CodeGenerator;
-
-        if (Registers)
-            delete Registers;
     }
 }
 

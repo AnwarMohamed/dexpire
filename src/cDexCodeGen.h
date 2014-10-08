@@ -26,12 +26,31 @@ class DLLEXPORT cDexCodeGen
 {
 
 public:
-    cDexCodeGen(cDexFile* DexFile, STRUCT DEX_DECOMPILED_CLASS* dClass, STRUCT DEX_DECOMPILED_CLASS_METHOD* dMethod, STRUCT CLASS_METHOD* Method);
+    cDexCodeGen(
+        cDexFile* DexFile, 
+        STRUCT DEX_DECOMPILED_CLASS* dClass, 
+        STRUCT DEX_DECOMPILED_CLASS_METHOD* dMethod, 
+        STRUCT CLASS_METHOD* Method);
     ~cDexCodeGen();
 
     void GenerateSourceCode();
-    void DumpLineSingleInstruction(STRUCT DEX_DECOMPILED_CLASS_METHOD* dMethod, STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line);
-    void DumpLineMultiInstruction(STRUCT DEX_DECOMPILED_CLASS_METHOD* dMethod, STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line);
+    void DumpLineSingleInstruction(
+        STRUCT DEX_DECOMPILED_CLASS_METHOD* dMethod, 
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line, 
+        STRUCT CLASS_CODE_REGISTER** Registers);
+    void DumpLineMultiInstruction(
+        STRUCT DEX_DECOMPILED_CLASS_METHOD* dMethod, 
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line, 
+        STRUCT CLASS_CODE_REGISTER** Registers);
+
+    CHAR* GetRegisterName(
+        UINT Index, 
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+        STRUCT CLASS_CODE_REGISTER** Registers);
+    CHAR* GetRegisterValue(
+        UINT Index, 
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+        STRUCT CLASS_CODE_REGISTER** Registers);
 
 private:
     DEX_DECOMPILED_CLASS* dClass;

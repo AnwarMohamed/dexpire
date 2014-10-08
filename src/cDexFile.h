@@ -442,19 +442,21 @@ struct CLASS_CODE_REGISTER
 {
     CHAR*   Name;
     CHAR*   Value;
+    CHAR*   Type;
     USHORT  StartAddress;
     USHORT  EndAddress;
+    CHAR*   Signature;
+    BOOL    Local;
     CLASS_CODE_REGISTER* Next;
 };
 
 struct CLASS_CODE
 {
     USHORT  RegistersSize;
-    CLASS_CODE_REGISTER* Registers;
+    CLASS_CODE_REGISTER** Registers;
     
     USHORT  InsSize;
-    USHORT  OutsSize;
-    //UINT    DebugInfoOff;   
+    USHORT  OutsSize;  
     UINT    InstBufferSize; 
     UINT    Offset;
 
@@ -1253,9 +1255,13 @@ private:
     void    CreateOpcodesFlagsTable();
     void    CreateOpcodesFormatTable();
 
-    UCHAR* TempBuffer;
+    UCHAR*  TempBuffer;
 
-    ULONG OpcodeCounter;
+    ULONG   OpcodeCounter;
+
+    CLASS_CODE_REGISTER* AddToRegisters(UINT Index, CLASS_CODE_REGISTER** Registers);
+    CLASS_CODE_REGISTER* GetUnendedRegister(UINT Index, CLASS_CODE_REGISTER** Registers);
+    CLASS_CODE_REGISTER* RestartRegister(UINT Index, CLASS_CODE_REGISTER** Registers);
 };
 
 
