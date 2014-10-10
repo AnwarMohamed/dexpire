@@ -23,6 +23,8 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
+    TreeItem* getChild(const QModelIndex &index);
+
 private:
     void setupModelData(TreeItem* parent);
     void appenedClassToParent(TreeItem* parent, struct DEX_DECOMPILED_CLASS* dClass, QStringList& list);

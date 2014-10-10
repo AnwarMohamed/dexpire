@@ -15,11 +15,15 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     treeitem.cpp \
-    treemodel.cpp
+    treemodel.cpp \
+    codeeditorlinenumber.cpp \
+    codeeditor.cpp
 
 HEADERS  += mainwindow.h \
     treeitem.h \
-    treemodel.h
+    treemodel.h \
+    codeeditorlinenumber.h \
+    codeeditor.h
 
 FORMS    += mainwindow.ui
 

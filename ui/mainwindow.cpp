@@ -13,6 +13,7 @@
 #include <QDirModel>
 #include <cDexDecompiler.h>
 #include <QLabel>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -29,10 +30,10 @@ MainWindow::MainWindow(QWidget *parent) :
     dexFile = NULL;
     dexDecompiler = NULL;
 
-    //dexFile = new cDexFile("H:/Projects/dexpire/test/classes.dex");
+    dexFile = new cDexFile("H:/Projects/dexpire/test/classes.dex");
     //delete dexFile;
     //dexFile = NULL;
-    //prepareDexWorkspace();
+    prepareDexWorkspace();
 }
 
 void MainWindow::uiSetupWorkspace()
@@ -189,4 +190,15 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
 
+}
+
+void MainWindow::on_actionDex_Disassembly_triggered()
+{
+
+}
+
+void MainWindow::on_treeView_clicked(const QModelIndex &index)
+{
+    TreeItem* item = ((TreeModel*)(ui->treeView->model()))->getChild(index);
+    std::cout << item->getText().toString().toStdString() << std::endl;
 }

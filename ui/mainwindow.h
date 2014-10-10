@@ -48,6 +48,8 @@ private slots:
     void on_actionSave_All_triggered();
     void on_tabWidget_tabCloseRequested(int index);
     void on_tabWidget_currentChanged(int index);
+    void on_actionDex_Disassembly_triggered();
+    void on_treeView_clicked(const QModelIndex &index);
 };
 
 #endif // MAINWINDOW_H
