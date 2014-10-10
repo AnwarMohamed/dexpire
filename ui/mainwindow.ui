@@ -17,7 +17,11 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>DEXPIRE ~ Interactive Dex Disassembler</string>
+   <string>Dexpire | Interactive Dex Disassembler</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/icons/icon.png</normaloff>:/icons/icon.png</iconset>
   </property>
   <property name="statusTip">
    <string/>
@@ -35,7 +39,16 @@
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
     </property>
+    <property name="handleWidth">
+     <number>4</number>
+    </property>
     <widget class="QTreeView" name="treeView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -54,47 +67,23 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>-1</number>
      </property>
-     <property name="elideMode">
-      <enum>Qt::ElideNone</enum>
+     <property name="iconSize">
+      <size>
+       <width>10</width>
+       <height>10</height>
+      </size>
      </property>
      <property name="usesScrollButtons">
-      <bool>false</bool>
+      <bool>true</bool>
+     </property>
+     <property name="tabsClosable">
+      <bool>true</bool>
      </property>
      <property name="movable">
       <bool>true</bool>
      </property>
-     <widget class="QWidget" name="tabStructure">
-      <attribute name="title">
-       <string>Structure</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="tabDex">
-      <attribute name="title">
-       <string>Dex View</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="tabJava">
-      <attribute name="title">
-       <string>Java Code View</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="tabStrings">
-      <attribute name="title">
-       <string>Strings</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="tabFields">
-      <attribute name="title">
-       <string>Fields</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="tabMethods">
-      <attribute name="title">
-       <string>Methods</string>
-      </attribute>
-     </widget>
     </widget>
    </widget>
   </widget>
@@ -111,6 +100,27 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuExport_As">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Export As</string>
+     </property>
+     <property name="icon">
+      <iconset resource="icons.qrc">
+       <normaloff>:/icons/export.png</normaloff>:/icons/export.png</iconset>
+     </property>
+     <addaction name="actionEclipse_Project"/>
+     <addaction name="actionIntelliJ_IDEA_Project"/>
+    </widget>
+    <addaction name="actionOpen"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_Class"/>
+    <addaction name="actionSave_All"/>
+    <addaction name="menuExport_As"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -122,20 +132,66 @@
      <string>&amp;Search</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuOptions">
-    <property name="title">
-     <string>&amp;Options</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>&amp;Help</string>
+    </property>
+    <addaction name="actionUser_Manual"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <widget class="QMenu" name="menuDex_Structure">
+     <property name="title">
+      <string>Dex Structure</string>
+     </property>
+     <property name="icon">
+      <iconset resource="icons.qrc">
+       <normaloff>:/icons/dex.png</normaloff>:/icons/dex.png</iconset>
+     </property>
+     <addaction name="actionStructure_Map"/>
+     <addaction name="actionDex_Disassembly"/>
+     <addaction name="actionJava_Source"/>
+     <addaction name="separator"/>
+     <addaction name="actionStrings_Table"/>
+     <addaction name="actionTypes_Table"/>
+     <addaction name="actionMethods_Table"/>
+     <addaction name="actionFields_Table"/>
+    </widget>
+    <widget class="QMenu" name="menuAPK_Structure">
+     <property name="title">
+      <string>APK Structure</string>
+     </property>
+     <property name="icon">
+      <iconset resource="icons.qrc">
+       <normaloff>:/icons/package_obj.png</normaloff>:/icons/package_obj.png</iconset>
+     </property>
+     <addaction name="actionAndroid_Manifest"/>
+     <addaction name="actionResources"/>
+     <addaction name="actionCertificates"/>
+    </widget>
+    <addaction name="menuAPK_Structure"/>
+    <addaction name="menuDex_Structure"/>
+   </widget>
+   <widget class="QMenu" name="menuDebugger">
+    <property name="title">
+     <string>Debugger</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
     </property>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuSearch"/>
-   <addaction name="menuOptions"/>
+   <addaction name="menuView"/>
+   <addaction name="menuDebugger"/>
+   <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -164,13 +220,184 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <widget class="QStatusBar" name="statusBar">
-   <property name="statusTip">
-    <string>Welcome to DEXPIRE</string>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionUser_Manual">
+   <property name="text">
+    <string>User Manual</string>
    </property>
-  </widget>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/document-open-folder.png</normaloff>:/icons/document-open-folder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave_Class">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save Class</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_All">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/save-all.png</normaloff>:/icons/save-all.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/close.png</normaloff>:/icons/close.png</iconset>
+   </property>
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionEclipse_Project">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/eclipse.png</normaloff>:/icons/eclipse.png</iconset>
+   </property>
+   <property name="text">
+    <string>Eclipse Project</string>
+   </property>
+  </action>
+  <action name="actionIntelliJ_IDEA_Project">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/intellij.png</normaloff>:/icons/intellij.png</iconset>
+   </property>
+   <property name="text">
+    <string>IntelliJ IDEA Project</string>
+   </property>
+  </action>
+  <action name="actionDex_Disassembly">
+   <property name="text">
+    <string>Dex Disassembly</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="actionResources">
+   <property name="text">
+    <string>Resources</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+@</string>
+   </property>
+  </action>
+  <action name="actionStructure_Map">
+   <property name="text">
+    <string>Class Structure</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+  </action>
+  <action name="actionStrings_Table">
+   <property name="text">
+    <string>Strings Table</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
+  </action>
+  <action name="actionTypes_Table">
+   <property name="text">
+    <string>Types Table</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+5</string>
+   </property>
+  </action>
+  <action name="actionMethods_Table">
+   <property name="text">
+    <string>Methods Table</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+6</string>
+   </property>
+  </action>
+  <action name="actionFields_Table">
+   <property name="text">
+    <string>Fields Table</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+7</string>
+   </property>
+  </action>
+  <action name="actionJava_Source">
+   <property name="text">
+    <string>Java Source</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
+  <action name="actionAndroid_Manifest">
+   <property name="text">
+    <string>Android Manifest</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+!</string>
+   </property>
+  </action>
+  <action name="actionCertificates">
+   <property name="text">
+    <string>Certificates</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+#</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
- <connections/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>370</x>
+     <y>312</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

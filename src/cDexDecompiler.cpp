@@ -26,11 +26,11 @@ cDexDecompiler::cDexDecompiler(cDexFile* DexFile)
     nClasses = 0;
     if (!DexFile->isReady) return;
 
-    LineCounter = 0;
-
     this->DexFile = DexFile;
     Classes = new DEX_DECOMPILED_CLASS[DexFile->nClasses];
     ZERO(Classes, DexFile->nClasses* sizeof(DEX_DECOMPILED_CLASS));
+
+    nClasses = DexFile->nClasses;
 
     for (UINT i=0; i<DexFile->nClasses; i++)
     {

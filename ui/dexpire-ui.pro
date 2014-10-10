@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,9 +13,13 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    treeitem.cpp \
+    treemodel.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    treeitem.h \
+    treemodel.h
 
 FORMS    += mainwindow.ui
 
@@ -23,7 +27,10 @@ RESOURCES += \
     icons.qrc
 
 win32 {
-    LIBS += -LH:\Projects\dexpire\build\Debug -ldexpire
+    LIBS += H:/Projects/dexpire/build/Debug/dexpire.lib
 }
 
 INCLUDEPATH += ..\src
+
+OTHER_FILES += \
+    default.txt

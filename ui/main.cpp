@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include <QFile>
+#include <QTreeView>
+#include "treemodel.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,5 +12,6 @@ int main(int argc, char *argv[])
 
     MainWindow mainWindow;
     mainWindow.show();
+
     return app.exec();
 }

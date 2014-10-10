@@ -7,5 +7,63 @@
         <file>icons/android-platform-icon.png</file>
         <file>icons/korganizer-icon.png</file>
         <file>icons/Actions-view-list-tree-icon.png</file>
+        <file>icons/closeIcon.png</file>
+        <file>icons/apk.png</file>
+        <file>icons/certificate.png</file>
+        <file>icons/close.png</file>
+        <file>icons/dex.png</file>
+        <file>icons/eclipse.png</file>
+        <file>icons/export.png</file>
+        <file>icons/icon.ico</file>
+        <file>icons/icon.png</file>
+        <file>icons/intellij.png</file>
+        <file>icons/open.png</file>
+        <file>icons/open-48.png</file>
+        <file>icons/resources.png</file>
+        <file>icons/save.png</file>
+        <file>icons/save-all.png</file>
+        <file>icons/Spyware.png</file>
+        <file>icons/xml.png</file>
+        <file>icons/abstract_co.png</file>
+        <file>icons/annotation_obj.png</file>
+        <file>icons/arrow_down.png</file>
+        <file>icons/arrow_up.png</file>
+        <file>icons/class_default_obj.png</file>
+        <file>icons/class_obj.png</file>
+        <file>icons/constr_ovr.png</file>
+        <file>icons/cross.png</file>
+        <file>icons/cross_grayed.png</file>
+        <file>icons/disk_multiple.png</file>
+        <file>icons/empty_logical_package_obj.png</file>
+        <file>icons/empty_pack_obj.png</file>
+        <file>icons/enum_obj.png</file>
+        <file>icons/field_default_obj.png</file>
+        <file>icons/field_private_obj.png</file>
+        <file>icons/field_protected_obj.png</file>
+        <file>icons/field_public_obj.png</file>
+        <file>icons/final_co.png</file>
+        <file>icons/folder.png</file>
+        <file>icons/icon_back.png</file>
+        <file>icons/icon_forward.png</file>
+        <file>icons/innerclass_private_obj.png</file>
+        <file>icons/innerclass_protected_obj.png</file>
+        <file>icons/int_obj.png</file>
+        <file>icons/java_model_obj.png</file>
+        <file>icons/jcu_obj.png</file>
+        <file>icons/library_obj.png</file>
+        <file>icons/magnifier.png</file>
+        <file>icons/methdef_obj.png</file>
+        <file>icons/methpri_obj.png</file>
+        <file>icons/methpro_obj.png</file>
+        <file>icons/methpub_obj.png</file>
+        <file>icons/native_co.png</file>
+        <file>icons/package_obj.png</file>
+        <file>icons/static_co.png</file>
+        <file>icons/sync.png</file>
+        <file>icons/synch_co.png</file>
+        <file>icons/transient_co.png</file>
+        <file>icons/volatile_co.png</file>
+        <file>icons/wand.png</file>
+        <file>icons/wrench.png</file>
     </qresource>
 </RCC>
