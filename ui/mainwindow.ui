@@ -240,7 +240,6 @@
    <addaction name="actionStructure_Map_2"/>
    <addaction name="actionDex_Disassembly_2"/>
    <addaction name="actionJava_Source_2"/>
-   <addaction name="actionTables"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionUser_Manual">
@@ -573,6 +572,51 @@
     <string>Ctrl+8</string>
    </property>
   </action>
+  <action name="actionFields_Table_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Fields Table</string>
+   </property>
+  </action>
+  <action name="actionMethods_Table_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Methods Table</string>
+   </property>
+  </action>
+  <action name="actionTypes_Table_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Types Table</string>
+   </property>
+  </action>
+  <action name="actionStrings_Table_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Strings Table</string>
+   </property>
+  </action>
+  <action name="actionPrototypes_Table_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Prototypes Table</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
@@ -727,6 +771,86 @@
    <sender>actionHeader_2</sender>
    <signal>triggered()</signal>
    <receiver>actionHeader</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMethods_Table_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionMethods_Table</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionStrings_Table_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionStrings_Table</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionFields_Table_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionFields_Table</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPrototypes_Table_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionPrototypes_Table</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionTypes_Table_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionTypes_Table</receiver>
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">

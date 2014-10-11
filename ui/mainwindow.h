@@ -68,6 +68,9 @@ private slots:
 
     void with_protoTab_doubleClicked(const QModelIndex &index);
     void on_actionPrototypes_Table_triggered();
+
+    void with_methodsTab_doubleClicked(const QModelIndex &index);
+    void on_actionMethods_Table_triggered();
 };
 
 #endif // MAINWINDOW_H

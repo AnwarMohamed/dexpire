@@ -122,7 +122,14 @@ void MainWindow::uiSetupToolbar()
     toolbar = ui->mainToolBar;
     toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
 
-
+    QMenu *menu = new QMenu("Tables");
+    menu->setIcon(QIcon(":/icons/properties.gif"));
+    menu->addAction(ui->actionFields_Table_2);
+    menu->addAction(ui->actionStrings_Table_2);
+    menu->addAction(ui->actionMethods_Table_2);
+    menu->addAction(ui->actionTypes_Table_2);
+    menu->addAction(ui->actionPrototypes_Table_2);
+    toolbar->addAction(menu->menuAction());
 }
 
 void MainWindow::resizeEvent(QResizeEvent*)
@@ -195,12 +202,15 @@ void MainWindow::with_fieldsTab_doubleClicked(const QModelIndex &index)
     switch(index.column())
     {
     case 0:
+        on_actionTypes_Table_triggered();
+        typesTab->selectRow(dexFile->DexFieldIds[index.row()].ClassIndex);
         break;
 
     case 1:
         on_actionTypes_Table_triggered();
         typesTab->selectRow(dexFile->DexFieldIds[index.row()].TypeIdex);
         break;
+
     case 2:
         on_actionStrings_Table_triggered();
         stringsTab->selectRow(dexFile->DexFieldIds[index.row()].StringIndex);
@@ -490,5 +500,65 @@ void MainWindow::with_protoTab_doubleClicked(const QModelIndex &index)
         //on_actionStrings_Table_triggered();
         //stringsTab->selectRow(dexFile->DexFieldIds[index.row()].StringIndex);
         break;
+    }
+}
+void MainWindow::with_methodsTab_doubleClicked(const QModelIndex &index)
+{
+    switch(index.column())
+    {
+    case 0:
+        on_actionTypes_Table_triggered();
+        typesTab->selectRow(dexFile->DexMethodIds[index.row()].ClassIndex);
+        break;
+
+    case 1:
+        on_actionPrototypes_Table_triggered();
+        protoTab->selectRow(dexFile->DexMethodIds[index.row()].PrototypeIndex);
+        break;
+
+    case 2:
+        on_actionStrings_Table_triggered();
+        stringsTab->selectRow(dexFile->DexMethodIds[index.row()].StringIndex);
+        break;
+    }
+}
+void MainWindow::on_actionMethods_Table_triggered()
+{
+    int index = tabOpened(QString("Methods Table"));
+    if (index != -1)
+        ui->tabWidget->setCurrentIndex(index);
+    else
+    {
+        if (!methodsTab)
+        {
+            methodsTab = new QTableView(this);
+            methodsTab->setWordWrap(true);
+            methodsTab->setSelectionMode(QAbstractItemView::SingleSelection);
+            methodsTab->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            methodsTab->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+            methodsTab->verticalHeader()->setDefaultSectionSize(22);
+            methodsTab->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+            QObject::connect(methodsTab, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(with_methodsTab_doubleClicked(QModelIndex)));
+
+            QStandardItemModel *model = new QStandardItemModel(dexFile->nPrototypeIDs, 3, this);
+            model->setHorizontalHeaderItem(0, new QStandardItem(QString("Class Index")));
+            model->setHorizontalHeaderItem(1, new QStandardItem(QString("Prototype Index")));
+            model->setHorizontalHeaderItem(2, new QStandardItem(QString("Name")));
+
+            for (unsigned int i=0; i<dexFile->nPrototypeIDs; i++)
+            {
+                model->setItem(i, 0, new QStandardItem(QString().sprintf("0x%04x", dexFile->DexMethodIds[i].ClassIndex)));
+                model->setItem(i, 1, new QStandardItem(QString().sprintf("0x%04x", dexFile->DexMethodIds[i].PrototypeIndex)));
+                model->setItem(i, 2, new QStandardItem(QString((char*)dexFile->StringItems[dexFile->DexMethodIds[i].StringIndex].Data)));
+                model->setVerticalHeaderItem(i, new QStandardItem(QString().sprintf("0x%04x", i)));
+            }
+
+            methodsTab->setModel(model);
+            methodsTab->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+        }
+
+        ui->tabWidget->insertTab(0, methodsTab, QString("Methods Table"));
+        ui->tabWidget->setCurrentIndex(0);
     }
 }
