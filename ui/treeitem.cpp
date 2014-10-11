@@ -4,17 +4,19 @@
 TreeItem::TreeItem(int type, TreeItem *parent, struct DEX_DECOMPILED_CLASS* dClass)
 {
     parentItem = parent;
-    itemType = type;
+    _itemType = type;
+    _item = NULL;
 
     switch(type)
     {
     case TI_CLASS:
+        _item = dClass;
         _icon = ":/icons/class_obj.png";
         break;
     case TI_DEX_ROOT:
         break;
     case TI_SRC_DIR:
-        _icon = ":/icons/folder.png";
+        _icon = ":/icons/packagefolder_obj.gif";
         break;
     case TI_PACKAGE_DIR:
         _icon = ":/icons/package_obj.png";
@@ -76,7 +78,7 @@ void TreeItem::setText(QString& text)
 
 int TreeItem::getType()
 {
-    return itemType;
+    return _itemType;
 }
 
 void TreeItem::removeChild(int row)

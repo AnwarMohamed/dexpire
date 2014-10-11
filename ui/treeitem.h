@@ -44,7 +44,8 @@ private:
     TreeItem *parentItem;
 
     QVariant _text, _icon;
-    int itemType;
+    int _itemType;
+    DEX_DECOMPILED_CLASS* _item;
 };
 
 #endif // TREEITEM_H

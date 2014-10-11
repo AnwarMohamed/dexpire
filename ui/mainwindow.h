@@ -6,6 +6,7 @@
 #include <QTreeView>
 #include <QTabWidget>
 #include "treemodel.h"
+#include <QTableView>
 
 namespace Ui {
 class MainWindow;
@@ -33,9 +34,16 @@ private:
     void cleanCurrentWorkspace();
     void prepareDexWorkspace();
     //void insertNewTab(QWidget* tab, )
+    int tabOpened(QString& name);
 
     cDexFile* dexFile;
     cDexDecompiler* dexDecompiler;
+
+    QTableView* stringsTab;
+    QTableView* headerTab;
+    QWidget* methodsTab;
+    QWidget* fieldsTab;
+    QWidget* typesTab;
 
 protected:
     void resizeEvent(QResizeEvent * event);
@@ -50,6 +58,8 @@ private slots:
     void on_tabWidget_currentChanged(int index);
     void on_actionDex_Disassembly_triggered();
     void on_treeView_clicked(const QModelIndex &index);
+    void on_actionStrings_Table_triggered();
+    void on_actionHeader_triggered();
 };
 
 #endif // MAINWINDOW_H

@@ -109,7 +109,7 @@
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">
-       <normaloff>:/icons/export.png</normaloff>:/icons/export.png</iconset>
+       <normaloff>:/icons/exportapp_wiz.gif</normaloff>:/icons/exportapp_wiz.gif</iconset>
      </property>
      <addaction name="actionEclipse_Project"/>
      <addaction name="actionIntelliJ_IDEA_Project"/>
@@ -152,6 +152,8 @@
       <iconset resource="icons.qrc">
        <normaloff>:/icons/dex.png</normaloff>:/icons/dex.png</iconset>
      </property>
+     <addaction name="actionHeader"/>
+     <addaction name="separator"/>
      <addaction name="actionStructure_Map"/>
      <addaction name="actionDex_Disassembly"/>
      <addaction name="actionJava_Source"/>
@@ -208,7 +210,7 @@
     <bool>false</bool>
    </property>
    <property name="allowedAreas">
-    <set>Qt::NoToolBarArea</set>
+    <set>Qt::TopToolBarArea</set>
    </property>
    <property name="iconSize">
     <size>
@@ -225,14 +227,35 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionOpen_2"/>
+   <addaction name="actionSave_Class_2"/>
+   <addaction name="actionSave_All_2"/>
+   <addaction name="separator"/>
+   <addaction name="actionCertificates_2"/>
+   <addaction name="actionAndroid_Manifest_2"/>
+   <addaction name="actionResources_2"/>
+   <addaction name="separator"/>
+   <addaction name="actionHeader_2"/>
+   <addaction name="actionStructure_Map_2"/>
+   <addaction name="actionDex_Disassembly_2"/>
+   <addaction name="actionJava_Source_2"/>
+   <addaction name="actionTables"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionUser_Manual">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/toc_closed.gif</normaloff>:/icons/toc_closed.gif</iconset>
+   </property>
    <property name="text">
     <string>User Manual</string>
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/help_contents.gif</normaloff>:/icons/help_contents.gif</iconset>
+   </property>
    <property name="text">
     <string>About</string>
    </property>
@@ -240,7 +263,7 @@
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/icons/document-open-folder.png</normaloff>:/icons/document-open-folder.png</iconset>
+     <normaloff>:/icons/fldr_obj.gif</normaloff>:/icons/fldr_obj.gif</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -252,7 +275,7 @@
   <action name="actionSave_Class">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+     <normaloff>:/icons/save_edit.gif</normaloff>:/icons/save_edit.gif</iconset>
    </property>
    <property name="text">
     <string>Save Class</string>
@@ -264,7 +287,7 @@
   <action name="actionSave_All">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/icons/save-all.png</normaloff>:/icons/save-all.png</iconset>
+     <normaloff>:/icons/saveall_edit.gif</normaloff>:/icons/saveall_edit.gif</iconset>
    </property>
    <property name="text">
     <string>Save All</string>
@@ -276,7 +299,7 @@
   <action name="actionQuit">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/icons/close.png</normaloff>:/icons/close.png</iconset>
+     <normaloff>:/icons/closeIcon.png</normaloff>:/icons/closeIcon.png</iconset>
    </property>
    <property name="text">
     <string>Quit</string>
@@ -304,6 +327,10 @@
    </property>
   </action>
   <action name="actionDex_Disassembly">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/classf_generate.gif</normaloff>:/icons/classf_generate.gif</iconset>
+   </property>
    <property name="text">
     <string>Dex Disassembly</string>
    </property>
@@ -312,6 +339,10 @@
    </property>
   </action>
   <action name="actionResources">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/resource_persp.gif</normaloff>:/icons/resource_persp.gif</iconset>
+   </property>
    <property name="text">
     <string>Resources</string>
    </property>
@@ -320,6 +351,10 @@
    </property>
   </action>
   <action name="actionStructure_Map">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/class_hi.gif</normaloff>:/icons/class_hi.gif</iconset>
+   </property>
    <property name="text">
     <string>Class Structure</string>
    </property>
@@ -328,6 +363,10 @@
    </property>
   </action>
   <action name="actionStrings_Table">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
    <property name="text">
     <string>Strings Table</string>
    </property>
@@ -336,6 +375,10 @@
    </property>
   </action>
   <action name="actionTypes_Table">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
    <property name="text">
     <string>Types Table</string>
    </property>
@@ -344,6 +387,10 @@
    </property>
   </action>
   <action name="actionMethods_Table">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
    <property name="text">
     <string>Methods Table</string>
    </property>
@@ -352,6 +399,10 @@
    </property>
   </action>
   <action name="actionFields_Table">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
    <property name="text">
     <string>Fields Table</string>
    </property>
@@ -360,6 +411,10 @@
    </property>
   </action>
   <action name="actionJava_Source">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/java.gif</normaloff>:/icons/java.gif</iconset>
+   </property>
    <property name="text">
     <string>Java Source</string>
    </property>
@@ -368,6 +423,10 @@
    </property>
   </action>
   <action name="actionAndroid_Manifest">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/file_obj.gif</normaloff>:/icons/file_obj.gif</iconset>
+   </property>
    <property name="text">
     <string>Android Manifest</string>
    </property>
@@ -376,11 +435,129 @@
    </property>
   </action>
   <action name="actionCertificates">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/deadlock_view.gif</normaloff>:/icons/deadlock_view.gif</iconset>
+   </property>
    <property name="text">
     <string>Certificates</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+#</string>
+   </property>
+  </action>
+  <action name="actionCertificates_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/deadlock_view.gif</normaloff>:/icons/deadlock_view.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Certificates</string>
+   </property>
+  </action>
+  <action name="actionAndroid_Manifest_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/file_obj.gif</normaloff>:/icons/file_obj.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Android Manifest</string>
+   </property>
+  </action>
+  <action name="actionJava_Source_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/java.gif</normaloff>:/icons/java.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Java Source</string>
+   </property>
+  </action>
+  <action name="actionOpen_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/fldr_obj.gif</normaloff>:/icons/fldr_obj.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionSave_Class_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/save_edit.gif</normaloff>:/icons/save_edit.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Save Class</string>
+   </property>
+  </action>
+  <action name="actionSave_All_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/saveall_edit.gif</normaloff>:/icons/saveall_edit.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Save All</string>
+   </property>
+  </action>
+  <action name="actionDex_Disassembly_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/classf_generate.gif</normaloff>:/icons/classf_generate.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Dex Disassembly</string>
+   </property>
+  </action>
+  <action name="actionResources_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/resource_persp.gif</normaloff>:/icons/resource_persp.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Resources</string>
+   </property>
+  </action>
+  <action name="actionStructure_Map_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/class_hi.gif</normaloff>:/icons/class_hi.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Class Structure</string>
+   </property>
+  </action>
+  <action name="actionTables">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Tables</string>
+   </property>
+   <property name="toolTip">
+    <string>Tables</string>
+   </property>
+  </action>
+  <action name="actionHeader">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/submenu.gif</normaloff>:/icons/submenu.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Dex Header</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionHeader_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/submenu.gif</normaloff>:/icons/submenu.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Dex Header</string>
    </property>
   </action>
  </widget>
@@ -402,6 +579,150 @@
     <hint type="destinationlabel">
      <x>370</x>
      <y>312</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionOpen_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionOpen</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAndroid_Manifest_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionAndroid_Manifest</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCertificates_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionCertificates</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionDex_Disassembly_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionDex_Disassembly</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionJava_Source_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionJava_Source</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionStructure_Map_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionStructure_Map</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSave_Class_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionSave_Class</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSave_All_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionSave_All</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionHeader_2</sender>
+   <signal>triggered()</signal>
+   <receiver>actionHeader</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>
