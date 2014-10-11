@@ -41,16 +41,16 @@ private:
 
     QTableView* stringsTab;
     QTableView* headerTab;
-    QWidget* methodsTab;
-    QWidget* fieldsTab;
-    QWidget* typesTab;
+    QTableView* methodsTab;
+    QTableView* fieldsTab;
+    QTableView* typesTab;
+     QTableView* protoTab;
 
 protected:
     void resizeEvent(QResizeEvent * event);
     //void closeEvent(QCloseEvent *event);
 
 private slots:
-    void on_actionFields_Table_triggered();
     void on_actionOpen_triggered();
     void on_actionSave_Class_triggered();
     void on_actionSave_All_triggered();
@@ -60,6 +60,14 @@ private slots:
     void on_treeView_clicked(const QModelIndex &index);
     void on_actionStrings_Table_triggered();
     void on_actionHeader_triggered();
+
+    void on_actionTypes_Table_triggered();
+
+    void on_actionFields_Table_triggered();
+    void with_fieldsTab_doubleClicked(const QModelIndex &index);
+
+    void with_protoTab_doubleClicked(const QModelIndex &index);
+    void on_actionPrototypes_Table_triggered();
 };
 
 #endif // MAINWINDOW_H

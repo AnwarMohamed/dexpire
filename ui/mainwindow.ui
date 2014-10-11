@@ -162,6 +162,7 @@
      <addaction name="actionTypes_Table"/>
      <addaction name="actionMethods_Table"/>
      <addaction name="actionFields_Table"/>
+     <addaction name="actionPrototypes_Table"/>
     </widget>
     <widget class="QMenu" name="menuAPK_Structure">
      <property name="title">
@@ -558,6 +559,18 @@
    </property>
    <property name="text">
     <string>Dex Header</string>
+   </property>
+  </action>
+  <action name="actionPrototypes_Table">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/properties.gif</normaloff>:/icons/properties.gif</iconset>
+   </property>
+   <property name="text">
+    <string>Prototypes Table</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+8</string>
    </property>
   </action>
  </widget>

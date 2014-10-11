@@ -16,6 +16,7 @@
 #include <iostream>
 #include <QTableView>
 #include <QByteArray>
+#include <cDexString.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -46,6 +47,7 @@ void MainWindow::uiSetupWorkspace()
     fieldsTab = NULL;
     typesTab = NULL;
     headerTab = NULL;
+    protoTab = NULL;
 
     ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->treeView->setSelectionBehavior(QAbstractItemView::SelectItems);
@@ -149,7 +151,61 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionFields_Table_triggered()
 {
+    int index = tabOpened(QString("Fields Table"));
+    if (index != -1)
+        ui->tabWidget->setCurrentIndex(index);
+    else
+    {
+        if (!fieldsTab)
+        {
+            fieldsTab = new QTableView(this);
+            fieldsTab->setWordWrap(true);
+            fieldsTab->setSelectionMode(QAbstractItemView::SingleSelection);
+            fieldsTab->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            fieldsTab->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+            fieldsTab->verticalHeader()->setDefaultSectionSize(22);
+            fieldsTab->setSelectionBehavior(QAbstractItemView::SelectRows);
 
+            QObject::connect(fieldsTab, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(with_fieldsTab_doubleClicked(QModelIndex)));
+
+            QStandardItemModel *model = new QStandardItemModel(dexFile->nFieldIDs, 3, this);
+            model->setHorizontalHeaderItem(0, new QStandardItem(QString("Class Index")));
+            model->setHorizontalHeaderItem(1, new QStandardItem(QString("Type Index")));
+            model->setHorizontalHeaderItem(2, new QStandardItem(QString("Name")));
+
+            for (unsigned int i=0; i<dexFile->nFieldIDs; i++)
+            {
+                model->setItem(i, 0, new QStandardItem(QString().sprintf("0x%04x", dexFile->DexFieldIds[i].ClassIndex)));
+                model->setItem(i, 1, new QStandardItem(QString().sprintf("0x%04x", dexFile->DexFieldIds[i].TypeIdex)));
+                model->setItem(i, 2, new QStandardItem(QString((char*)dexFile->StringItems[dexFile->DexFieldIds[i].StringIndex].Data)));
+                model->setVerticalHeaderItem(i, new QStandardItem(QString().sprintf("0x%04x", i)));
+            }
+
+            fieldsTab->setModel(model);
+            fieldsTab->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+        }
+
+        ui->tabWidget->insertTab(0, fieldsTab, QString("Fields Table"));
+        ui->tabWidget->setCurrentIndex(0);
+    }
+}
+
+void MainWindow::with_fieldsTab_doubleClicked(const QModelIndex &index)
+{
+    switch(index.column())
+    {
+    case 0:
+        break;
+
+    case 1:
+        on_actionTypes_Table_triggered();
+        typesTab->selectRow(dexFile->DexFieldIds[index.row()].TypeIdex);
+        break;
+    case 2:
+        on_actionStrings_Table_triggered();
+        stringsTab->selectRow(dexFile->DexFieldIds[index.row()].StringIndex);
+        break;
+    }
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -334,5 +390,105 @@ void MainWindow::on_actionHeader_triggered()
 
         ui->tabWidget->insertTab(0, headerTab, QString("Dex Header"));
         ui->tabWidget->setCurrentIndex(0);
+    }
+}
+
+void MainWindow::on_actionTypes_Table_triggered()
+{
+    int index = tabOpened(QString("Types Table"));
+    if (index != -1)
+        ui->tabWidget->setCurrentIndex(index);
+    else
+    {
+        if (!typesTab)
+        {
+            typesTab = new QTableView(this);
+            typesTab->setWordWrap(true);
+            typesTab->setSelectionMode(QAbstractItemView::SingleSelection);
+            typesTab->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            typesTab->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+            typesTab->verticalHeader()->setDefaultSectionSize(22);
+            typesTab->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+            QStandardItemModel *model = new QStandardItemModel(dexFile->nTypeIDs, 2, this);
+            model->setHorizontalHeaderItem(0, new QStandardItem(QString("Name")));
+            model->setHorizontalHeaderItem(1, new QStandardItem(QString("Description")));
+
+            for (unsigned int i=0; i<dexFile->nTypeIDs; i++)
+            {
+                model->setItem(i, 0, new QStandardItem(QString((char*)dexFile->StringItems[dexFile->DexTypeIds[i].StringIndex].Data)));
+                model->setItem(i, 1, new QStandardItem(QString(
+                    cDexString::GetTypeDescription((char*)dexFile->StringItems[dexFile->DexTypeIds[i].StringIndex].Data))));
+                model->setVerticalHeaderItem(i, new QStandardItem(QString().sprintf("0x%04x", i)));
+            }
+
+            typesTab->setModel(model);
+            typesTab->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+        }
+
+        ui->tabWidget->insertTab(0, typesTab, QString("Types Table"));
+        ui->tabWidget->setCurrentIndex(0);
+    }
+}
+
+void MainWindow::on_actionPrototypes_Table_triggered()
+{
+    int index = tabOpened(QString("Prototypes Table"));
+    if (index != -1)
+        ui->tabWidget->setCurrentIndex(index);
+    else
+    {
+        if (!protoTab)
+        {
+            protoTab = new QTableView(this);
+            protoTab->setWordWrap(true);
+            protoTab->setSelectionMode(QAbstractItemView::SingleSelection);
+            protoTab->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            protoTab->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+            protoTab->verticalHeader()->setDefaultSectionSize(22);
+            protoTab->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+            QObject::connect(protoTab, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(with_protoTab_doubleClicked(QModelIndex)));
+
+            QStandardItemModel *model = new QStandardItemModel(dexFile->nPrototypeIDs, 3, this);
+            model->setHorizontalHeaderItem(0, new QStandardItem(QString("Shorty Index")));
+            model->setHorizontalHeaderItem(1, new QStandardItem(QString("ReturnType Index")));
+            model->setHorizontalHeaderItem(2, new QStandardItem(QString("Parameters Offset")));
+
+            for (unsigned int i=0; i<dexFile->nPrototypeIDs; i++)
+            {
+                model->setItem(i, 0, new QStandardItem(QString().sprintf("0x%08x", dexFile->DexProtoIds[i].StringIndex)));
+                model->setItem(i, 1, new QStandardItem(QString().sprintf("0x%08x", dexFile->DexProtoIds[i].ReturnTypeIdx)));
+                model->setItem(i, 2, new QStandardItem(QString().sprintf("0x%08x", dexFile->DexProtoIds[i].ParametersOff)));
+                model->setVerticalHeaderItem(i, new QStandardItem(QString().sprintf("0x%04x", i)));
+            }
+
+            protoTab->setModel(model);
+            protoTab->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+        }
+
+        ui->tabWidget->insertTab(0, protoTab, QString("Prototypes Table"));
+        ui->tabWidget->setCurrentIndex(0);
+    }
+}
+
+void MainWindow::with_protoTab_doubleClicked(const QModelIndex &index)
+{
+    switch(index.column())
+    {
+    case 0:
+        on_actionStrings_Table_triggered();
+        stringsTab->selectRow(dexFile->DexProtoIds[index.row()].StringIndex);
+        break;
+
+    case 1:
+        on_actionTypes_Table_triggered();
+        typesTab->selectRow(dexFile->DexProtoIds[index.row()].ReturnTypeIdx);
+        break;
+
+    case 2:
+        //on_actionStrings_Table_triggered();
+        //stringsTab->selectRow(dexFile->DexFieldIds[index.row()].StringIndex);
+        break;
     }
 }
