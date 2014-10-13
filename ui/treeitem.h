@@ -46,6 +46,14 @@ public:
     void setAsClassNode(int index);
     void createClassTree();
 
+    DEX_DECOMPILED_CLASS* getClass();
+
+    void setDexTabWidget(QWidget* tab);
+    QWidget* getDexTabWidget();
+
+    void setJavaTabWidget(QWidget* tab);
+    QWidget* getJavaTabWidget();
+
 private:
     QList<TreeItem*> childItems;
     TreeItem* _parent;
@@ -53,6 +61,7 @@ private:
     QVariant _text;
     QPixmap _icon;
     QString _icon_path;
+    QWidget* _dex_tab,* _java_tab;
 
     int _type;
     DEX_DECOMPILED_CLASS* _class;

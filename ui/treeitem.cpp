@@ -7,6 +7,8 @@ TreeItem::TreeItem(int type, TreeItem *parent, struct DEX_DECOMPILED_CLASS* Clas
     _parent = parent;
     _type = type;
     _class = NULL;
+    _dex_tab = NULL;
+    _java_tab = NULL;
 
     switch(type)
     {
@@ -35,7 +37,7 @@ void TreeItem::setAsClassNode(int index)
     {
     case TI_CLASS_FIELD:
         _icon_path = ":/icons/field_";
-        _text = QString(_class->Fields[index]->Name);
+        _text = QString(_class->Fields[index]->Name).append(" : ").append(_class->Fields[index]->ReturnType);
 
         if (_class->Fields[index]->Ref->AccessFlags & ACC_PUBLIC)
             _icon_path = _icon_path.append("public");
@@ -58,7 +60,7 @@ void TreeItem::setAsClassNode(int index)
             if (i) _text = _text.toString().append(", ");
             _text = _text.toString().append(cDexString::GetShortType(_class->Methods[index]->Arguments[i]->Type));
         }
-        _text = _text.toString().append(")");
+        _text = _text.toString().append(") : ").append(cDexString::GetShortType(_class->Methods[index]->ReturnType));
 
         if (_class->Methods[index]->Ref->AccessFlags & ACC_PUBLIC)
             _icon_path = _icon_path.append("pub");
@@ -173,4 +175,30 @@ bool toAssending(TreeItem* s1 , TreeItem* s2)
 void TreeItem::sortChilds()
 {
     qSort(childItems.begin() , childItems.end(), toAssending);
+}
+
+DEX_DECOMPILED_CLASS* TreeItem::getClass()
+{
+    return _class;
+}
+
+void TreeItem::setDexTabWidget(QWidget* tab)
+{
+    _dex_tab = tab;
+}
+
+QWidget* TreeItem::getDexTabWidget()
+{
+    return _dex_tab;
+}
+
+
+void TreeItem::setJavaTabWidget(QWidget* tab)
+{
+    _java_tab = tab;
+}
+
+QWidget* TreeItem::getJavaTabWidget()
+{
+    return _java_tab;
 }

@@ -17,6 +17,7 @@
 #include <QTableView>
 #include <QByteArray>
 #include <cDexString.h>
+#include "htmldelegate.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -51,6 +52,7 @@ void MainWindow::uiSetupWorkspace()
 
     ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->treeView->setSelectionBehavior(QAbstractItemView::SelectItems);
+    //ui->treeView->setItemDelegate(new HtmlDelegate());
 
     treeViewSignalsRegistered = false;
 
@@ -106,8 +108,6 @@ void MainWindow::cleanCurrentWorkspace()
     }
 }
 
-
-
 void MainWindow::prepareDexWorkspace()
 {
     if (dexDecompiler)
@@ -117,6 +117,8 @@ void MainWindow::prepareDexWorkspace()
     treeModel = new TreeModel(dexDecompiler);
     ui->treeView->setModel(treeModel);
     ui->treeView->expandToDepth(0);
+
+    setClassToolbarEnabled(false);
 
     ui->statusBar->showMessage(QString(dexFile->Filename).append(" loaded successfully."));
 
@@ -256,13 +258,16 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 
 void MainWindow::on_actionDex_Disassembly_triggered()
 {
-
+    on_treeView_doubleClicked(ui->treeView->currentIndex());
 }
 
 void MainWindow::on_treeView_clicked(const QModelIndex &index)
 {
-    ui->treeView->resizeColumnToContents(index.column());
     TreeItem* item = ((TreeModel*)(ui->treeView->model()))->getChild(index);
+    if (item->getType() == TI_CLASS)
+        setClassToolbarEnabled(true);
+    else
+        setClassToolbarEnabled(false);
 }
 
 void MainWindow::on_actionStrings_Table_triggered()
@@ -589,4 +594,81 @@ void MainWindow::with_treeView_expanded(const QModelIndex &index)
 void MainWindow::on_tabWidget_customContextMenuRequested(const QPoint &pos)
 {
     std::cout << "context menu" << std::endl;
+}
+
+void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
+{
+    TreeItem* item = ((TreeModel*)(ui->treeView->model()))->getChild(index);
+
+    if (item->getType() == TI_CLASS)
+    {
+        addDexTab(item);
+    }
+}
+
+void MainWindow::addDexTab(TreeItem* item)
+{
+    int index = tabOpened(QString(item->getClass()->SourceFile).split('.')[0].append(".dex"));
+    if (index >= 0 &&
+            ui->tabWidget->tabBar()->tabToolTip(index) ==
+            QString(item->getClass()->Package).append('.').append(item->getClass()->Name))
+    {
+        ui->tabWidget->setCurrentIndex(index);
+        return;
+    }
+
+    if (!item->getDexTabWidget())
+    {
+        QWidget* widget = new QTreeView(this);
+
+        item->setDexTabWidget(widget);
+    }
+
+    ui->tabWidget->insertTab(ui->tabWidget->count(), item->getDexTabWidget(), QIcon(":/icons/classf_generate.gif"),
+                             QString(item->getClass()->SourceFile).split('.')[0].append(".dex"));
+    ui->tabWidget->setTabToolTip(ui->tabWidget->count()-1, QString(item->getClass()->Package).append('.').append(item->getClass()->Name));
+    ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
+}
+
+void MainWindow::addJavaTab(TreeItem* item)
+{
+    int index = tabOpened(QString(item->getClass()->SourceFile));
+    if (index >= 0 &&
+            ui->tabWidget->tabBar()->tabToolTip(index) ==
+            QString(item->getClass()->Package).append('.').append(item->getClass()->Name))
+    {
+        ui->tabWidget->setCurrentIndex(index);
+        return;
+    }
+
+    if (!item->getJavaTabWidget())
+    {
+        QWidget* widget = new QTreeView(this);
+
+        item->setJavaTabWidget(widget);
+    }
+
+    ui->tabWidget->insertTab(ui->tabWidget->count(), item->getJavaTabWidget(), QIcon(":/icons/java.gif"), QString(item->getClass()->SourceFile));
+    ui->tabWidget->setTabToolTip(ui->tabWidget->count()-1, QString(item->getClass()->Package).append('.').append(item->getClass()->Name));
+    ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
+}
+
+void MainWindow::setClassToolbarEnabled(bool enable)
+{
+    ui->actionSave_Class->setEnabled(enable);
+    ui->actionDex_Disassembly->setEnabled(enable);
+    ui->actionJava_Source->setEnabled(enable);
+
+    ui->actionSave_Class_2->setEnabled(enable);
+    ui->actionDex_Disassembly_2->setEnabled(enable);
+    ui->actionJava_Source_2->setEnabled(enable);
+}
+
+void MainWindow::on_actionJava_Source_triggered()
+{
+    TreeItem* item = ((TreeModel*)(ui->treeView->model()))->getChild( ui->treeView->currentIndex());
+    if (item->getType() == TI_CLASS)
+    {
+        addJavaTab(item);
+    }
 }

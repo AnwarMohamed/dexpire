@@ -617,7 +617,7 @@ void cDexCodeGen::DumpLineMultiInstruction(
                 if (Line->Instructions[j]->OpcodeSig == OP_CONST_HIGH16)
                     _itoa_s(Line->Instructions[j]->vB << 16, TempString, MAX_STRING_BUFFER_SIZE, 10);
                 else if (Line->Instructions[j]->OpcodeSig == OP_CONST_WIDE)
-                    _ltoa_s(Line->Instructions[j]->vB_wide, TempString, MAX_STRING_BUFFER_SIZE, 10);
+                    _snprintf_s(TempString, MAX_STRING_BUFFER_SIZE, MAX_STRING_BUFFER_SIZE, "%ulld", Line->Instructions[j]->vB_wide);
                 else
                     _itoa_s(Line->Instructions[j]->vB, TempString, MAX_STRING_BUFFER_SIZE, 10);
 
