@@ -45,6 +45,9 @@ struct DEX_DECOMPILED_CLASS_FIELD
     CHAR*   ReturnType;
     BOOL    Static;
     CHAR*   Value;
+
+    CLASS_FIELD* Ref;
+    STRUCT DEX_DECOMPILED_CLASS* Parent;
 };
 
 struct DEX_DECOMPILED_CLASS_METHOD
@@ -59,6 +62,9 @@ struct DEX_DECOMPILED_CLASS_METHOD
 
     DEX_DECOMPILED_CLASS_METHOD_LINE** Lines;
     UINT    LinesSize;
+
+    CLASS_METHOD* Ref;
+    DEX_DECOMPILED_CLASS* Parent;
 };
 
 struct DEX_DECOMPILED_CLASS
@@ -79,6 +85,8 @@ struct DEX_DECOMPILED_CLASS
 
     DEX_DECOMPILED_CLASS_FIELD** Fields;
     UINT    FieldsSize;
+
+    DEX_CLASS_STRUCTURE* Ref;
 };
 
 struct DEX_DECOMPILED_CLASS_METHOD_REGISTER
@@ -96,17 +104,17 @@ public:
     DEX_DECOMPILED_CLASS* Classes;
     UINT    nClasses;
 
-    void    GetClassDefinition(DEX_DECOMPILED_CLASS* dClass, DEX_CLASS_STRUCTURE* DexClass);
-    void    GetClassMethod(DEX_DECOMPILED_CLASS* dClass, CLASS_METHOD* Method, BOOL Virtual=FALSE);
-    void    AddToImports(DEX_DECOMPILED_CLASS* dClass, CHAR* Import);
-    UINT    GetClassMethodArgs(DEX_DECOMPILED_CLASS* dClass, DEX_DECOMPILED_CLASS_METHOD* dMethod, CLASS_METHOD* Method);
+    void    GetClassDefinition(DEX_DECOMPILED_CLASS* Class);
+    void    GetClassMethod(DEX_DECOMPILED_CLASS* Class, CLASS_METHOD* Method, BOOL Virtual=FALSE);
+    void    AddToImports(DEX_DECOMPILED_CLASS* Class, CHAR* Import);
+    UINT    GetClassMethodArgs(DEX_DECOMPILED_CLASS_METHOD* Method);
     //void    GetClassMethodCodes(DEX_DECOMPILED_CLASS* dClass, DEX_DECOMPILED_CLASS_METHOD* dMethod, CLASS_METHOD* Method, CHAR** Registers);
     
 
-    void    GetClassField(DEX_DECOMPILED_CLASS* dClass, CLASS_FIELD* Field, BOOL Static=FALSE);
+    void    GetClassField(DEX_DECOMPILED_CLASS* Class, CLASS_FIELD* Field, BOOL Static=FALSE);
 
-    void    DecompileClass(DEX_DECOMPILED_CLASS* dClass, DEX_CLASS_STRUCTURE* DexClass);
-    void    AddToExtends(DEX_DECOMPILED_CLASS* dClass, CHAR* Superclass);
+    void    DecompileClass(DEX_DECOMPILED_CLASS* Class);
+    void    AddToExtends(DEX_DECOMPILED_CLASS* Class, CHAR* Superclass);
 
     //void    GetClassMethodCodesLine(DEX_DECOMPILED_CLASS_METHOD_LINE * Line, CHAR** Registers);
 

@@ -36,7 +36,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         return item->getText();
     case Qt::DecorationRole:
-        return QIcon(item->getIcon().toString());
+        return item->getIcon();
     default:
         return QVariant();
     }
@@ -145,8 +145,9 @@ void TreeModel::appenedClassToParent(TreeItem* parent, struct DEX_DECOMPILED_CLA
 
     if (list.isEmpty())
     {
-        item = new TreeItem(TI_CLASS, parent);
+        item = new TreeItem(TI_CLASS, parent, dClass);
         item->setText(QString(dClass->Name));
+        item->createClassTree();
         parent->appendChild(item);
     }
     else

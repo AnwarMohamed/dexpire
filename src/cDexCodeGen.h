@@ -28,18 +28,14 @@ class DLLEXPORT cDexCodeGen
 public:
     cDexCodeGen(
         cDexFile* DexFile, 
-        STRUCT DEX_DECOMPILED_CLASS* dClass, 
-        STRUCT DEX_DECOMPILED_CLASS_METHOD* dMethod, 
-        STRUCT CLASS_METHOD* Method);
+        STRUCT DEX_DECOMPILED_CLASS_METHOD* Method);
     ~cDexCodeGen();
 
     void GenerateSourceCode();
     void DumpLineSingleInstruction(
-        STRUCT DEX_DECOMPILED_CLASS_METHOD* dMethod, 
         STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line, 
         STRUCT CLASS_CODE_REGISTER** Registers);
     void DumpLineMultiInstruction(
-        STRUCT DEX_DECOMPILED_CLASS_METHOD* dMethod, 
         STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line, 
         STRUCT CLASS_CODE_REGISTER** Registers);
 
@@ -75,8 +71,6 @@ public:
         STRUCT CLASS_CODE_REGISTER** Registers);
 
 private:
-    DEX_DECOMPILED_CLASS* dClass;
-    DEX_DECOMPILED_CLASS_METHOD* dMethod;
-    CLASS_METHOD* Method;
+    struct DEX_DECOMPILED_CLASS_METHOD* Method;
     cDexFile* DexFile;
 };

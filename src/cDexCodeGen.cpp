@@ -22,12 +22,8 @@
 
 cDexCodeGen::cDexCodeGen(
     cDexFile* DexFile,
-    DEX_DECOMPILED_CLASS* dClass, 
-    DEX_DECOMPILED_CLASS_METHOD* dMethod, 
-    CLASS_METHOD* Method)
+    DEX_DECOMPILED_CLASS_METHOD* Method)
 {
-    this->dClass = dClass;
-    this->dMethod = dMethod;
     this->Method = Method;
     this->DexFile = DexFile;
 }
@@ -38,7 +34,7 @@ BOOL cDexCodeGen::GetRegisterInitialized(
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
     STRUCT CLASS_CODE_REGISTER** Registers)
 {
-    if (Index < Method->CodeArea->RegistersSize && Registers)
+    if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
         while(Register)
@@ -60,7 +56,7 @@ CHAR* cDexCodeGen::GetRegisterName(
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
     STRUCT CLASS_CODE_REGISTER** Registers)
 {
-    if (Index < Method->CodeArea->RegistersSize && Registers)
+    if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
         while(Register)
@@ -81,7 +77,7 @@ CHAR* cDexCodeGen::GetRegisterType(
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
     STRUCT CLASS_CODE_REGISTER** Registers)
 {
-    if (Index < Method->CodeArea->RegistersSize && Registers)
+    if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
         while(Register)
@@ -103,7 +99,7 @@ CHAR* cDexCodeGen::GetRegisterValue(
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
     STRUCT CLASS_CODE_REGISTER** Registers)
 {
-    if (Index < Method->CodeArea->RegistersSize && Registers)
+    if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
         while(Register)
@@ -126,24 +122,24 @@ CHAR* cDexCodeGen::GetRegisterValue(
 
 void cDexCodeGen::GenerateSourceCode()
 {
-    for (UINT i=0; i<dMethod->LinesSize; i++)
+    for (UINT i=0; i<Method->LinesSize; i++)
     {
-        dMethod->Lines[i]->Decompiled = (CHAR*)malloc(MAX_DECOMPILED_STRING_SIZE);
-        ZERO(dMethod->Lines[i]->Decompiled, MAX_DECOMPILED_STRING_SIZE);
+        Method->Lines[i]->Decompiled = (CHAR*)malloc(MAX_DECOMPILED_STRING_SIZE);
+        ZERO(Method->Lines[i]->Decompiled, MAX_DECOMPILED_STRING_SIZE);
 
-        if (dMethod->Lines[i]->InstructionsSize == 1)
-            DumpLineSingleInstruction(dMethod, dMethod->Lines[i], Method->CodeArea->Registers);
+        if (Method->Lines[i]->InstructionsSize == 1)
+            DumpLineSingleInstruction(Method->Lines[i], Method->Ref->CodeArea->Registers);
         else
-            DumpLineMultiInstruction(dMethod, dMethod->Lines[i], Method->CodeArea->Registers);
+            DumpLineMultiInstruction(Method->Lines[i], Method->Ref->CodeArea->Registers);
         
-        if (!strlen(dMethod->Lines[i]->Decompiled))
+        if (!strlen(Method->Lines[i]->Decompiled))
         {
-            free(dMethod->Lines[i]->Decompiled);
-            dMethod->Lines[i]->Decompiled = NULL;
+            free(Method->Lines[i]->Decompiled);
+            Method->Lines[i]->Decompiled = NULL;
         }
         else
-            dMethod->Lines[i]->Decompiled = (CHAR*)realloc
-              (dMethod->Lines[i]->Decompiled, strlen(dMethod->Lines[i]->Decompiled)+1);
+            Method->Lines[i]->Decompiled = (CHAR*)realloc
+              (Method->Lines[i]->Decompiled, strlen(Method->Lines[i]->Decompiled)+1);
     }
 }
 
@@ -186,7 +182,7 @@ void cDexCodeGen::SetRegisterValue(
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
     STRUCT CLASS_CODE_REGISTER** Registers)
 {
-    if (Index < Method->CodeArea->RegistersSize && Registers)
+    if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
         while(Register)
@@ -205,7 +201,7 @@ void cDexCodeGen::SetRegisterValue(
             Register = new CLASS_CODE_REGISTER;
             ZERO(Register, sizeof(CLASS_CODE_REGISTER));
             Register->StartAddress = 0;
-            Register->EndAddress = Method->CodeArea->InstBufferSize;
+            Register->EndAddress = Method->Ref->CodeArea->InstBufferSize;
             Register->Value = Value;
             Registers[Index] = Register;
         }
@@ -215,7 +211,6 @@ void cDexCodeGen::SetRegisterValue(
 }
 
 void cDexCodeGen::DumpLineSingleInstruction(
-    DEX_DECOMPILED_CLASS_METHOD* dMethod,
     DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
     CLASS_CODE_REGISTER** Registers
     )
@@ -253,7 +248,7 @@ void cDexCodeGen::DumpLineSingleInstruction(
         break;
 
     case OP_RETURN_VOID:
-        if (strcmp("void", dMethod->ReturnType))
+        if (strcmp("void", Method->ReturnType))
             sprintf_s(Line->Decompiled, MAX_STRING_BUFFER_SIZE, "return");
         break;
 
@@ -285,9 +280,9 @@ void cDexCodeGen::DumpLineSingleInstruction(
 
     case OP_CONST_STRING:
     case OP_CONST_STRING_JUMBO:
-        if(Method->CodeArea->Locals->count((*Line->Instructions)->vA))
+        if(Method->Ref->CodeArea->Locals->count((*Line->Instructions)->vA))
             sprintf_s(Line->Decompiled, MAX_STRING_BUFFER_SIZE, "%s = %s",
-                (*Method->CodeArea->Locals)[(*Line->Instructions)->vA]->Name,
+                (*Method->Ref->CodeArea->Locals)[(*Line->Instructions)->vA]->Name,
                 DexFile->StringItems[(*Line->Instructions)->vB].Data);
         break;
         break;
@@ -536,7 +531,6 @@ void cDexCodeGen::DumpLineSingleInstruction(
 }
 
 void cDexCodeGen::DumpLineMultiInstruction(
-    DEX_DECOMPILED_CLASS_METHOD* dMethod,
     DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
     CLASS_CODE_REGISTER** Registers
     )
@@ -591,7 +585,7 @@ void cDexCodeGen::DumpLineMultiInstruction(
                     MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
                     "return ");
 
-                if (!strcmp(dMethod->ReturnType, "boolean"))
+                if (!strcmp(Method->ReturnType, "boolean"))
                 {
                     if (GetRegisterValue(Line->Instructions[j]->vA, j, Line, Registers))
                         sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 

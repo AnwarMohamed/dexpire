@@ -4,6 +4,8 @@
 #include <QList>
 #include <QVariant>
 #include <cDexDecompiler.h>
+#include <QIcon>
+#include <QPainter>
 
 enum
 {
@@ -11,6 +13,8 @@ enum
     TI_PACKAGE_DIR,
     TI_SRC_DIR,
     TI_CLASS,
+    TI_CLASS_FIELD,
+    TI_CLASS_METHOD,
     TI_DEX_ROOT
 };
 
@@ -39,13 +43,19 @@ public:
 
     void sortChilds();
 
+    void setAsClassNode(int index);
+    void createClassTree();
+
 private:
     QList<TreeItem*> childItems;
-    TreeItem *parentItem;
+    TreeItem* _parent;
 
-    QVariant _text, _icon;
-    int _itemType;
-    DEX_DECOMPILED_CLASS* _item;
+    QVariant _text;
+    QPixmap _icon;
+    QString _icon_path;
+
+    int _type;
+    DEX_DECOMPILED_CLASS* _class;
 };
 
 #endif // TREEITEM_H

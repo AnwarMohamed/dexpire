@@ -51,6 +51,10 @@ void MainWindow::uiSetupWorkspace()
 
     ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->treeView->setSelectionBehavior(QAbstractItemView::SelectItems);
+
+    treeViewSignalsRegistered = false;
+
+    ui->tabWidget->tabBar()->installEventFilter(new TabWidgetEventFilter(ui->tabWidget->tabBar()));
 }
 
 void MainWindow::uiSetupSplitter()
@@ -115,6 +119,13 @@ void MainWindow::prepareDexWorkspace()
     ui->treeView->expandToDepth(0);
 
     ui->statusBar->showMessage(QString(dexFile->Filename).append(" loaded successfully."));
+
+    if (!treeViewSignalsRegistered)
+    {
+        treeViewSignalsRegistered = true;
+        QObject::connect(ui->treeView, SIGNAL(collapsed(QModelIndex)), this, SLOT(with_treeView_collapsed(QModelIndex)));
+        QObject::connect(ui->treeView, SIGNAL(expanded(QModelIndex)), this, SLOT(with_treeView_expanded(QModelIndex)));
+    }
 }
 
 void MainWindow::uiSetupToolbar()
@@ -250,6 +261,7 @@ void MainWindow::on_actionDex_Disassembly_triggered()
 
 void MainWindow::on_treeView_clicked(const QModelIndex &index)
 {
+    ui->treeView->resizeColumnToContents(index.column());
     TreeItem* item = ((TreeModel*)(ui->treeView->model()))->getChild(index);
 }
 
@@ -561,4 +573,20 @@ void MainWindow::on_actionMethods_Table_triggered()
         ui->tabWidget->insertTab(0, methodsTab, QString("Methods Table"));
         ui->tabWidget->setCurrentIndex(0);
     }
+}
+
+void MainWindow::with_treeView_collapsed(const QModelIndex &index)
+{
+    ui->treeView->resizeColumnToContents(index.row());
+}
+
+void MainWindow::with_treeView_expanded(const QModelIndex &index)
+{
+    ui->treeView->resizeColumnToContents(index.row());
+}
+
+
+void MainWindow::on_tabWidget_customContextMenuRequested(const QPoint &pos)
+{
+    std::cout << "context menu" << std::endl;
 }

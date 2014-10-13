@@ -1,26 +1,95 @@
 #include "treeitem.h"
 #include <QIcon>
+#include <QPainter>
 
-TreeItem::TreeItem(int type, TreeItem *parent, struct DEX_DECOMPILED_CLASS* dClass)
+TreeItem::TreeItem(int type, TreeItem *parent, struct DEX_DECOMPILED_CLASS* Class)
 {
-    parentItem = parent;
-    _itemType = type;
-    _item = NULL;
+    _parent = parent;
+    _type = type;
+    _class = NULL;
 
     switch(type)
     {
     case TI_CLASS:
-        _item = dClass;
-        _icon = ":/icons/class_obj.png";
+    case TI_CLASS_FIELD:
+    case TI_CLASS_METHOD:
+        _class = Class;
+        _icon_path = ":/icons/class_obj.png";
         break;
     case TI_DEX_ROOT:
         break;
     case TI_SRC_DIR:
-        _icon = ":/icons/packagefolder_obj.gif";
+        _icon_path = ":/icons/packagefolder_obj.gif";
         break;
     case TI_PACKAGE_DIR:
-        _icon = ":/icons/package_obj.png";
+        _icon_path = ":/icons/package_obj.png";
         break;
+    }
+
+    _icon = QPixmap(_icon_path);
+}
+
+void TreeItem::setAsClassNode(int index)
+{
+    switch(_type)
+    {
+    case TI_CLASS_FIELD:
+        _icon_path = ":/icons/field_";
+        _text = QString(_class->Fields[index]->Name);
+
+        if (_class->Fields[index]->Ref->AccessFlags & ACC_PUBLIC)
+            _icon_path = _icon_path.append("public");
+        else if (_class->Fields[index]->Ref->AccessFlags & ACC_PRIVATE)
+            _icon_path = _icon_path.append("private");
+        else if (_class->Fields[index]->Ref->AccessFlags & ACC_PROTECTED)
+            _icon_path = _icon_path.append("protected");
+        else
+            _icon_path = _icon_path.append("default");
+
+        _icon_path = _icon_path.append("_obj.gif");
+        _icon = QPixmap(_icon_path);
+        break;
+
+    case TI_CLASS_METHOD:
+        _icon_path = ":/icons/meth";
+        _text = QString(_class->Methods[index]->Name).append("(");
+        for (unsigned int i=0; i<_class->Methods[index]->ArgumentsSize; i++)
+        {
+            if (i) _text = _text.toString().append(", ");
+            _text = _text.toString().append(cDexString::GetShortType(_class->Methods[index]->Arguments[i]->Type));
+        }
+        _text = _text.toString().append(")");
+
+        if (_class->Methods[index]->Ref->AccessFlags & ACC_PUBLIC)
+            _icon_path = _icon_path.append("pub");
+        else if (_class->Methods[index]->Ref->AccessFlags & ACC_PRIVATE)
+            _icon_path = _icon_path.append("pri");
+        else if (_class->Methods[index]->Ref->AccessFlags & ACC_PROTECTED)
+            _icon_path = _icon_path.append("pro");
+        else
+            _icon_path = _icon_path.append("def");
+
+        _icon_path = _icon_path.append("_obj.gif");
+        _icon = QPixmap(_icon_path);
+        break;
+    }
+}
+
+void TreeItem::createClassTree()
+{
+    TreeItem* item;
+    for (unsigned int i=0; i<_class->FieldsSize; i++)
+    {
+        item = new TreeItem(TI_CLASS_FIELD, this, _class);
+        item->setAsClassNode(i);
+        appendChild(item);
+    }
+
+    for (unsigned int i=0; i<_class->MethodsSize; i++)
+    {
+        item = new TreeItem(TI_CLASS_METHOD, this, _class);
+        item->setAsClassNode(i);
+        appendChild(item);
     }
 }
 
@@ -50,15 +119,15 @@ int TreeItem::childCount() const
 
 int TreeItem::row() const
 {
-    if (parentItem)
-        return parentItem->childItems.indexOf(const_cast<TreeItem*>(this));
+    if (_parent)
+        return _parent->childItems.indexOf(const_cast<TreeItem*>(this));
 
     return 0;
 }
 
 TreeItem *TreeItem::parent()
 {
-    return parentItem;
+    return _parent;
 }
 
 QVariant TreeItem::getText()
@@ -68,7 +137,7 @@ QVariant TreeItem::getText()
 
 QVariant TreeItem::getIcon()
 {
-    return _icon;
+    return QVariant(_icon);
 }
 
 void TreeItem::setText(QString& text)
@@ -78,7 +147,7 @@ void TreeItem::setText(QString& text)
 
 int TreeItem::getType()
 {
-    return _itemType;
+    return _type;
 }
 
 void TreeItem::removeChild(int row)
@@ -93,7 +162,7 @@ void TreeItem::removeChilds()
 
 void TreeItem::setParent(TreeItem* parent)
 {
-    parentItem = parent;
+    _parent = parent;
 }
 
 bool toAssending(TreeItem* s1 , TreeItem* s2)
