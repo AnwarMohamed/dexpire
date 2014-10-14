@@ -11,6 +11,7 @@
 #include <iostream>
 #include <QMouseEvent>
 #include <QMenu>
+#include "codeeditor.h"
 
 namespace Ui {
 class MainWindow;
@@ -56,6 +57,9 @@ private:
     QTableView* protoTab;
 
     bool treeViewSignalsRegistered;
+
+    void printClassDexData(CodeEditor* editor, struct DEX_DECOMPILED_CLASS* dexClass);
+    void printClassJavaData(CodeEditor* editor, struct DEX_DECOMPILED_CLASS* dexClass);
 
 protected:
     void resizeEvent(QResizeEvent * event);

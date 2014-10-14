@@ -23,8 +23,7 @@ HEADERS  += mainwindow.h \
     treeitem.h \
     treemodel.h \
     codeeditorlinenumber.h \
-    codeeditor.h \
-    htmldelegate.h
+    codeeditor.h
 
 FORMS    += mainwindow.ui
 

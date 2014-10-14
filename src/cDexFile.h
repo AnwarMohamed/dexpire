@@ -510,6 +510,8 @@ struct DEX_CLASS_STRUCTURE
     UCHAR*  SourceFile;
 
     CLASS_DATA * ClassData;
+
+    DEX_CLASS_DEF* Ref;
 };
 
 

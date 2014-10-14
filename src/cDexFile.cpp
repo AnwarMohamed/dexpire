@@ -33,6 +33,7 @@ void cDexFile::DumpClassInfo(
     DEX_CLASS_STRUCTURE* Class
     )
 {
+    (*Class).Ref = &DexClassDefs[ClassIndex];
     (*Class).Descriptor = StringItems[DexTypeIds[DexClassDefs[ClassIndex].ClassIdx].StringIndex].Data;
     (*Class).AccessFlags = DexClassDefs[ClassIndex].AccessFlags;
     (*Class).SuperClass = StringItems[DexTypeIds[DexClassDefs[ClassIndex].SuperclassIdx].StringIndex].Data;
