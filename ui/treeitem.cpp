@@ -117,6 +117,11 @@ void TreeItem::appendChild(TreeItem *item)
     childItems.append(item);
 }
 
+void TreeItem::appendChild(TreeItem *item, QStringList& dir)
+{
+
+}
+
 TreeItem *TreeItem::child(int row)
 {
     return childItems.value(row);

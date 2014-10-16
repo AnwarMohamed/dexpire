@@ -19,14 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\cApkFile.cpp" />
+    <ClCompile Include="..\src\cBinXMLFile.cpp" />
     <ClCompile Include="..\src\cDexCodeGen.cpp" />
     <ClCompile Include="..\src\cDexCodeWriter.cpp" />
     <ClCompile Include="..\src\cDexDecompiler.cpp" />
     <ClCompile Include="..\src\cDexFile.cpp" />
     <ClCompile Include="..\src\cDexString.cpp" />
     <ClCompile Include="..\src\cFile.cpp" />
+    <ClCompile Include="..\src\unzip.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\cApkFile.h" />
+    <ClInclude Include="..\src\cBinXMLFile.h" />
     <ClInclude Include="..\src\cDexCodeGen.h" />
     <ClInclude Include="..\src\cDexCodeWriter.h" />
     <ClInclude Include="..\src\cDexDecompiler.h" />
@@ -34,6 +39,7 @@
     <ClInclude Include="..\src\cDexString.h" />
     <ClInclude Include="..\src\cFile.h" />
     <ClInclude Include="..\src\dexpire.h" />
+    <ClInclude Include="..\src\unzip.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E4F78D54-449B-42E4-B031-2CFD20BBB546}</ProjectGuid>
@@ -92,6 +98,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\build\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

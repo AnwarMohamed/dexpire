@@ -12,13 +12,14 @@
 #include <QAbstractItemModel>
 #include "treeitem.h"
 #include <cDexDecompiler.h>
+#include <cApkFile.h>
 
 class TreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit TreeModel(cDexDecompiler* DexDecompiler, QObject *parent = 0);
+    explicit TreeModel(cDexDecompiler* DexDecompiler, cApkFile* ApkFile=0, QObject *parent = 0);
     ~TreeModel();
 
     QVariant data(const QModelIndex &index, int role) const;
@@ -34,13 +35,16 @@ public:
     TreeItem* getChild(const QModelIndex &index);
 
 private:
-    void setupModelData(TreeItem* parent);
+    void setupDexModelData(TreeItem* parent);
+    void setupApkModelData(TreeItem *parent);
+
     void appenedClassToParent(TreeItem* parent, struct DEX_DECOMPILED_CLASS* dClass, QStringList& list);
     void shortenPackageName(TreeItem* parent);
     void sortTree(TreeItem* root);
 
     TreeItem *rootItem;
     cDexDecompiler* decompiledDex;
+    cApkFile* apkFile;
 };
 
 #endif // TREEMODEL_H

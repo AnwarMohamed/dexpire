@@ -68,7 +68,9 @@ cFile::cFile(char* Filename)
     }
     
     FileLength  = (DWORD) GetFileSize(hFile,NULL);
-    this->Filename = Filename;
+    this->Filename = new CHAR[strlen(Filename)+1];
+    strcpy_s(this->Filename, strlen(Filename)+1, Filename);
+
     IsFile = TRUE;
     return;
 }

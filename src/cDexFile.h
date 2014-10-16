@@ -1181,7 +1181,8 @@ class DLLEXPORT cDexFile: public cFile
 {
 public:
     cDexFile(CHAR* Filename);
-    ~cDexFile(void);
+    cDexFile(CHAR* Buffer, DWORD Size);
+    ~cDexFile();
 
     BOOL    isReady;
 

@@ -20,6 +20,7 @@
 
 #include "..\src\cDexFile.h"
 #include "..\src\cDexDecompiler.h"
+#include "..\src\cApkFile.h"
 #include <stdio.h>
 
 
@@ -27,15 +28,33 @@
 
 int main()
 {
+    cApkFile* apk  = new cApkFile("test.apk");
+    if (apk->isReady)
+    {
+        for (unsigned int i=0; i<apk->FilesCount; i++)
+            if (strcmp(apk->Files[i].Name, "classes.dex") == 0)
+            {
+                cDexFile* dexFile = new cDexFile(apk->Files[i].Buffer, apk->Files[i].Size);
+                if (dexFile->isReady)
+                {
+                    cDexDecompiler* dexDecompiler = new cDexDecompiler(dexFile);
+
+                }
+                break;
+            }
+    }
+    
+    
+    /*
     cDexFile* dex = new cDexFile("classes.dex");
     printf("Processing '%s'...\n", dex->Filename);
 
-    if (dex->isReady)
+    if (!dex->isReady)
     {
         printf("Opened '%s', DEX version '%s'\n\n\n", dex->Filename, dex->DexVersion);
         cDexDecompiler* decompiled = new cDexDecompiler(dex);
         
-        for (UINT i=299; i<310/*dex->nClasses*/; i++)
+        for (UINT i=0; i<dex->nClasses; i++)
         {
             printf("package %s;\n\n", decompiled->Classes[i].Package);
 
@@ -74,7 +93,7 @@ int main()
                     printf("\n");
             }
             
-            /*
+            
             for (UINT j=0; j<decompiled->Classes[i].MethodsSize; j++)
             {
                 if (!decompiled->Classes[i].Methods[j]->Name ||
@@ -125,7 +144,7 @@ int main()
 
                 printf("    }\n\n");
             }
-            */
+            
 
             printf("}\n\n");
  
@@ -134,7 +153,7 @@ int main()
         delete decompiled;
         
 
-        //for (UINT i=0; i<301 /*dex->nClassDefinitions*/; i++)
+        //for (UINT i=0; i<301 /*dex->nClassDefinitions*///; i++)
         /*{
             printf("Class #%d header:\n", i);
             printf(	"class_idx           : %d\n"
@@ -383,12 +402,14 @@ int main()
                 
         }
         */
-
-        system("pause");
+            
+     /*   system("pause");
     }
     else 
         printf("Unable to load your dex file\n");
 
-    delete dex;
+    delete dex;*/
+    
     return 0;
+    
 }

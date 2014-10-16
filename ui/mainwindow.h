@@ -20,6 +20,7 @@
 #include <QMouseEvent>
 #include <QMenu>
 #include "codeeditor.h"
+#include "cApkFile.h"
 
 namespace Ui {
 class MainWindow;
@@ -46,6 +47,7 @@ private:
 
     void cleanCurrentWorkspace();
     void prepareDexWorkspace();
+    void prepareApkWorkspace();
     //void insertNewTab(QWidget* tab, )
     int tabOpened(QString& name);
 
@@ -53,8 +55,11 @@ private:
     void addJavaTab(TreeItem* item);
 
     void setClassToolbarEnabled(bool enable);
+    void setDexToolbarEnabled(bool enable);
+    void setApkToolbarEnabled(bool enable);
 
     cDexFile* dexFile;
+    cApkFile* apkFile;
     cDexDecompiler* dexDecompiler;
 
     QTableView* stringsTab;
@@ -100,6 +105,9 @@ private slots:
     void on_tabWidget_customContextMenuRequested(const QPoint &pos);
     void on_treeView_doubleClicked(const QModelIndex &index);
     void on_actionJava_Source_triggered();
+
+public slots:
+    void with_processThread_finished();
 };
 
 class TabWidgetEventFilter: public QObject

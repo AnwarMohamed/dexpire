@@ -13,13 +13,25 @@
 #include <QPixmap>
 #include <QIcon>
 
-TreeModel::TreeModel(cDexDecompiler* decompiledDex, QObject *parent)
+TreeModel::TreeModel(cDexDecompiler* decompiledDex, cApkFile* apkFile, QObject *parent)
     : QAbstractItemModel(parent)
 {
     this->decompiledDex = decompiledDex;
-    rootItem = new TreeItem(TI_DEX_ROOT);
-    rootItem->setText(QString("Dex Structure"));
-    setupModelData(rootItem);
+    this->apkFile = apkFile;
+
+    if (apkFile)
+    {
+        rootItem = new TreeItem(TI_APK_ROOT);
+        rootItem->setText(QString("APK Structure"));
+    }
+    else
+    {
+        rootItem = new TreeItem(TI_DEX_ROOT);
+        rootItem->setText(QString("Dex Structure"));
+    }
+
+    setupApkModelData(rootItem);
+    setupDexModelData(rootItem);
 }
 
 TreeModel::~TreeModel()
@@ -63,8 +75,7 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
     return QAbstractItemModel::flags(index);
 }
 
-QVariant TreeModel::headerData(int, Qt::Orientation orientation,
-                               int role) const
+QVariant TreeModel::headerData(int, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return rootItem->getText();
@@ -72,8 +83,7 @@ QVariant TreeModel::headerData(int, Qt::Orientation orientation,
     return QVariant();
 }
 
-QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent)
-            const
+QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!hasIndex(row, column, parent))
         return QModelIndex();
@@ -120,7 +130,20 @@ int TreeModel::rowCount(const QModelIndex &parent) const
     return parentItem->childCount();
 }
 
-void TreeModel::setupModelData(TreeItem *parent)
+void TreeModel::setupApkModelData(TreeItem *parent)
+{
+    if (apkFile)
+    {
+        TreeItem * treeItem;
+        for (unsigned int i=0; i<apkFile->FilesCount; i++)
+        {
+            treeItem = new TreeItem(TI_SRC_DIR, parent);
+            parent->appendChild(treeItem, QString(apkFile->Files[i].Name).split("/"));
+        }
+    }
+}
+
+void TreeModel::setupDexModelData(TreeItem *parent)
 {
     if (decompiledDex)
     {

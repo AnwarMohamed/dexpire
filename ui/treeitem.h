@@ -23,7 +23,8 @@ enum
     TI_CLASS,
     TI_CLASS_FIELD,
     TI_CLASS_METHOD,
-    TI_DEX_ROOT
+    TI_DEX_ROOT,
+    TI_APK_ROOT
 };
 
 class TreeItem
@@ -33,6 +34,8 @@ public:
     ~TreeItem();
 
     void appendChild(TreeItem *child);
+    void appendChild(TreeItem *item, QStringList& dir);
+
     void removeChild(int row);
     void removeChilds();
 

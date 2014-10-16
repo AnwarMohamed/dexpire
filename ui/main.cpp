@@ -12,6 +12,7 @@
 #include <QTreeView>
 #include "treemodel.h"
 #include "codeeditor.h"
+#include <QProgressDialog>
 
 int main(int argc, char *argv[])
 {

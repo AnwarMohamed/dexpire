@@ -1,0 +1,2766 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{479c1a84-0b02-487a-8a69-ce50a8bbd379}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{5eed6118-c78d-49cf-b2c2-a00ee8893fc1}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="codeeditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codeeditorlinenumber.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mainwindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="treeitem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="treemodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_codeeditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_codeeditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_mainwindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_mainwindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_treemodel.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_treemodel.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_icons.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="codeeditor.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="codeeditorlinenumber.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="mainwindow.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="treeitem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="treemodel.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="mainwindow.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\Actions-view-list-tree-icon.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\Mimetypes-text-x-hex-icon.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\Spyware.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\abstract_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\abstract_co.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\access_restriction_attrib.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\action1.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\action2.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\action3.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\activity.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\activity_act.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\activity_category.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\actmark_act.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\add_as_source_folder.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\add_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\add_exc.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\add_linked_source_to_buildpath.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\add_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\add_stat.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\add_to_buildpath.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\addbkmrk_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\addrepo_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\addtoworkset.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\addtsk_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\alert_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\all_history_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\all_instances.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\all_sc_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\allteamstrms_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\alltopics_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\allversions_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\alpha_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\alphab_sort_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\alphab_sort_co_mini.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\android-platform-icon.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\annotate.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\annotate_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\annotation_alt_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\annotation_default_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\annotation_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\annotation_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\annotation_private_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\annotation_protected_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\annotation_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ant.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ant_buildfile.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ant_targets.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ant_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\anything.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\apk.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\app_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\arraypartition_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\arrow_down.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\arrow_up.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\att_class_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\att_file_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\att_impl_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\att_req_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\autoform_menu.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\backward_nav.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\bfolder_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\binary_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\bkmrk_nav.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\bkmrk_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\blank.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\bookmark_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\branches_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\breakpoint_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\brkp_grp.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\brkp_grp_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\brkp_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\brkpd_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\brkpi_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\browse_persp.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\build_exec.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\build_tab.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\builder.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\bundle_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\call_hierarchy.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\callee_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\caller_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\catchup_rls.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\catchuprelease_rls.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\category_menu.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\category_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\caught_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\caught_ovr_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\certificate.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ch_callees.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ch_callers.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\change.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\change_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\changeset_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\changevariablevalue_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cheatsheet_intro_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cheatsheet_item_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cheatsheet_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cheatsheet_subitem_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cheatsheet_task.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cheatsheet_unsupported_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cheatsheet_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\checkedout_ov.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\checkin_action.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\checkout.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\checkout_action.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\choice_sc_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\class_abs_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\class_default_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\class_default_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\class_hi.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\class_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\class_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\class_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\classes.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\classf_generate.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\classf_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\classfilegeneration_tab.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\classfo_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\classpath.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\classpath_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\clear.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\clear_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\clone_att.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\clone_el.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\close.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\closeIcon.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\close_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\collapse_all_mini.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\collapse_expand_all.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\collapseall.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\command_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\comment_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\compare_field.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\compare_method.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\compare_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\complete_status.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\complete_task.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\composite_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\compressed_folder_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\conditional_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\conditional_ovr_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\confauto_ov.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\confchg_ov.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\config_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\config_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\configs.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\configure.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\configure_build_path.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\configure_buildpath_filters.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\configure_output_folder.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\conflict_stat.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\conflict_synch.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\console_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\constant_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\constr_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\constr_ovr.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\container_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\contended_monitor_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\contention_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\contentionformonitor_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\contents_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\convjpprj_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\copy.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\copy_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\copy_edit_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\copyviewtoclipboard_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\correction_cast.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\correction_change.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\correction_delete_import.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\correction_move.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cp_order_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cprj_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cpyqual_menu.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cross.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cross_grayed.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cu_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\current_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cut_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cvs_persp.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\cvs_synch.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\datasheet.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\dates.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\deadlock_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\deadlock_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\debug_exc.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\debug_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\debuglast_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\debugt_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\debugts_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\debugtt_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\default_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\default_persp.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\defaults_ps.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\defaulttarget_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\defaultview_misc.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\defbcon_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\defcon_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\definingtype_sort_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\del_stat.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\delete_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\delete_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\dep_loop.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\deprecated.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\det_pane_hide.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\det_pane_right.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\det_pane_under.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\details_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\dex.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\dirty_ov.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\disabled_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\disconnect_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\discovery.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\disk_multiple.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\disp_sbook.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\display_selected_mb.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\dissolve_group.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\doc_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\document-open-folder.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\document-save-as.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\document-save.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\drop_to_frame.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\eclipse.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\eclipse.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\eclipse_launcher.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\eclipse_launcher_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\edited_ov.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\editor.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\editor_area.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\edtsrclkup_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\efix2_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\efix_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\element.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\elements_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\elipses.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\elref_sc_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\empty_logical_package_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\empty_logical_package_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\empty_pack_fldr_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\empty_pack_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\empty_pack_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\entry_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\entry_ovr_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\enum_alt_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\enum_default_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\enum_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\enum_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\enum_private_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\enum_protected_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\enum_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\environment_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\environment_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\envvar_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\error.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\error_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\error_log.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\error_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\errorstate.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\errorwarning_tab.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\esite_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exc_catch.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exclude_from_buildpath.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exclusion_filter_attrib.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exit_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exit_ovr_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exp_deployfeat.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exp_deployplug.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exp_product.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\expandall.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\export.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\export_brkpts.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\export_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\export_projectset.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\export_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exportapp_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exportdir_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exportjar_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exportpref_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\exportzip_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\expression_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ext_plugin_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ext_point_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ext_points_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\extension_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\extensions_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\external_browser.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\external_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\external_frgmt_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\external_tools.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\externalize.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\fastview_restore.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\fatalerror_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\feature_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\field_default_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\field_default_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\field_private_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\field_private_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\field_protected_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\field_protected_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\field_public_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\field_public_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\fields_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\file_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\file_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\filenav_nav.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\filter_history.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\filter_imported_elements.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\filter_internal_targets.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\filter_properties.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\filter_ps.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\filter_top_level.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\filter_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\final_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\final_co.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\find_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\fldr_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\focus_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\folder.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\font.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\forward_nav.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\frgmt_dis_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\frgmt_mf_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\frgmt_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\frgmts_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ftr_mf_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ftr_xml_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\full_hierarchy.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\gel_sc_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\generate_class.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\generic_element.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\generic_elements.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\generic_xml_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\genericreggroup_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\genericregister_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\genericvariable_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\glyph1.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\glyph2.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\glyph3.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\glyph4.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\glyph5.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\glyph7.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\gointo_toplevel_type.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\goto_ccs_task.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\goto_input.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\goto_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\gotoobj_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\group_sc_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\header_complete.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\header_priority.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\help_contents.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\help_search.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\help_topic.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\help_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\helpsearch_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\hide_externalized.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\hide_ignored.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\hide_internalized.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\hierarchy_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\hierch_persp.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\highlight.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\history.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\history_list.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\history_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\history_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\history_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\history_working_set_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\home_nav.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\hprio_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\html_tag_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\icallout_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\icon.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\icon.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\icon_back.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\icon_forward.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <CustomBuild Include="icons.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <None Include="icons\ignore.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ignorefiles.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ignorews_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ihigh_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ilow_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\image_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\imp_extfeat.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\imp_extplug.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\imp_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\impc_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\impl_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\implm_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\import_brkpts.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\import_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\import_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\import_projectset.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\import_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\importdir_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\importjar_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\importpref_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\importzip_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\include_on_buildpath.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\inclusion_filter_attrib.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\incom_stat.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\incom_synch.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\index_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\inew_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\info_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\information.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\inher_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\innerclass_private_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\innerclass_private_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\innerclass_protected_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\innerclass_protected_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\innerclass_public_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\innerinterface_private_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\innerinterface_protected_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\insp_sbook.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\inst_ptr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\inst_ptr_top.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\install-handler.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\install_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\installable_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\installed_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\installed_ovr_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\int_default_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\int_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\int_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\intellij.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\interface_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\internal_browser.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\internalize.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\intf_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\invalid_build_tool.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jar_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jar_desc_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jar_l_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jar_lsrc_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jar_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jar_src_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\java.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\java_app.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\java_applet.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\java_attach.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\java_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\java_model_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\java_model_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\java_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\javaassist_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\javadoc.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\javadoc_location_attrib.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jcu_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jcu_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jcu_resource_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jdkcompliance_tab.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jdoc_hover_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jdoc_tag_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jexcept_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jexception_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jexceptiond_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jline_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jload_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jmeth_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jperspective.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jrtexception_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jsbook_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jsbook_run_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jsearch_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jtypeassist_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\julaunchpgn.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\jwatch_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\keygroups_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\keyspref_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\korganizer-icon.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\last_edit_pos.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\layout_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ldebug_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\library_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\link_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\link_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\linked_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\links_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\linkto_help.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\linkwarn_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\local_entry_tbl.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\local_history_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\localtypes_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\localvariable_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\lock_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\lock_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\lockedstate.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\logical_package_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\loop_node_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\loop_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\lrun_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\lsite_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\macrodef_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\magnifier.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\main_tab.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\mark_occurrences.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\maximize.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\maxlevel_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\memory_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\memory_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\memorychanged_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\memoryreset_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\menu.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\merged_ov.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\mergestream_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\metharg_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\methdef_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\methdef_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\methpri_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\methpri_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\methpro_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\methpro_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\methpub_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\methpub_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\min_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\mod_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\mod_stat.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\module_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\monitor_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\monitor_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\monitorexpression_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\native_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\native_co.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\native_lib_path_attrib.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\nav_backward.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\nav_forward.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\nav_go.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\nav_home.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\nav_print.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\nav_refresh.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\nav_stop.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\never_translate.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\new_cheatsheet_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\new_con.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\new_fastview.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\new_persp.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\new_target_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\new_untitled_text_file.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\new_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newact_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newannotation_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newclass_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newconnect_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newefix_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newenum_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newex_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newexp_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newexprj_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newfolder_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newfprj_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newftrprj_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newint_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newjprj_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newlocation_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newpack_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newpackfolder_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newpprj_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newprj_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newreadme_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newsbook_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newsiteprj_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\newstream_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\next_nav.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\nls_search_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\no_breakpoint.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\no_remotedir_ov.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\notinstalled_feature_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\occ_match.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\occ_read.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\occ_write.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\open-48.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\open.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\openbrwsr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\openseparate_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\opentype.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\osprc_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\osprct_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\outgo_stat.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\outgo_synch.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\outline_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\output_folder_attrib.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\over_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\overview_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\owned_monitor_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\owned_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\ownsmonitor_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\pack_empty_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\package.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\package_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\package_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\package_obj.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\packagefolder_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\packages.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\packd_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\page_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\paste_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\pause.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\persp_tab.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\pin.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\pin_editor.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\pin_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\pinned_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\plugin.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\plugin_config_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\plugin_configs_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\plugin_depend.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\plugin_mf_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\plugin_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\prd_config_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\prev_nav.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\preview.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\print_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\printview_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\private_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\prj_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\prj_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\prjversions_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\problem_category.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\problems_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\processinginst.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\product_xml_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\profile_exc.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\progress_error.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\progress_ok.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\progress_rem.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\progress_remall.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\progress_stop.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\progress_task.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\project_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\projects.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\prop_ps.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\properties.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\property_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\protected_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\psearch_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\psite_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\public_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\pview.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\question_ov.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\quickassist_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\quickfix_error_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\quickfix_warning_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\read.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\read_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\read_obj_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\readwrite_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\readwrite_obj_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\recursive_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\redo_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\refresh.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\refresh_nav.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\refresh_remote.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\refresh_tab.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\registry.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\release_rls.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\reltopics_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\rem_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\remote_entry_tbl.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\remote_history_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\remove_as_source_folder.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\remove_correction.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\remove_from_buildpath.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\removefromworkset.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\rep_editors_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\repo_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\repository_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\req_plugin_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\req_plugins_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\reset.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\resource_hist.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\resource_persp.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\resources.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\restart_all.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\restart_cheatsheet.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\restart_task.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\restore.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\restore_log.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\restore_welcome.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\resume_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\return_to_start.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\review_ccs_task.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\run_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\run_exc.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\run_sbook.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\rundebug.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\runlast_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\runtime_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\runtoline_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sample.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sample3.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\save-all.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\save.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\save_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\saveall_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\saveas_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\schema_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\scomp_jar_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\scoped_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\scoped_ovr_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\scopeset_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\script_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\search_decl_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\search_ref_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\search_sortmatch.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\search_src.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\searchhit_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\searchm_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sections.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\segment_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\selected_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\separator.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\seq_sc_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sethitcount_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\share_prj_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\share_project.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\shift_l_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\shift_r_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\show_all.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\show_categories.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\show_unconf.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\show_whitespace_chars.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\showcat_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\showchild_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\showdesc_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\showerr_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\showtsk_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\showwarn_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\signed_no.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\signed_unknown.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\signed_yes.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sinfocenter_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\site_element.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\site_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\site_xml_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\skip.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\skip_breakpoint_ov.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\skip_brkp.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\skip_ccs_task.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\skip_status.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\skip_task.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sleeping.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\slocalhelp_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\smartmode_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\source.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\source_attach_attrib.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\spy.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\start_ccs_task.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\start_cheatsheet.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\start_task.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\static_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\static_co.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\stckframe_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\stckframe_running_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\stcksync_ov.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\step_current.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\step_done.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\stepbystep_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\stepinto_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\stepover_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\stepreturn_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sub_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\submenu.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\super_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\suspend_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sweb_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\swt_launcher.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sync.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sync_impl.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\sync_over.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\synced.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\synch_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\synch_co.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\synch_participants.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\synch_synch.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\synch_toc_nav.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\tag.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\target_profile_xml_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\targetinternal_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\targetpublic_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\task_choice.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\task_complete.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\task_in_progress.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\task_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\task_sequence.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\task_set.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\task_skipped.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\taskdef_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\taskmrk_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\tasks_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\teamstrm_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\template.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\template_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\templateprop_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\term_restart.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\term_sbook.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\terminate_all_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\terminate_rem_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\terminatedlaunch_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\test.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\th_automatic.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\th_horizontal.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\th_showqualified.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\th_single.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\th_vertical.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\theme_category.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\thin_close_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\thin_max_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\thin_min_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\thread_and_monitor_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\thread_and_monitor_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\thread_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\thread_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\threadgroup_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\threads_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\threadt_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\tnames_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\toc_closed.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\toc_open.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\toggledetailpane_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\toolbar.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\topic.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\topic_small.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\trace.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\transient_co.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\transparent.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\trash.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\tree_explorer.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\tree_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\tsk_alert_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\type.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\type_mode.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\type_separator.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\types.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\typevariable_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\uncaught_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\uncaught_ovr_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\unconf_feature_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\unconfigured_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\undo_edit.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\uninstall_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\unknown_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\up_nav.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\update.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\update_wiz.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\updated_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\updates_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\url.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\usearch_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\var_cntnt_prvdr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\variable_tab.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\variable_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\vcm_persp.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\version_controlled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\versions_rep.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\view_menu.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\volatile_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\volatile_co.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\waiting.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\waiting_ovr.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\wand.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\warn_tsk.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\warning.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\warning_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\warning_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\watch_exp.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\watchlist_view.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\web_bkmrk_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\welcome16.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\welcome_item.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\wordassist_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\workingsets.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\workset.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\workspace_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\wrench.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\write_obj.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\write_obj_disabled.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\writeerr_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\writeout_co.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\xml.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\xml_text_node.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\zoom.gif">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GeneratedFiles\ui_mainwindow.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

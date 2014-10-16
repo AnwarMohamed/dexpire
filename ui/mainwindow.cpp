@@ -26,6 +26,7 @@
 #include <QByteArray>
 #include <cDexString.h>
 #include "codeeditor.h"
+#include "processthread.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -41,11 +42,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     dexFile = NULL;
     dexDecompiler = NULL;
+    apkFile = NULL;
 
-    dexFile = new cDexFile("H:/Projects/dexpire/test/classes.dex");
+    cleanCurrentWorkspace();
+
+    //dexFile = new cDexFile("H:/Projects/dexpire/test/classes.dex");
     //delete dexFile;
     //dexFile = NULL;
-    prepareDexWorkspace();
+    //prepareDexWorkspace();
 }
 
 void MainWindow::uiSetupWorkspace()
@@ -60,7 +64,6 @@ void MainWindow::uiSetupWorkspace()
 
     ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->treeView->setSelectionBehavior(QAbstractItemView::SelectItems);
-    //ui->treeView->setItemDelegate(new HtmlDelegate());
 
     treeViewSignalsRegistered = false;
 
@@ -85,26 +88,44 @@ void MainWindow::loadFileDialog()
 {
     QString Filename = QFileDialog::getOpenFileName(
                 this, "Open File","classes.dex", "DEX File (*.dex);;APK File (*.apk)");
+
     if (!Filename.isEmpty())
     {
-        if (Filename.endsWith(".dex"))
+        if (Filename.endsWith(".dex") || Filename.endsWith(".apk"))
         {
-            if (dexFile)
-            {
-                delete dexFile;
-                dexFile = NULL;
-            }
+            cleanCurrentWorkspace();
 
-            dexFile = new cDexFile(Filename.toLocal8Bit().data());
-            if (!dexFile->isReady)
-                QMessageBox::critical(this, "Error", "Unable to process the specified file", QMessageBox::Ok);
-            else
-            {
-                cleanCurrentWorkspace();
-                prepareDexWorkspace();
-            }
+            ProcessThread* thread = new ProcessThread
+                    (&dexFile,
+                     &dexDecompiler,
+                     Filename.toLocal8Bit().data(),
+                     &treeModel,
+                     Filename.endsWith(".apk")? &apkFile: NULL);
+
+            connect(thread, SIGNAL(finished()), this, SLOT(with_processThread_finished()));
+
+            ui->statusBar->showMessage(QString("Parsing ").append(Filename).append(" ..."));
+            thread->start();
         }
     }
+}
+
+void MainWindow::with_processThread_finished()
+{
+    if (!dexFile->isReady)
+        QMessageBox::critical(this, "Error", "Unable to process the specified file", QMessageBox::Ok);
+    else
+    {
+        prepareDexWorkspace();
+
+        if (apkFile)
+            prepareApkWorkspace();     
+    }
+}
+
+void MainWindow::prepareApkWorkspace()
+{
+
 }
 
 void MainWindow::cleanCurrentWorkspace()
@@ -114,27 +135,48 @@ void MainWindow::cleanCurrentWorkspace()
         delete treeModel;
         treeModel = NULL;
     }
+
+    if (dexDecompiler)
+    {
+        delete dexDecompiler;
+        dexDecompiler = NULL;
+    }
+
+    if (dexFile)
+    {
+        delete dexFile;
+        dexFile = NULL;
+    }
+
+    if (apkFile)
+    {
+        delete apkFile;
+        apkFile = NULL;
+    }
+
+    ui->tabWidget->clear();
+    ui->statusBar->clearMessage();
+
+    setClassToolbarEnabled(false);
+    setDexToolbarEnabled(false);
+    setApkToolbarEnabled(false);
 }
 
 void MainWindow::prepareDexWorkspace()
 {
-    if (dexDecompiler)
-        delete dexDecompiler;
-
-    dexDecompiler = new cDexDecompiler(dexFile);
-    treeModel = new TreeModel(dexDecompiler);
     ui->treeView->setModel(treeModel);
     ui->treeView->expandToDepth(0);
 
     setClassToolbarEnabled(false);
+    setDexToolbarEnabled(true);
 
-    ui->statusBar->showMessage(QString(dexFile->Filename).append(" loaded successfully."));
+    ui->statusBar->showMessage(QString(apkFile? apkFile->Filename: dexFile->Filename).append(" loaded successfully."));
 
     if (!treeViewSignalsRegistered)
     {
         treeViewSignalsRegistered = true;
-        QObject::connect(ui->treeView, SIGNAL(collapsed(QModelIndex)), this, SLOT(with_treeView_collapsed(QModelIndex)));
-        QObject::connect(ui->treeView, SIGNAL(expanded(QModelIndex)), this, SLOT(with_treeView_expanded(QModelIndex)));
+        connect(ui->treeView, SIGNAL(collapsed(QModelIndex)), this, SLOT(with_treeView_collapsed(QModelIndex)));
+        connect(ui->treeView, SIGNAL(expanded(QModelIndex)), this, SLOT(with_treeView_expanded(QModelIndex)));
     }
 }
 
@@ -169,12 +211,8 @@ void MainWindow::uiCenterScreen()
 
 MainWindow::~MainWindow()
 {
+    cleanCurrentWorkspace();
     delete ui;
-    if (dexFile)
-        delete dexFile;
-
-    if (dexDecompiler)
-        delete dexDecompiler;
 }
 
 void MainWindow::on_actionFields_Table_triggered()
@@ -1005,6 +1043,46 @@ void MainWindow::printClassJavaData(CodeEditor* editor, struct DEX_DECOMPILED_CL
 
     output.append("<p>}</p><p>&nbsp;</p>");
     editor->appendHtml(output);
+}
+
+void MainWindow::setApkToolbarEnabled(bool enable)
+{
+    ui->menuAPK_Structure->setEnabled(enable);
+
+    ui->actionAndroid_Manifest->setEnabled(enable);
+    ui->actionAndroid_Manifest_2->setEnabled(enable);
+
+    ui->actionCertificates->setEnabled(enable);
+    ui->actionCertificates_2->setEnabled(enable);
+
+    ui->actionResources->setEnabled(enable);
+    ui->actionResources_2->setEnabled(enable);
+}
+
+void MainWindow::setDexToolbarEnabled(bool enable)
+{
+    ui->menuDex_Structure->setEnabled(enable);
+
+    ui->actionSave_All->setEnabled(enable);
+    ui->actionSave_All_2->setEnabled(enable);
+
+    ui->actionHeader->setEnabled(enable);
+    ui->actionHeader_2->setEnabled(enable);
+
+    ui->actionFields_Table->setEnabled(enable);
+    ui->actionFields_Table_2->setEnabled(enable);
+
+    ui->actionMethods_Table->setEnabled(enable);
+    ui->actionMethods_Table_2->setEnabled(enable);
+
+    ui->actionPrototypes_Table->setEnabled(enable);
+    ui->actionPrototypes_Table_2->setEnabled(enable);
+
+    ui->actionStrings_Table->setEnabled(enable);
+    ui->actionStrings_Table_2->setEnabled(enable);
+
+    ui->actionTypes_Table->setEnabled(enable);
+    ui->actionTypes_Table_2->setEnabled(enable);
 }
 
 void MainWindow::setClassToolbarEnabled(bool enable)

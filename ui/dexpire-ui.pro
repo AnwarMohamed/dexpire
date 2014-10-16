@@ -17,13 +17,15 @@ SOURCES += main.cpp\
     treeitem.cpp \
     treemodel.cpp \
     codeeditorlinenumber.cpp \
-    codeeditor.cpp
+    codeeditor.cpp \
+    processthread.cpp
 
 HEADERS  += mainwindow.h \
     treeitem.h \
     treemodel.h \
     codeeditorlinenumber.h \
-    codeeditor.h
+    codeeditor.h \
+    processthread.h
 
 FORMS    += mainwindow.ui
 

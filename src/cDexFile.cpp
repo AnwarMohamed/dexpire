@@ -24,7 +24,12 @@
 cDexFile::cDexFile(CHAR* Filename): 
     cFile(Filename)
 {
-    OpcodeCounter = 0;
+    isReady = (BaseAddress && FileLength >= sizeof(DEX_HEADER) && DumpDex());
+}
+
+cDexFile::cDexFile(CHAR* Buffer, DWORD Size):
+    cFile(Buffer, Size)
+{
     isReady = (BaseAddress && FileLength >= sizeof(DEX_HEADER) && DumpDex());
 }
 
@@ -1137,8 +1142,8 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
     }
 
     Decoded->Decoded = new CHAR[strlen(Temp)+1];
-    strncpy_s((CHAR*)Decoded->Decoded, strlen(Temp)+1, Temp, MAX_STRING_BUFFER_SIZE);
-    free(Temp);
+    memcpy((CHAR*)Decoded->Decoded, Temp, strlen(Temp)+1);
+    delete Temp;
     return Decoded;
 }
 
@@ -2307,6 +2312,21 @@ INT cDexFile::ReadUnsignedLeb128(
     return result;
 };
 
-cDexFile::~cDexFile(void)
+cDexFile::~cDexFile()
 {
+    if (!isReady) 
+        return;
+
+    free(StringItems);
+
+    //delete[] OpcodesWidths;
+    //delete[] OpcodesFlags;
+    //delete[] OpcodesFormat;
+
+    for (UINT i=0; i<nClasses; i++)
+    {
+
+    }
+
+    //free(DexClasses);
 }
