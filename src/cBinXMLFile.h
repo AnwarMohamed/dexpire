@@ -1,3 +1,11 @@
+/*
+ *
+ *  Copyright (C) 2014  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *  This file is subject to the terms and conditions defined in
+ *  file 'LICENSE.txt', which is part of this source code package.
+ *
+ */
+
 #pragma once
 #include "cFile.h"
 
@@ -25,13 +33,7 @@ enum {
     RES_TABLE_TYPE_SPEC_TYPE    = 0x0202
 };
 
-STRUCT RESOURCE_HEADER
-{
-    USHORT Magic[2];
-    UINT FileSize;
-};
-
-STRUCT RESOURCE_CHUNK_HEADER
+STRUCT RES_CHUNK_HEADER
 {
     // Type identifier for this chunk.  The meaning of this value depends
     // on the containing chunk.
@@ -50,24 +52,26 @@ STRUCT RESOURCE_CHUNK_HEADER
     UINT Size;
 };
 
-STRUCT RESOURCE_STRING_POOL_HEADER
+STRUCT RES_STRING_POOL_HEADER
 {
     UINT StringCount;
     UINT StyleCount;
     UINT Flags;
     UINT StringStart;
     UINT StylesStart;
-
-    UINT StringOffsets[1];
-    UINT StyleOffsets[1];
-
-
 };
 
-STRUCT RESOURCE_TREE_HEADER
+STRUCT RES_TREE_HEADER
 {
-    RESOURCE_CHUNK_HEADER Header;
-    RESOURCE_STRING_POOL_HEADER StringPool;
+    RES_CHUNK_HEADER Header;
+    RES_STRING_POOL_HEADER StringPool;
+};
+
+STRUCT RES_STYLE_POOL_ITEM
+{
+    CHAR* Name;
+    UINT FirstChar, LastChar;
+    RES_STYLE_POOL_ITEM* Next;
 };
 
 class DLLEXPORT cBinXMLFile: public cFile
@@ -81,4 +85,22 @@ public:
 
 private:
     BOOL ProcessXML();
+
+    void ParseStringPool(RES_CHUNK_HEADER* Header);
+    void ParseResourceMapping(RES_CHUNK_HEADER* Header);
+
+    void ParseXMLStart(RES_CHUNK_HEADER* Header);
+    void ParseXMLEnd(RES_CHUNK_HEADER* Header);
+
+    void ParseStartNameSpace(RES_CHUNK_HEADER* Header);
+    void ParseEndNameSpace(RES_CHUNK_HEADER* Header);
+
+    UINT ResourceMapSize;
+    UINT* ResourceMap;
+
+    CHAR** StringPool;
+    UINT StringPoolSize;
+
+    RES_STYLE_POOL_ITEM** StylePool;
+    UINT StylePoolSize;
 };

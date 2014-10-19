@@ -28,6 +28,7 @@
 
 int main()
 {
+    /*
     cApkFile* apk  = new cApkFile("test.apk");
     if (apk->isReady)
     {
@@ -42,18 +43,23 @@ int main()
                 }
                 break;
             }
+            else if (strcmp(apk->Files[i].Name + strlen(apk->Files[i].Name) - 4, ".xml") == 0)
+            {
+                cBinXMLFile* xml = new cBinXMLFile(apk->Files[i].Buffer, apk->Files[i].Size);
+            }
     }
+    */
     
     
-    /*
+    
     cDexFile* dex = new cDexFile("classes.dex");
     printf("Processing '%s'...\n", dex->Filename);
 
-    if (!dex->isReady)
+    if (dex->isReady)
     {
         printf("Opened '%s', DEX version '%s'\n\n\n", dex->Filename, dex->DexVersion);
         cDexDecompiler* decompiled = new cDexDecompiler(dex);
-        
+        /*
         for (UINT i=0; i<dex->nClasses; i++)
         {
             printf("package %s;\n\n", decompiled->Classes[i].Package);
@@ -149,6 +155,7 @@ int main()
             printf("}\n\n");
  
         }
+        */
         
         delete decompiled;
         
@@ -403,12 +410,12 @@ int main()
         }
         */
             
-     /*   system("pause");
+        system("pause");
     }
     else 
         printf("Unable to load your dex file\n");
 
-    delete dex;*/
+    delete dex;
     
     return 0;
     

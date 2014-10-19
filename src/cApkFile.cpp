@@ -1,3 +1,11 @@
+/*
+ *
+ *  Copyright (C) 2014  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *  This file is subject to the terms and conditions defined in
+ *  file 'LICENSE.txt', which is part of this source code package.
+ *
+ */
+
 #include "cApkFile.h"
 #include <stdio.h>
 
@@ -27,11 +35,10 @@ BOOL cApkFile::ProcessApk()
 
         Files[i].Size = ZipEntry.unc_size;
         Files[i].Buffer = new CHAR[Files[i].Size];
+        UnzipItem(ZipHandler, i, Files[i].Buffer, Files[i].Size);
 
         if (strcmp(Files[i].Name + strlen(Files[i].Name) - 4, ".xml") == 0)
             cBinXMLFile* xml = new cBinXMLFile(Files[i].Buffer, Files[i].Size);
-
-        UnzipItem(ZipHandler, i, Files[i].Buffer, Files[i].Size);
     }
 
     return TRUE;

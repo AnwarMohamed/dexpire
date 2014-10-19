@@ -969,15 +969,15 @@ void MainWindow::printClassJavaData(CodeEditor* editor, struct DEX_DECOMPILED_CL
             .append(QString().sprintf("%s class</b></font> %s", dexClass->AccessFlags, dexClass->Name).trimmed());
 
     if (dexClass->ExtendsSize)
-        output.append("<b><font color=\"blue\"> extends </b></font>");
+        output.append("<b><font color=\"blue\"> extends</b></font>");
 
     for (UINT j=0; j<dexClass->ExtendsSize; j++)
     {
         if (j)  output.append(",");
-        output.append(QString().sprintf("%s ", cDexString::ExtractShortLType(dexClass->Extends[j])));
+        output.append(QString().sprintf(" %s", cDexString::ExtractShortLType(dexClass->Extends[j])));
     }
 
-    output.append("{</p><p>&nbsp;</p>");
+    output.append(" {</p><p>&nbsp;</p>");
 
     for (UINT j=0; j<dexClass->FieldsSize; j++)
     {

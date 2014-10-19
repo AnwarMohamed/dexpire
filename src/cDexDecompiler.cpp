@@ -1,45 +1,89 @@
 /*
  *
  *  Copyright (C) 2014  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to Anwar Mohamed
- *  anwarelmakrahy[at]gmail.com
+ *  This file is subject to the terms and conditions defined in
+ *  file 'LICENSE.txt', which is part of this source code package.
  *
  */
 
+#pragma once
 #include "cDexDecompiler.h"
+
+
+BOOL SubClassesVectorComparison(
+    DEX_DECOMPILED_CLASS*c1, 
+    DEX_DECOMPILED_CLASS*c2)
+{
+    return strcmp(c1->Package, c2->Package)<0? strcmp(c1->Name, c2->Name)<0:0;
+}
 
 cDexDecompiler::cDexDecompiler(cDexFile* DexFile)
 {
     Classes = NULL;
     nClasses = 0;
-    if (!DexFile->isReady) return;
+    if (!DexFile->isReady) 
+        return;
 
     this->DexFile = DexFile;
-    Classes = new DEX_DECOMPILED_CLASS[DexFile->nClasses];
+    Classes = (DEX_DECOMPILED_CLASS*)malloc(DexFile->nClasses* sizeof(DEX_DECOMPILED_CLASS));
     ZERO(Classes, DexFile->nClasses* sizeof(DEX_DECOMPILED_CLASS));
 
-    nClasses = DexFile->nClasses;
+    DEX_DECOMPILED_CLASS* SubClass;
+    vector<DEX_DECOMPILED_CLASS*> SubClasses;
 
     for (UINT i=0; i<DexFile->nClasses; i++)
     {
-        Classes[i].Imports = (CHAR**)malloc(0);
-        Classes[i].Extends = (CHAR**)malloc(0);
-        Classes[i].Methods = (DEX_DECOMPILED_CLASS_METHOD**)malloc(0);
-        Classes[i].Ref = &DexFile->DexClasses[i];
-        DecompileClass(&Classes[i]);    
+        if (strchr((CHAR*)DexFile->DexClasses[i].Descriptor, '$'))
+        {
+            SubClass = new DEX_DECOMPILED_CLASS;
+            ZERO(SubClass, sizeof(DEX_DECOMPILED_CLASS));
+
+            SubClass->Imports = (CHAR**)malloc(0);
+            SubClass->Extends = (CHAR**)malloc(0);
+            SubClass->Methods = (DEX_DECOMPILED_CLASS_METHOD**)malloc(0);
+            SubClass->SubClassesSize = 0;
+            SubClass->SubClasses = (DEX_DECOMPILED_CLASS**)malloc(0);
+            SubClass->Ref = &DexFile->DexClasses[i];
+            DecompileClass(SubClass);
+
+            SubClasses.push_back(SubClass);
+        }   
+        else
+        {
+            Classes[nClasses].Imports = (CHAR**)malloc(0);
+            Classes[nClasses].Extends = (CHAR**)malloc(0);
+            Classes[nClasses].Methods = (DEX_DECOMPILED_CLASS_METHOD**)malloc(0);
+            Classes[nClasses].Ref = &DexFile->DexClasses[i];
+            Classes[nClasses].SubClassesSize = 0;
+            Classes[nClasses].SubClasses = (DEX_DECOMPILED_CLASS**)malloc(0);
+            Classes[nClasses].Parent = NULL;
+            DecompileClass(Classes + nClasses);  
+            nClasses++;
+        }
     }
+
+    sort(SubClasses.begin(), SubClasses.end(), SubClassesVectorComparison);
+
+    BOOL Finished;
+    for(UINT i=0; i<nClasses; i++)
+    {
+        Finished = FALSE;
+        for(UINT j=0; j<SubClasses.size(); j++)
+        {
+            if (cDexString::StartsWith(Classes[i].Name, SubClasses[j]->Name) &&
+                strcmp(Classes[i].Package, SubClasses[j]->Package) == 0)
+            {
+                AddSubClass(&Classes[i], SubClasses[j]);
+
+                Finished = TRUE;
+                SubClasses.erase(SubClasses.begin() + j--);
+            }
+            else if (Finished)
+                break;
+        }
+    }
+
+    Classes = (DEX_DECOMPILED_CLASS*)realloc(Classes, nClasses* sizeof(DEX_DECOMPILED_CLASS));
 }
 
 void cDexDecompiler::DecompileClass(
@@ -115,7 +159,6 @@ void cDexDecompiler::GetClassMethod(
     if (dMethod->Ref->CodeArea)
         dMethod->LinesSize =  dMethod->Ref->CodeArea->DebugInfo.PositionsSize;
 
-    LineCounter++;
     if (dMethod->LinesSize)
         dMethod->Lines = new DEX_DECOMPILED_CLASS_METHOD_LINE*[dMethod->LinesSize];
 
@@ -205,12 +248,55 @@ void cDexDecompiler::AddToImports(
     dClass->Imports[dClass->ImportsSize-1] = Import;
 }
 
+void cDexDecompiler::AddSubClass(
+    DEX_DECOMPILED_CLASS* Class,
+    DEX_DECOMPILED_CLASS* SubClass
+    )
+{
+    CHAR* Pos = SubClass->Name, Count=0;
+    while((Pos = strchr(Pos+1, '$')))
+        Count++;
+
+    SubClass->Name = strchr(SubClass->Name, '$') + 1;
+
+    if (Count == 1)
+    {
+        SubClass->Parent = Class;
+        AddToSubClasses(Class, SubClass);
+    }
+    else
+        for (UINT i=0; i<Class->SubClassesSize; i++)
+            if (cDexString::StartsWith(Class->SubClasses[i]->Name, SubClass->Name))
+            {
+                AddToSubClasses(Class->SubClasses[i], SubClass);
+                break;
+            }
+}
+
+void cDexDecompiler::AddToSubClasses(
+    DEX_DECOMPILED_CLASS* Class,
+    DEX_DECOMPILED_CLASS* SubClass
+    )
+{
+    Class->SubClasses = (DEX_DECOMPILED_CLASS**)realloc(Class->SubClasses, ++Class->SubClassesSize * sizeof(DEX_DECOMPILED_CLASS*));
+    Class->SubClasses[Class->SubClassesSize-1] = SubClass;
+}
+
 void cDexDecompiler::AddToExtends(
     DEX_DECOMPILED_CLASS* dClass,
     CHAR* Superclass
     )
 {
     CHAR* Super = cDexString::GetTypeDescription(Superclass);
+
+    for (UINT i=0; i<sizeof(ImportsBuiltIn); i++)
+        if (cDexString::StartsWith(ImportsBuiltIn[i], Super))
+        {
+            if (*Superclass == 'L')
+                delete[] Super;
+            return;
+        }
+
     if (*Superclass == 'L')
         AddToImports(dClass, Super);
 

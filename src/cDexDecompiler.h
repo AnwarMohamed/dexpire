@@ -1,20 +1,8 @@
 /*
  *
  *  Copyright (C) 2014  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to Anwar Mohamed
- *  anwarelmakrahy[at]gmail.com
+ *  This file is subject to the terms and conditions defined in
+ *  file 'LICENSE.txt', which is part of this source code package.
  *
  */
 
@@ -22,6 +10,8 @@
 #include "cDexFile.h"
 #include "cDexCodeGen.h"
 #include <string>
+#include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -87,13 +77,22 @@ STRUCT DEX_DECOMPILED_CLASS
     UINT    FieldsSize;
 
     DEX_CLASS_STRUCTURE* Ref;
-    STRUCT DEX_DECOMPILED_CLASS* Parent;
+    DEX_DECOMPILED_CLASS* Parent;
+
+    DEX_DECOMPILED_CLASS** SubClasses;
+    UINT SubClassesSize;
 };
 
 STRUCT DEX_DECOMPILED_CLASS_METHOD_REGISTER
 {
    CHAR* Name;
    CHAR* Value;
+};
+
+CONST CHAR ImportsBuiltIn[][20] =
+{
+    "java.lang.Object",
+    "java.lang.String",
 };
 
 class DLLEXPORT cDexDecompiler
@@ -118,16 +117,10 @@ public:
     void    AddToExtends(DEX_DECOMPILED_CLASS* Class, CHAR* Superclass);
 
     //void    GetClassMethodCodesLine(DEX_DECOMPILED_CLASS_METHOD_LINE * Line, CHAR** Registers);
-
+    void    AddSubClass(DEX_DECOMPILED_CLASS* Class, DEX_DECOMPILED_CLASS* SubClass);
+    void    AddToSubClasses(DEX_DECOMPILED_CLASS* Class, DEX_DECOMPILED_CLASS* SubClass);
     
 private:
-    
-    
-
-    UINT LineCounter;
-
     void    AddInstructionToLine(DEX_DECOMPILED_CLASS_METHOD_LINE* Line, CLASS_CODE_INSTRUCTION* Instruction);
-
     cDexFile* DexFile;
 };
-
