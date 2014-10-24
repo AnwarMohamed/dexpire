@@ -38,22 +38,30 @@ cDexDecompiler::cDexDecompiler(cDexFile* DexFile)
             SubClass = new DEX_DECOMPILED_CLASS;
             ZERO(SubClass, sizeof(DEX_DECOMPILED_CLASS));
 
+            SubClass->Ref = &DexFile->DexClasses[i];
             SubClass->Imports = (CHAR**)malloc(0);
+
+            SubClass->InterfacesSize = SubClass->Ref->InterfacesSize;
+            SubClass->Interfaces = new CHAR*[SubClass->InterfacesSize];
+
             SubClass->Extends = (CHAR**)malloc(0);
             SubClass->Methods = (DEX_DECOMPILED_CLASS_METHOD**)malloc(0);
             SubClass->SubClassesSize = 0;
             SubClass->SubClasses = (DEX_DECOMPILED_CLASS**)malloc(0);
-            SubClass->Ref = &DexFile->DexClasses[i];
+            
             DecompileClass(SubClass);
-
             SubClasses.push_back(SubClass);
         }   
         else
         {
+            Classes[nClasses].Ref = &DexFile->DexClasses[i];
             Classes[nClasses].Imports = (CHAR**)malloc(0);
+
+            Classes[nClasses].InterfacesSize = Classes[nClasses].Ref->InterfacesSize;
+            Classes[nClasses].Interfaces = new CHAR*[Classes[nClasses].InterfacesSize];
+
             Classes[nClasses].Extends = (CHAR**)malloc(0);
             Classes[nClasses].Methods = (DEX_DECOMPILED_CLASS_METHOD**)malloc(0);
-            Classes[nClasses].Ref = &DexFile->DexClasses[i];
             Classes[nClasses].SubClassesSize = 0;
             Classes[nClasses].SubClasses = (DEX_DECOMPILED_CLASS**)malloc(0);
             Classes[nClasses].Parent = NULL;
@@ -288,16 +296,17 @@ void cDexDecompiler::AddToExtends(
     )
 {
     CHAR* Super = cDexString::GetTypeDescription(Superclass);
+    BOOL Imported = FALSE;
 
     for (UINT i=0; i<sizeof(ImportsBuiltIn); i++)
         if (cDexString::StartsWith(ImportsBuiltIn[i], Super))
         {
             if (*Superclass == 'L')
-                delete[] Super;
-            return;
+                Imported = TRUE;
+            break;
         }
 
-    if (*Superclass == 'L')
+    if (!Imported && *Superclass == 'L')
         AddToImports(dClass, Super);
 
     dClass->Extends = (CHAR**)realloc(dClass->Extends, ++dClass->ExtendsSize* sizeof(CHAR*));
@@ -325,6 +334,13 @@ void cDexDecompiler::GetClassDefinition(
     /* Class Superclass */
     if (Class->Ref->SuperClass)
         AddToExtends(Class, (CHAR*)Class->Ref->SuperClass);
+
+    /* Class Interfaces */
+    for (UINT i=0; i<Class->InterfacesSize; i++)
+    {
+        Class->Interfaces[i] = cDexString::GetTypeDescription((CHAR*)Class->Ref->Interfaces[i]);
+        AddToImports(Class, Class->Interfaces[i]);
+    }
 }
 
 /*

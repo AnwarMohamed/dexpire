@@ -67,6 +67,9 @@ STRUCT DEX_DECOMPILED_CLASS
     CHAR*   Name;
     CHAR*   SourceFile;
     
+    CHAR**  Interfaces;
+    UINT    InterfacesSize;
+
     CHAR**  Extends;
     UINT    ExtendsSize;
 

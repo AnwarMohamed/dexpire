@@ -367,6 +367,8 @@ struct CLASS_FIELD
     UCHAR* Type;
     UCHAR* Value;
     CLASS_ANNOTATION* Annotations;
+
+    STRUCT DEX_CLASS_STRUCTURE* Parent;
 }; 
 
 struct CLASS_CODE_DEBUG_POSITION
@@ -471,6 +473,8 @@ struct CLASS_METHOD
     UCHAR* ProtoType;
     CLASS_CODE  *CodeArea;
     CLASS_ANNOTATION* Annotations;
+
+    DEX_CLASS_STRUCTURE* Parent;
 };
 
 struct CLASS_DATA
@@ -480,9 +484,6 @@ struct CLASS_DATA
     UINT DirectMethodsSize;
     UINT VirtualMethodsSize;
     
-    UINT InterfacesSize;
-    UCHAR** Interfaces;
-
     CLASS_FIELD  *StaticFields, *InstanceFields;
     CLASS_METHOD  *DirectMethods, *VirtualMethods;
 
@@ -496,6 +497,9 @@ struct DEX_CLASS_STRUCTURE
     UINT    AccessFlags;
     UCHAR*  SuperClass;
     UCHAR*  SourceFile;
+
+    UINT InterfacesSize;
+    UCHAR** Interfaces;
 
     CLASS_DATA * ClassData;
 

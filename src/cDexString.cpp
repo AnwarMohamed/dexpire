@@ -70,6 +70,10 @@ CHAR* cDexString::GetAccessMask(
     )
 {
     CHAR* str,* cp;
+
+    if (!Type && (AccessFlags & 0x0200))
+        AccessFlags &= ~0x0400;
+
     UINT flag = AccessFlags;
 
     UINT flagsCount = 0;

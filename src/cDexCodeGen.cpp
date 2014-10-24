@@ -1,10 +1,10 @@
 /*
- *
- *  Copyright (C) 2014  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
- *  This file is subject to the terms and conditions defined in
- *  file 'LICENSE.txt', which is part of this source code package.
- *
- */
+*
+*  Copyright (C) 2014  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+*  This file is subject to the terms and conditions defined in
+*  file 'LICENSE.txt', which is part of this source code package.
+*
+*/
 
 #include "cDexCodeGen.h"
 
@@ -20,17 +20,28 @@ BOOL cDexCodeGen::GetRegisterInitialized(
     UINT Index,
     UINT InstructionIndex,
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-    STRUCT CLASS_CODE_REGISTER** Registers)
+    STRUCT CLASS_CODE_REGISTER** Registers,
+    STRUCT CLASS_CODE_REGISTER** RegisterPtr)
 {
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
+
+        if (Register && !Register->Next)
+        {
+            if (RegisterPtr) *RegisterPtr = Register;
+            return !(Register->Initialized = TRUE);
+        }
+
         while(Register)
         {
             if (Register->Local && !Register->Initialized &&
                 Register->StartAddress <= (*Line->Instructions)->Offset+1 &&
                 Register->EndAddress >= (*Line->Instructions)->Offset)
+            {
+                if (RegisterPtr) *RegisterPtr = Register;
                 return !(Register->Initialized = TRUE);
+            }
             Register = Register->Next;
         }
         return TRUE;
@@ -42,17 +53,28 @@ CHAR* cDexCodeGen::GetRegisterName(
     UINT Index,
     UINT InstructionIndex,
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-    STRUCT CLASS_CODE_REGISTER** Registers)
+    STRUCT CLASS_CODE_REGISTER** Registers,
+    STRUCT CLASS_CODE_REGISTER** RegisterPtr)
 {
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
+
+        if (Register && !Register->Next)
+        {
+            if (RegisterPtr) *RegisterPtr = Register;
+            return Register->Name;
+        }
+
         while(Register)
         {
             if (Register->Name && 
                 Register->StartAddress <= Line->Instructions[InstructionIndex]->Offset+1 &&
                 Register->EndAddress >= Line->Instructions[InstructionIndex]->Offset)
+            {
+                if (RegisterPtr) *RegisterPtr = Register;
                 return Register->Name;
+            }
             Register = Register->Next;
         }
         return NULL;
@@ -63,17 +85,54 @@ CHAR* cDexCodeGen::GetRegisterName(
 CHAR* cDexCodeGen::GetRegisterType(
     UINT Index,
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-    STRUCT CLASS_CODE_REGISTER** Registers)
+    STRUCT CLASS_CODE_REGISTER** Registers,
+    STRUCT CLASS_CODE_REGISTER** RegisterPtr)
 {
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
-        CLASS_CODE_REGISTER* Register = Registers[Index];
+        CLASS_CODE_REGISTER* Register = Registers[Index];    
+
+        if (Register && !Register->Next)
+        {
+            if (RegisterPtr) *RegisterPtr = Register;
+            return Register->Type;
+        }
+
         while(Register)
         {
             if (Register->Type && 
                 Register->StartAddress <= (*Line->Instructions)->Offset+1 &&
                 Register->EndAddress >= (*Line->Instructions)->Offset)
+            {
+                if (RegisterPtr) *RegisterPtr = Register;
                 return Register->Type;
+            }
+            Register = Register->Next;
+        }
+        return NULL;
+    }
+    return NULL;
+}
+
+CLASS_CODE_REGISTER* cDexCodeGen::GetRegister(
+    UINT Index, 
+    UINT InstructionIndex,
+    STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
+    STRUCT CLASS_CODE_REGISTER** Registers)
+{
+    if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
+    {
+        CLASS_CODE_REGISTER* Register = Registers[Index];
+
+        if (Register && !Register->Next)
+            return Register;
+
+        while(Register)
+        {
+            if (Register->StartAddress <= Line->Instructions[InstructionIndex]->Offset+1 &&
+                Register->EndAddress >= Line->Instructions[InstructionIndex]->Offset)
+                return Register;
+
             Register = Register->Next;
         }
         return NULL;
@@ -85,16 +144,32 @@ CHAR* cDexCodeGen::GetRegisterValue(
     UINT Index, 
     UINT InstructionIndex,
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-    STRUCT CLASS_CODE_REGISTER** Registers)
+    STRUCT CLASS_CODE_REGISTER** Registers,
+    STRUCT CLASS_CODE_REGISTER** RegisterPtr)
 {
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
+
+        if (Register && !Register->Next)
+        {
+            if (RegisterPtr) 
+                *RegisterPtr = Register;
+
+            if (Register->Name)
+                return Register->Name;
+            else
+                return Register->Value;
+        }
+
         while(Register)
         {
             if (Register->StartAddress <= Line->Instructions[InstructionIndex]->Offset+1 &&
                 Register->EndAddress >= Line->Instructions[InstructionIndex]->Offset)
             {
+                if (RegisterPtr) 
+                    *RegisterPtr = Register;
+
                 if (Register->Name)
                     return Register->Name;
                 else
@@ -119,7 +194,7 @@ void cDexCodeGen::GenerateSourceCode()
             DumpLineSingleInstruction(Method->Lines[i], Method->Ref->CodeArea->Registers);
         else
             DumpLineMultiInstruction(Method->Lines[i], Method->Ref->CodeArea->Registers);
-        
+
         if (!strlen(Method->Lines[i]->Decompiled))
         {
             free(Method->Lines[i]->Decompiled);
@@ -127,7 +202,7 @@ void cDexCodeGen::GenerateSourceCode()
         }
         else
             Method->Lines[i]->Decompiled = (CHAR*)realloc
-              (Method->Lines[i]->Decompiled, strlen(Method->Lines[i]->Decompiled)+1);
+            (Method->Lines[i]->Decompiled, strlen(Method->Lines[i]->Decompiled)+1);
     }
 }
 
@@ -138,28 +213,26 @@ void cDexCodeGen::GetInvokeArguments(
     BOOL SkipFirst
     )
 {
-    if (Line->Instructions[Index]->vA)
-    {
-        BOOL isThis = (GetRegisterName(Line->Instructions[Index]->vC, Index, Line, Registers) &&
-                      !strcmp("this", GetRegisterName(Line->Instructions[Index]->vC, Index, Line, Registers))) || SkipFirst;
+    CHAR* Decompiled;
+    if (Line->InstructionsSize == 1)
+        Decompiled = Line->Decompiled;
+    else
+        Decompiled = Line->Instructions[Index]->Decompiled;
 
-        if (isThis && Line->Instructions[Index]->vA>1)
-            sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
-                MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), "%s",
-                GetRegisterValue(Line->Instructions[Index]->vArg[0], Index, Line, Registers));
-        else if (Line->Instructions[Index]->vA==1)
-            return;
-        else
-            sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
-                MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), "%s",
-                GetRegisterValue(Line->Instructions[Index]->vC, Index, Line, Registers));
-        
-        for (UINT i=(isThis?1:0); i<Line->Instructions[Index]->vA-1; i++)
-        {
-            sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
-                MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), ", %s",
-                GetRegisterValue(Line->Instructions[Index]->vArg[i], Index, Line, Registers));
-        }
+    if (!SkipFirst)
+        sprintf_s(Decompiled + strlen(Decompiled), 
+            MAX_DECOMPILED_STRING_SIZE - strlen(Decompiled), "%s",
+            GetRegisterValue(Line->Instructions[Index]->vC, Index, Line, Registers));
+
+    for (UINT i=0; i<Line->Instructions[Index]->vA-1; i++)
+    {
+        if (i || !SkipFirst)
+            sprintf_s(Decompiled + strlen(Decompiled), 
+                MAX_DECOMPILED_STRING_SIZE - strlen(Decompiled), ", ");
+
+        sprintf_s(Decompiled + strlen(Decompiled), 
+            MAX_DECOMPILED_STRING_SIZE - strlen(Decompiled), "%s",
+            GetRegisterValue(Line->Instructions[Index]->vArg[i], Index, Line, Registers));
     }
 }
 
@@ -168,16 +241,26 @@ void cDexCodeGen::SetRegisterValue(
     UINT InstructionIndex,
     CHAR* Value,
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-    STRUCT CLASS_CODE_REGISTER** Registers)
+    STRUCT CLASS_CODE_REGISTER** Registers,
+    STRUCT CLASS_CODE_REGISTER** RegisterPtr)
 {
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
+
+        if (Register && !Register->Next)
+        {
+            if (RegisterPtr) *RegisterPtr = Register;
+            Register->Value = Value;
+            return;
+        }
+
         while(Register)
         {
             if (Register->StartAddress <= Line->Instructions[InstructionIndex]->Offset+1 &&
                 Register->EndAddress >= Line->Instructions[InstructionIndex]->Offset)
             {
+                if (RegisterPtr) *RegisterPtr = Register;
                 Register->Value = Value;
                 return;
             }
@@ -193,6 +276,8 @@ void cDexCodeGen::SetRegisterValue(
             Register->Value = Value;
             Registers[Index] = Register;
         }
+
+        if (RegisterPtr) *RegisterPtr = Register;
         return;
     }
     return;
@@ -270,8 +355,8 @@ void cDexCodeGen::DumpLineSingleInstruction(
     case OP_CONST_STRING_JUMBO:
         if(Method->Ref->CodeArea->Locals->count((*Line->Instructions)->vA))
             sprintf_s(Line->Decompiled, MAX_STRING_BUFFER_SIZE, "%s = %s",
-                (*Method->Ref->CodeArea->Locals)[(*Line->Instructions)->vA]->Name,
-                DexFile->StringItems[(*Line->Instructions)->vB].Data);
+            (*Method->Ref->CodeArea->Locals)[(*Line->Instructions)->vA]->Name,
+            DexFile->StringItems[(*Line->Instructions)->vB].Data);
         break;
         break;
 
@@ -287,7 +372,7 @@ void cDexCodeGen::DumpLineSingleInstruction(
 
     case OP_NEW_INSTANCE:
     case OP_NEW_ARRAY:
-  
+
     case OP_FILLED_NEW_ARRAY:
     case OP_FILLED_NEW_ARRAY_RANGE:
     case OP_FILL_ARRAY_DATA:
@@ -298,7 +383,7 @@ void cDexCodeGen::DumpLineSingleInstruction(
     case OP_GOTO_32:
     case OP_PACKED_SWITCH:
     case OP_SPARSE_SWITCH:
-  
+
     case OP_CMPL_FLOAT:
     case OP_CMPG_FLOAT:
     case OP_CMPL_DOUBLE:
@@ -364,13 +449,19 @@ void cDexCodeGen::DumpLineSingleInstruction(
     case OP_SPUT_SHORT:
 
     case OP_INVOKE_VIRTUAL:
+        sprintf_s(Line->Decompiled, MAX_DECOMPILED_STRING_SIZE, 
+            "%s.%s(",
+            Registers[(*Line->Instructions)->vC]->Name,
+            DexFile->StringItems[DexFile->DexMethodIds[(*Line->Instructions)->vB].StringIndex].Data);            
+        GetInvokeArguments(0, Line, Registers, TRUE);            
+        sprintf_s(Line->Decompiled + strlen(Line->Decompiled), MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), ")");
         break;
 
     case OP_INVOKE_SUPER:
         sprintf_s(Line->Decompiled, MAX_DECOMPILED_STRING_SIZE, 
             "super.%s(",
             DexFile->StringItems[DexFile->DexMethodIds[(*Line->Instructions)->vB].StringIndex].Data);            
-        GetInvokeArguments(0, Line, Registers);            
+        GetInvokeArguments(0, Line, Registers, TRUE);            
         sprintf_s(Line->Decompiled + strlen(Line->Decompiled), MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), ")");
         break;
 
@@ -523,10 +614,14 @@ void cDexCodeGen::DumpLineMultiInstruction(
     CLASS_CODE_REGISTER** Registers
     )
 {
+    CLASS_CODE_REGISTER* TempRegister= NULL;
+    BOOL LastInstruction;
     for (UINT j=0; j<Line->InstructionsSize; j++)
     {
         Line->Instructions[j]->Decompiled = (CHAR*)malloc(MAX_DECOMPILED_STRING_SIZE);
         ZERO(Line->Instructions[j]->Decompiled, MAX_DECOMPILED_STRING_SIZE);
+
+        LastInstruction = (j+1== Line->InstructionsSize);
 
         switch(LOW_BYTE(*Line->Instructions[j]->Buffer))
         {
@@ -556,7 +651,43 @@ void cDexCodeGen::DumpLineMultiInstruction(
 
         case OP_MOVE_RESULT:
         case OP_MOVE_RESULT_WIDE:
+            break;
+
         case OP_MOVE_RESULT_OBJECT:
+            SetRegisterValue(
+                Line->Instructions[j]->vA, 
+                j, 
+                Line->Instructions[j-1]->Decompiled,
+                Line,
+                Registers,
+                &TempRegister);
+
+            if (TempRegister->Local)
+                sprintf_s(
+                Line->Instructions[j]->Decompiled, 
+                MAX_DECOMPILED_STRING_SIZE, 
+                "(%s = %s)",
+                TempRegister->Name, 
+                Line->Instructions[j-1]->Decompiled);
+
+            if (LastInstruction)
+            {
+                if (!TempRegister->Initialized)
+                {
+                    TempRegister->Initialized = TRUE;
+                    sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
+                        MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
+                        "%s ",
+                        cDexString::ExtractShortLType(TempRegister->Type)); 
+                }
+                sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
+                    MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
+                    "%s = %s",
+                    TempRegister->Name,
+                    TempRegister->Value);    
+            }
+            break;
+
         case OP_MOVE_EXCEPTION:
             break;
 
@@ -577,9 +708,9 @@ void cDexCodeGen::DumpLineMultiInstruction(
                 {
                     if (GetRegisterValue(Line->Instructions[j]->vA, j, Line, Registers))
                         sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
-                            MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
-                            "%s",
-                            atol(GetRegisterValue(Line->Instructions[j]->vA, j, Line, Registers))? "true":"false");
+                        MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
+                        "%s",
+                        atol(GetRegisterValue(Line->Instructions[j]->vA, j, Line, Registers))? "true":"false");
                 }
                 break;
             }
@@ -614,7 +745,7 @@ void cDexCodeGen::DumpLineMultiInstruction(
                 SetRegisterValue(Line->Instructions[j]->vA, j, TempString, Line, Registers);
                 break;
             }
-        
+
         case OP_CONST_WIDE_16:
         case OP_CONST_WIDE_32:
             sprintf_s(
@@ -629,21 +760,23 @@ void cDexCodeGen::DumpLineMultiInstruction(
             break;
 
         case OP_CONST_STRING:
-        case OP_CONST_STRING_JUMBO:
+        case OP_CONST_STRING_JUMBO:       
             if (Line->Instructions[j]->vB < DexFile->nStringIDs)
+            {
+                CHAR* Value = new CHAR[DexFile->StringItems[Line->Instructions[j]->vB].StringSize +3];
                 sprintf_s(
-                    Line->Instructions[j]->Decompiled, 
-                    MAX_DECOMPILED_STRING_SIZE, 
-                    "v%d = \"%s\"",
-                    Line->Instructions[j]->vA,
+                    Value,
+                    DexFile->StringItems[Line->Instructions[j]->vB].StringSize +3,
+                    "\"%s\"",
                     DexFile->StringItems[Line->Instructions[j]->vB].Data);
+
+                SetRegisterValue(Line->Instructions[j]->vA, j, Value, Line, Registers);
+            }
             break;
 
         case OP_CONST_CLASS:
             if (DexFile->DexTypeIds[Line->Instructions[j]->vB].StringIndex < DexFile->nStringIDs)
-                sprintf_s(
-                    Line->Instructions[j]->Decompiled, 
-                    MAX_DECOMPILED_STRING_SIZE, 
+                sprintf_s(Line->Instructions[j]->Decompiled, MAX_DECOMPILED_STRING_SIZE, 
                     "v%d = %s",
                     Line->Instructions[j]->vA,
                     DexFile->StringItems[DexFile->DexTypeIds[Line->Instructions[j]->vB].StringIndex].Data);
@@ -651,8 +784,23 @@ void cDexCodeGen::DumpLineMultiInstruction(
 
         case OP_MONITOR_ENTER:
         case OP_MONITOR_EXIT:
+            break;
 
         case OP_CHECK_CAST:
+            TempRegister = GetRegister(Line->Instructions[j]->vA, j, Line, Registers); 
+            if (LastInstruction)
+                sprintf_s(Line->Decompiled, MAX_DECOMPILED_STRING_SIZE, 
+                    "%s = (%s)%s",
+                    TempRegister->Name,
+                    cDexString::ExtractShortLType(
+                        cDexString::GetTypeDescription(
+                            (CHAR*)DexFile->StringItems[DexFile->DexTypeIds[Line->Instructions[j]->vB].StringIndex].Data)),
+                    TempRegister->Value);   
+            else
+            {
+            }
+            break;
+
         case OP_INSTANCE_OF:
             break;
 
@@ -666,16 +814,21 @@ void cDexCodeGen::DumpLineMultiInstruction(
             break;
 
         case OP_NEW_INSTANCE:
-            sprintf_s(
-                Line->Instructions[j]->Decompiled, 
-                MAX_DECOMPILED_STRING_SIZE, 
-                "v%d = new %s()",
-                Line->Instructions[j]->vA, 
-                DexFile->StringItems[DexFile->DexTypeIds[Line->Instructions[j]->vB].StringIndex].Data);
+            {
+                CHAR* Type = cDexString::ExtractShortLType(
+                                cDexString::GetTypeDescription(
+                                    (CHAR*)DexFile->StringItems[DexFile->DexTypeIds[DexFile->DexMethodIds[
+                                        Line->Instructions[j]->vB
+                                    ].ClassIndex].StringIndex].Data));
+                CHAR* Value = new CHAR[strlen(Type)+ 5];
+
+                sprintf_s(Value, strlen(Type)+ 5, "new %s", Type);
+                SetRegisterValue(Line->Instructions[j]->vA, j, Value, Line, Registers);
+            }
             break;
 
         case OP_NEW_ARRAY:
-                sprintf_s(
+            sprintf_s(
                 Line->Instructions[j]->Decompiled, 
                 MAX_DECOMPILED_STRING_SIZE, 
                 "v%d = new %s[%d]",
@@ -694,7 +847,7 @@ void cDexCodeGen::DumpLineMultiInstruction(
         case OP_GOTO_32:
         case OP_PACKED_SWITCH:
         case OP_SPARSE_SWITCH:
-  
+
         case OP_CMPL_FLOAT:
         case OP_CMPG_FLOAT:
         case OP_CMPL_DOUBLE:
@@ -767,20 +920,76 @@ void cDexCodeGen::DumpLineMultiInstruction(
         case OP_INVOKE_INTERFACE:
 
             if (Line->Instructions[j]->OpcodeSig == OP_INVOKE_SUPER)
-                sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
-                    MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
+                sprintf_s(Line->Instructions[j]->Decompiled + strlen(Line->Instructions[j]->Decompiled), 
+                    MAX_DECOMPILED_STRING_SIZE - strlen(Line->Instructions[j]->Decompiled), 
                     "super.");
-            else if (Line->Instructions[j]->OpcodeSig == OP_INVOKE_VIRTUAL && strlen(Line->Decompiled))
-                sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
-                    MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
-                    ".");
 
-            sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
-                MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
-                "%s(",
-                DexFile->StringItems[DexFile->DexMethodIds[Line->Instructions[j]->vB].StringIndex].Data);    
-            GetInvokeArguments(j, Line, Registers, TRUE);            
-            sprintf_s(Line->Decompiled + strlen(Line->Decompiled), MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), ")");
+            else if (Line->Instructions[j]->OpcodeSig == OP_INVOKE_VIRTUAL)
+            {
+                TempRegister = GetRegister(Line->Instructions[j]->vC, j, Line, Registers);
+                if (TempRegister)
+                    sprintf_s(Line->Instructions[j]->Decompiled + strlen(Line->Instructions[j]->Decompiled), 
+                        MAX_DECOMPILED_STRING_SIZE - strlen(Line->Instructions[j]->Decompiled), 
+                        "%s.",
+                        TempRegister->Local? TempRegister->Name: TempRegister->Value);
+            }
+
+            else if (Line->Instructions[j]->OpcodeSig == OP_INVOKE_STATIC)
+                sprintf_s(Line->Instructions[j]->Decompiled + strlen(Line->Instructions[j]->Decompiled), 
+                    MAX_DECOMPILED_STRING_SIZE - strlen(Line->Instructions[j]->Decompiled), 
+                    "%s.",
+                    cDexString::ExtractShortLType(
+                        cDexString::GetTypeDescription(
+                            (CHAR*)DexFile->StringItems[DexFile->DexTypeIds[DexFile->DexMethodIds[
+                                Line->Instructions[j]->vB
+                            ].ClassIndex].StringIndex].Data)));
+
+            if (Line->Instructions[j]->OpcodeSig == OP_INVOKE_DIRECT)
+            {
+                TempRegister = GetRegister(Line->Instructions[j]->vC, j, Line, Registers);
+                sprintf_s(Line->Instructions[j]->Decompiled + strlen(Line->Instructions[j]->Decompiled), 
+                    MAX_DECOMPILED_STRING_SIZE - strlen(Line->Instructions[j]->Decompiled), 
+                    "%s(",
+                    TempRegister->Value); 
+            }
+
+            else
+                sprintf_s(Line->Instructions[j]->Decompiled + strlen(Line->Instructions[j]->Decompiled), 
+                    MAX_DECOMPILED_STRING_SIZE - strlen(Line->Instructions[j]->Decompiled), 
+                    "%s(",
+                    DexFile->StringItems[DexFile->DexMethodIds[Line->Instructions[j]->vB].StringIndex].Data); 
+
+            GetInvokeArguments(j, Line, Registers, Line->Instructions[j]->OpcodeSig == OP_INVOKE_STATIC? FALSE:TRUE);  
+
+            sprintf_s(Line->Instructions[j]->Decompiled + strlen(Line->Instructions[j]->Decompiled), 
+                MAX_DECOMPILED_STRING_SIZE - strlen(Line->Instructions[j]->Decompiled), 
+                ")");
+
+            if (LastInstruction)
+                if (Line->Instructions[j]->OpcodeSig == OP_INVOKE_DIRECT)
+                {
+                    if (TempRegister && TempRegister->Local)
+                    {
+                        if (!TempRegister->Initialized)
+                        {
+                            TempRegister->Initialized = TRUE;
+                            sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
+                                MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
+                                "%s ",
+                                cDexString::ExtractShortLType(TempRegister->Type)); 
+                        }
+                        sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
+                            MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
+                            "%s = %s",
+                            TempRegister->Name,
+                            Line->Instructions[j]->Decompiled); 
+                    }
+                    else
+                        sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
+                            MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
+                            "%s",
+                            Line->Instructions[j]->Decompiled); 
+                }
             break;
 
         case OP_INVOKE_VIRTUAL_RANGE:

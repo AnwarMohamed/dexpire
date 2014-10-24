@@ -73,6 +73,7 @@ private:
 
     void printClassDexData(CodeEditor* editor, struct DEX_DECOMPILED_CLASS* dexClass);
     void printClassJavaData(CodeEditor* editor, struct DEX_DECOMPILED_CLASS* dexClass);
+    void printClassBodyJava(QString& output, struct DEX_DECOMPILED_CLASS* dexClass, int depth);
 
 protected:
     void resizeEvent(QResizeEvent * event);
