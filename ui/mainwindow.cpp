@@ -46,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     cleanCurrentWorkspace();
 
+    re = new QRegExp("\\d*");
+
     //dexFile = new cDexFile("H:/Projects/dexpire/test/classes.dex");
     //delete dexFile;
     //dexFile = NULL;
@@ -952,6 +954,9 @@ void MainWindow::addJavaTab(TreeItem* item)
 
 void MainWindow::printClassBodyJava(QString& output, struct DEX_DECOMPILED_CLASS* dexClass, int depth)
 {
+    //if (re->exactMatch(dexClass->Name))
+    //    return;
+
     output.append("<p>");
     for(int i=0; i<depth; i++) output.append("&nbsp;&nbsp;&nbsp;&nbsp;");
 
@@ -997,11 +1002,19 @@ void MainWindow::printClassBodyJava(QString& output, struct DEX_DECOMPILED_CLASS
 
     for (UINT j=0; j<dexClass->FieldsSize; j++)
     {
+        if (dexClass->Fields[j]->Ref->AccessFlags & ACC_SYNTHETIC)
+            continue;
+
         output.append("<p>");
         for(int i=0; i<depth; i++) output.append("&nbsp;&nbsp;&nbsp;&nbsp;");
-        output.append("&nbsp;&nbsp;&nbsp;&nbsp;<b><font color=\"blue\">")
+        output.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+
+        if (strlen(dexClass->Fields[j]->AccessFlags))
+            output.append("<b><font color=\"blue\">")
                 .append(dexClass->Fields[j]->AccessFlags)
-                .append("</font></b>&nbsp;").append(cDexString::ExtractShortLType(dexClass->Fields[j]->ReturnType))
+                .append("</font></b>&nbsp;");
+
+        output.append(cDexString::ExtractShortLType(dexClass->Fields[j]->ReturnType))
                 .append("&nbsp;").append(dexClass->Fields[j]->Name);
 
         if (dexClass->Fields[j]->Value)

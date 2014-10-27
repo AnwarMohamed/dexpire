@@ -21,6 +21,7 @@
 #include <QMenu>
 #include "codeeditor.h"
 #include "cApkFile.h"
+#include <QRegExp>
 
 namespace Ui {
 class MainWindow;
@@ -74,6 +75,8 @@ private:
     void printClassDexData(CodeEditor* editor, struct DEX_DECOMPILED_CLASS* dexClass);
     void printClassJavaData(CodeEditor* editor, struct DEX_DECOMPILED_CLASS* dexClass);
     void printClassBodyJava(QString& output, struct DEX_DECOMPILED_CLASS* dexClass, int depth);
+
+    QRegExp* re;
 
 protected:
     void resizeEvent(QResizeEvent * event);

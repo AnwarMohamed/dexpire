@@ -817,9 +817,9 @@ void cDexCodeGen::DumpLineMultiInstruction(
             {
                 CHAR* Type = cDexString::ExtractShortLType(
                                 cDexString::GetTypeDescription(
-                                    (CHAR*)DexFile->StringItems[DexFile->DexTypeIds[DexFile->DexMethodIds[
+                                    (CHAR*)DexFile->StringItems[DexFile->DexTypeIds[/*DexFile->DexMethodIds[*/
                                         Line->Instructions[j]->vB
-                                    ].ClassIndex].StringIndex].Data));
+                                    ]/*.ClassIndex]*/.StringIndex].Data));
                 CHAR* Value = new CHAR[strlen(Type)+ 5];
 
                 sprintf_s(Value, strlen(Type)+ 5, "new %s", Type);
@@ -884,7 +884,28 @@ void cDexCodeGen::DumpLineMultiInstruction(
 
         case OP_IGET:
         case OP_IGET_WIDE:
+            break;
+
         case OP_IGET_OBJECT:
+            sprintf_s(
+                Line->Instructions[j]->Decompiled, 
+                MAX_DECOMPILED_STRING_SIZE, 
+                "%s.%s",
+                GetRegisterValue(
+                    Line->Instructions[j]->vB,
+                    j,
+                    Line,
+                    Registers),
+                    DexFile->StringItems[DexFile->DexFieldIds[Line->Instructions[j]->vC].StringIndex].Data);
+
+            SetRegisterValue(
+                Line->Instructions[j]->vA, 
+                j, 
+                Line->Instructions[j]->Decompiled, 
+                Line, 
+                Registers);       
+            break;
+
         case OP_IGET_BOOLEAN:
         case OP_IGET_BYTE:
         case OP_IGET_CHAR:
@@ -989,6 +1010,13 @@ void cDexCodeGen::DumpLineMultiInstruction(
                             MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
                             "%s",
                             Line->Instructions[j]->Decompiled); 
+                }
+                else 
+                {
+                    sprintf_s(Line->Decompiled + strlen(Line->Decompiled), 
+                        MAX_DECOMPILED_STRING_SIZE - strlen(Line->Decompiled), 
+                        "%s",                        
+                        Line->Instructions[j]->Decompiled); 
                 }
             break;
 
