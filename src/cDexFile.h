@@ -11,6 +11,7 @@
 #include "cFile.h"
 #include "cDexString.h"
 #include <map>
+#include <vector>
 
 #define NO_INDEX 0xffffffff
 #define ZERO(b, s) memset(b, 0, s)
@@ -26,8 +27,8 @@
 
 using namespace std;
 
-typedef map<UINT, struct CLASS_CODE_LOCAL*>::iterator LOCALS_ITERATOR;
-typedef map<UINT, struct CLASS_CODE_LOCAL*> LOCALS_MAP;
+typedef map<UINT, STRUCT CLASS_CODE_LOCAL*>::iterator LOCALS_ITERATOR;
+typedef map<UINT, STRUCT CLASS_CODE_LOCAL*> LOCALS_MAP;
 
 struct DEX_HEADER 
 {
@@ -424,28 +425,17 @@ struct CLASS_CODE_INSTRUCTION
 
 struct CLASS_CODE_LOCAL
 {
-    CHAR*   Name;
-    CHAR*   Type;
-};
-
-struct CLASS_CODE_REGISTER
-{
-    CHAR*   Name;
-    CHAR*   Value;
-    CHAR*   Type;
+    string  Name;
+    string  Type;
     USHORT  StartAddress;
     USHORT  EndAddress;
-    CHAR*   Signature;
-    BOOL    Local;
-    BOOL    Initialized;
-    CLASS_CODE_REGISTER* Next;
+    USHORT  Register;
+    string  Signature;
 };
 
 struct CLASS_CODE
 {
-    USHORT  RegistersSize;
-    CLASS_CODE_REGISTER** Registers;
-    
+    UINT    RegistersSize;
     USHORT  InsSize;
     USHORT  OutsSize;  
     UINT    InstBufferSize; 
@@ -453,23 +443,22 @@ struct CLASS_CODE
 
     CLASS_CODE_DEBUG_INFO DebugInfo;
 
+    vector<CLASS_CODE_CATCH_HANDLER*> CatchHandlers;
     UINT CatchHandlersSize;
-    CLASS_CODE_CATCH_HANDLER *CatchHandlers;
 
-    CLASS_CODE_TRY *Tries;
-    USHORT  TriesSize;
+    vector<CLASS_CODE_TRY*> Tries;
+    UINT TriesSize;
 
-    CLASS_CODE_INSTRUCTION   **Instructions;
-    UINT    InstructionsSize;
-
-    map<UINT, CLASS_CODE_LOCAL*>* Locals;
+    vector<CLASS_CODE_INSTRUCTION*> Instructions;
+    
+    map<UINT, vector<CLASS_CODE_LOCAL*>> Locals;
 };
 
 struct CLASS_METHOD 
 {
     UCHAR* Name;
     UINT AccessFlags;
-    UCHAR* Type;
+    vector<string> Type;
     UCHAR* ProtoType;
     CLASS_CODE  *CodeArea;
     CLASS_ANNOTATION* Annotations;
@@ -484,11 +473,11 @@ struct CLASS_DATA
     UINT DirectMethodsSize;
     UINT VirtualMethodsSize;
     
-    CLASS_FIELD  *StaticFields, *InstanceFields;
-    CLASS_METHOD  *DirectMethods, *VirtualMethods;
+    vector<CLASS_FIELD*> StaticFields, InstanceFields;
+    vector<CLASS_METHOD*> DirectMethods, VirtualMethods;
 
     UINT    AnnotationsSize;
-    CLASS_ANNOTATION * Annotations;
+    vector<CLASS_ANNOTATION*> Annotations;
 };
 
 struct DEX_CLASS_STRUCTURE
@@ -498,8 +487,7 @@ struct DEX_CLASS_STRUCTURE
     UCHAR*  SuperClass;
     UCHAR*  SourceFile;
 
-    UINT InterfacesSize;
-    UCHAR** Interfaces;
+    vector<string> Interfaces;
 
     CLASS_DATA * ClassData;
 
@@ -1200,10 +1188,7 @@ public:
 
     DEX_STRING_ITEM* StringItems;
 
-    UINT nClasses;
-    DEX_CLASS_STRUCTURE* DexClasses;
-
-   
+    vector<DEX_CLASS_STRUCTURE*> DexClasses;
 
     void DumpClassInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
     void DumpClassDataInfo(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class, UCHAR** Buffer);
@@ -1211,12 +1196,12 @@ public:
     void DumpFieldsValues(UINT Offset, CLASS_DATA* ClassData);
 
     void DumpFieldByIndex(UINT FieldIndex, CLASS_FIELD* Field, UCHAR** Buffer);
-    void DumpInterfaceByIndex(UINT ClassIndex, UINT InterfaceIndex, UCHAR** Interface);
+    void DumpInterfaceByIndex(UINT ClassIndex, UINT InterfaceIndex, vector<string> &Interfaces);
     
     void InsertDebugPosition(CLASS_CODE* CodeArea, UINT Line, USHORT Offset);
 
     void DumpMethodTryItems(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
-    void DumpMethodTryItemsInfo(CLASS_CODE_TRY* TryItem, DEX_TRY_ITEM* TryItemInfo, CLASS_CODE_CATCH_HANDLER** CatchHandlers);
+    void DumpMethodTryItemsInfo(vector<CLASS_CODE_TRY*> &TryItems, DEX_TRY_ITEM* TryItemInfo, vector<CLASS_CODE_CATCH_HANDLER*> &CatchHandlers);
     void DumpMethodCatchHandlers(CLASS_CODE* CodeArea, UCHAR** Buffer);
     void DumpMethodDebugInfo(CLASS_METHOD* Method, CLASS_CODE_DEBUG_INFO* DebugInfo, UCHAR** Buffer);
     void DumpMethodLocals(CLASS_METHOD* Method, UCHAR** Buffer);
@@ -1225,8 +1210,6 @@ public:
     void DumpMethodById(UINT MethodIndex, CLASS_METHOD* Method, UCHAR** Buffer);
     void DumpMethodInstructions(CLASS_CODE* CodeArea, DEX_CODE* CodeAreaDef);
     void DumpMethodParameters(UINT MethodIndex, CLASS_METHOD* Method);
-    
-    void AllocateClassData(UINT ClassIndex, DEX_CLASS_STRUCTURE* Class);
 
     void DumpAnnotations(DEX_CLASS_STRUCTURE* DexClass, UINT Offset);
     void DumpAnnotationElementValue(CLASS_ANNOTATION_ELEMENT* Element, UCHAR** Ptr);
@@ -1254,10 +1237,6 @@ private:
     UCHAR*  TempBuffer;
 
     ULONG   OpcodeCounter;
-
-    CLASS_CODE_REGISTER* AddToRegisters(UINT Index, CLASS_CODE_REGISTER** Registers);
-    CLASS_CODE_REGISTER* GetUnendedRegister(UINT Index, CLASS_CODE_REGISTER** Registers);
-    CLASS_CODE_REGISTER* RestartRegister(UINT Index, CLASS_CODE_REGISTER** Registers);
 };
 
 

@@ -26,6 +26,12 @@
   <property name="statusTip">
    <string/>
   </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Triangular</enum>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QSplitter" name="splitter">
     <property name="geometry">

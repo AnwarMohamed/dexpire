@@ -45,7 +45,8 @@ void TreeItem::setAsClassNode(int index)
     {
     case TI_CLASS_FIELD:
         _icon_path = ":/icons/field_";
-        _text = QString(_class->Fields[index]->Name).append(" : ").append(_class->Fields[index]->ReturnType);
+        _text = QString::fromStdString(_class->Fields[index]->Name).append(" : ")
+                .append(QString::fromStdString(_class->Fields[index]->ShortReturnType));
 
         if (_class->Fields[index]->Ref->AccessFlags & ACC_PUBLIC)
             _icon_path = _icon_path.append("public");
@@ -62,13 +63,13 @@ void TreeItem::setAsClassNode(int index)
 
     case TI_CLASS_METHOD:
         _icon_path = ":/icons/meth";
-        _text = QString(_class->Methods[index]->Name).append("(");
-        for (unsigned int i=0; i<_class->Methods[index]->ArgumentsSize; i++)
+        _text = QString::fromStdString(_class->Methods[index]->Name).append("(");
+        for (unsigned int i=0; i<_class->Methods[index]->Arguments.size(); i++)
         {
             if (i) _text = _text.toString().append(", ");
-            _text = _text.toString().append(cDexString::GetShortType(_class->Methods[index]->Arguments[i]->Type));
+            _text = _text.toString().append(QString().fromStdString(_class->Methods[index]->Arguments[i]->ShortType));
         }
-        _text = _text.toString().append(") : ").append(cDexString::GetShortType(_class->Methods[index]->ReturnType));
+        _text = _text.toString().append(") : ").append(QString().fromStdString(_class->Methods[index]->ShortReturnType));
 
         if (_class->Methods[index]->Ref->AccessFlags & ACC_PUBLIC)
             _icon_path = _icon_path.append("pub");
@@ -88,14 +89,14 @@ void TreeItem::setAsClassNode(int index)
 void TreeItem::createClassTree()
 {
     TreeItem* item;
-    for (unsigned int i=0; i<_class->FieldsSize; i++)
+    for (unsigned int i=0; i<_class->Fields.size(); i++)
     {
         item = new TreeItem(TI_CLASS_FIELD, this, _class);
         item->setAsClassNode(i);
         appendChild(item);
     }
 
-    for (unsigned int i=0; i<_class->MethodsSize; i++)
+    for (unsigned int i=0; i<_class->Methods.size(); i++)
     {
         item = new TreeItem(TI_CLASS_METHOD, this, _class);
         item->setAsClassNode(i);

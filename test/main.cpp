@@ -52,7 +52,7 @@ int main()
     
     
     
-    cDexFile* dex = new cDexFile("C:\\Downloads\\finfisher\\qateam\\ak\\ANDR\\classes.dex");
+    cDexFile* dex = new cDexFile(/*"C:\\Downloads\\finfisher\\qateam\\ak\\ANDR\\classes.dex"*/"classes.dex");
     printf("Processing '%s'...\n", dex->Filename);
 
     if (dex->isReady)

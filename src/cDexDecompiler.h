@@ -15,43 +15,59 @@
 
 using namespace std;
 
-STRUCT DEX_DECOMPILED_CLASS_METHOD_ARGUMENT
-{
-    CHAR*  Name;
-    CHAR*  Type;
-};
 
 STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE
 {
-    CLASS_CODE_INSTRUCTION** Instructions;
-    UINT    InstructionsSize;
-    CHAR*   Decompiled;
+    vector<CLASS_CODE_INSTRUCTION*> Instructions;
+    string Decompiled;
 };
 
 STRUCT DEX_DECOMPILED_CLASS_FIELD
 {
-    CHAR*   AccessFlags;
-    CHAR*   Name;
-    CHAR*   ReturnType;
+    string  AccessFlags;
+    string  Name;
+    string  ReturnType;
+    string  ShortReturnType;
     BOOL    Static;
-    CHAR*   Value;
+    string  Value;
 
     CLASS_FIELD* Ref;
     STRUCT DEX_DECOMPILED_CLASS* Parent;
 };
 
+STRUCT DEX_DECOMPILED_CLASS_METHOD_ARGUMENT
+{
+    string Name;
+    string Type;
+    string ShortType;
+};
+
+STRUCT DEX_DECOMPILED_CLASS_METHOD_REGISTER
+{
+    string  Name;
+    string  Value;
+    string  Type;
+    USHORT  StartAddress;
+    USHORT  EndAddress;
+    string  Signature;
+    BOOL    Local;
+    BOOL    Initialized;
+};
+
 STRUCT DEX_DECOMPILED_CLASS_METHOD
 {
-    CHAR*   AccessFlags;
-    CHAR*   Name;
-    CHAR*   ReturnType;
+    string  AccessFlags;
+    string  Name;
+    string  ReturnType;
+    string  ShortReturnType;
     BOOL    Virtual;
 
-    CLASS_CODE_LOCAL**  Arguments;
-    UINT    ArgumentsSize;
+    vector<DEX_DECOMPILED_CLASS_METHOD_ARGUMENT*> Arguments;
 
-    DEX_DECOMPILED_CLASS_METHOD_LINE** Lines;
-    UINT    LinesSize;
+    vector<DEX_DECOMPILED_CLASS_METHOD_LINE*> Lines;
+    vector<string> Decompiled;
+
+    map<UINT, vector<DEX_DECOMPILED_CLASS_METHOD_REGISTER*>> Registers;
 
     CLASS_METHOD* Ref;
     DEX_DECOMPILED_CLASS* Parent;
@@ -59,37 +75,22 @@ STRUCT DEX_DECOMPILED_CLASS_METHOD
 
 STRUCT DEX_DECOMPILED_CLASS
 {
-    CHAR*   Package;
-    CHAR**  Imports;
-    UINT    ImportsSize;
-
-    CHAR*   AccessFlags;
-    CHAR*   Name;
-    CHAR*   SourceFile;
+    string  Package;
+    string  AccessFlags;
+    string  Name;
+    string  SourceFile;
     
-    CHAR**  Interfaces;
-    UINT    InterfacesSize;
+    vector<string>  Imports;
+    vector<string> Interfaces;
+    vector<string> Extends;
 
-    CHAR**  Extends;
-    UINT    ExtendsSize;
-
-    DEX_DECOMPILED_CLASS_METHOD** Methods;
-    UINT    MethodsSize;
-
-    DEX_DECOMPILED_CLASS_FIELD** Fields;
-    UINT    FieldsSize;
+    vector<DEX_DECOMPILED_CLASS_METHOD*> Methods;
+    vector<DEX_DECOMPILED_CLASS_FIELD*> Fields;
 
     DEX_CLASS_STRUCTURE* Ref;
     DEX_DECOMPILED_CLASS* Parent;
 
-    DEX_DECOMPILED_CLASS** SubClasses;
-    UINT SubClassesSize;
-};
-
-STRUCT DEX_DECOMPILED_CLASS_METHOD_REGISTER
-{
-   CHAR* Name;
-   CHAR* Value;
+    vector<DEX_DECOMPILED_CLASS*> SubClasses;
 };
 
 CONST CHAR ImportsBuiltIn[][20] =
@@ -104,13 +105,13 @@ public:
     cDexDecompiler(cDexFile* dexFile);
     ~cDexDecompiler();
 
-    DEX_DECOMPILED_CLASS* Classes;
-    UINT    nClasses;
+    vector<DEX_DECOMPILED_CLASS*> Classes;
 
     void    GetClassDefinition(DEX_DECOMPILED_CLASS* Class);
     void    GetClassMethod(DEX_DECOMPILED_CLASS* Class, CLASS_METHOD* Method, BOOL Virtual=FALSE);
-    void    AddToImports(DEX_DECOMPILED_CLASS* Class, CHAR* Import);
+    BOOL    AddToImports(DEX_DECOMPILED_CLASS* Class, string& Import);
     UINT    GetClassMethodArgs(DEX_DECOMPILED_CLASS_METHOD* Method);
+    void    AssignArgumentName(DEX_DECOMPILED_CLASS_METHOD_ARGUMENT* &Name, UINT Index, DEX_DECOMPILED_CLASS_METHOD* &Method);
     //void    GetClassMethodCodes(DEX_DECOMPILED_CLASS* dClass, DEX_DECOMPILED_CLASS_METHOD* dMethod, CLASS_METHOD* Method, CHAR** Registers);
     
 
@@ -123,7 +124,12 @@ public:
     void    AddSubClass(DEX_DECOMPILED_CLASS* Class, DEX_DECOMPILED_CLASS* SubClass);
     void    AddToSubClasses(DEX_DECOMPILED_CLASS* Class, DEX_DECOMPILED_CLASS* SubClass);
     
+    
 private:
     void    AddInstructionToLine(DEX_DECOMPILED_CLASS_METHOD_LINE* Line, CLASS_CODE_INSTRUCTION* Instruction);
     cDexFile* DexFile;
+
+    DEX_DECOMPILED_CLASS_METHOD_REGISTER* AddToRegisters(UINT Index, map<UINT, DEX_DECOMPILED_CLASS_METHOD_REGISTER*> &Registers);
+    DEX_DECOMPILED_CLASS_METHOD_REGISTER* GetUnendedRegister(UINT Index, map<UINT, DEX_DECOMPILED_CLASS_METHOD_REGISTER*> &Registers);
+    DEX_DECOMPILED_CLASS_METHOD_REGISTER* RestartRegister(UINT Index, map<UINT, DEX_DECOMPILED_CLASS_METHOD_REGISTER*> &Registers);
 };

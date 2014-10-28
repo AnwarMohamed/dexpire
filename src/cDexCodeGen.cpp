@@ -23,6 +23,7 @@ BOOL cDexCodeGen::GetRegisterInitialized(
     STRUCT CLASS_CODE_REGISTER** Registers,
     STRUCT CLASS_CODE_REGISTER** RegisterPtr)
 {
+    /*
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
@@ -36,8 +37,8 @@ BOOL cDexCodeGen::GetRegisterInitialized(
         while(Register)
         {
             if (Register->Local && !Register->Initialized &&
-                Register->StartAddress <= (*Line->Instructions)->Offset+1 &&
-                Register->EndAddress >= (*Line->Instructions)->Offset)
+                Register->StartAddress <= Line->Instructions[0]->Offset+1 &&
+                Register->EndAddress >= Line->Instructions[0]->Offset)
             {
                 if (RegisterPtr) *RegisterPtr = Register;
                 return !(Register->Initialized = TRUE);
@@ -46,6 +47,7 @@ BOOL cDexCodeGen::GetRegisterInitialized(
         }
         return TRUE;
     }
+    */
     return TRUE;
 }
 
@@ -56,6 +58,7 @@ CHAR* cDexCodeGen::GetRegisterName(
     STRUCT CLASS_CODE_REGISTER** Registers,
     STRUCT CLASS_CODE_REGISTER** RegisterPtr)
 {
+    /*
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
@@ -79,6 +82,7 @@ CHAR* cDexCodeGen::GetRegisterName(
         }
         return NULL;
     }
+    */
     return NULL;
 }
 
@@ -88,6 +92,7 @@ CHAR* cDexCodeGen::GetRegisterType(
     STRUCT CLASS_CODE_REGISTER** Registers,
     STRUCT CLASS_CODE_REGISTER** RegisterPtr)
 {
+    /*
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];    
@@ -101,8 +106,8 @@ CHAR* cDexCodeGen::GetRegisterType(
         while(Register)
         {
             if (Register->Type && 
-                Register->StartAddress <= (*Line->Instructions)->Offset+1 &&
-                Register->EndAddress >= (*Line->Instructions)->Offset)
+                Register->StartAddress <= Line->Instructions[0]->Offset+1 &&
+                Register->EndAddress >= Line->Instructions[0]->Offset)
             {
                 if (RegisterPtr) *RegisterPtr = Register;
                 return Register->Type;
@@ -111,6 +116,7 @@ CHAR* cDexCodeGen::GetRegisterType(
         }
         return NULL;
     }
+    */
     return NULL;
 }
 
@@ -120,6 +126,7 @@ CLASS_CODE_REGISTER* cDexCodeGen::GetRegister(
     STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
     STRUCT CLASS_CODE_REGISTER** Registers)
 {
+    /*
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
@@ -137,6 +144,7 @@ CLASS_CODE_REGISTER* cDexCodeGen::GetRegister(
         }
         return NULL;
     }
+    */
     return NULL;
 }
 
@@ -147,6 +155,7 @@ CHAR* cDexCodeGen::GetRegisterValue(
     STRUCT CLASS_CODE_REGISTER** Registers,
     STRUCT CLASS_CODE_REGISTER** RegisterPtr)
 {
+    /*
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
@@ -180,11 +189,13 @@ CHAR* cDexCodeGen::GetRegisterValue(
         }
         return NULL;
     }
+    */
     return NULL;
 }
 
 void cDexCodeGen::GenerateSourceCode()
 {
+    /*
     for (UINT i=0; i<Method->LinesSize; i++)
     {
         Method->Lines[i]->Decompiled = (CHAR*)malloc(MAX_DECOMPILED_STRING_SIZE);
@@ -204,6 +215,7 @@ void cDexCodeGen::GenerateSourceCode()
             Method->Lines[i]->Decompiled = (CHAR*)realloc
             (Method->Lines[i]->Decompiled, strlen(Method->Lines[i]->Decompiled)+1);
     }
+    */
 }
 
 void cDexCodeGen::GetInvokeArguments(
@@ -213,6 +225,7 @@ void cDexCodeGen::GetInvokeArguments(
     BOOL SkipFirst
     )
 {
+    /*
     CHAR* Decompiled;
     if (Line->InstructionsSize == 1)
         Decompiled = Line->Decompiled;
@@ -234,6 +247,7 @@ void cDexCodeGen::GetInvokeArguments(
             MAX_DECOMPILED_STRING_SIZE - strlen(Decompiled), "%s",
             GetRegisterValue(Line->Instructions[Index]->vArg[i], Index, Line, Registers));
     }
+    */
 }
 
 void cDexCodeGen::SetRegisterValue(
@@ -244,6 +258,7 @@ void cDexCodeGen::SetRegisterValue(
     STRUCT CLASS_CODE_REGISTER** Registers,
     STRUCT CLASS_CODE_REGISTER** RegisterPtr)
 {
+    /*
     if (Index < Method->Ref->CodeArea->RegistersSize && Registers)
     {
         CLASS_CODE_REGISTER* Register = Registers[Index];
@@ -280,6 +295,7 @@ void cDexCodeGen::SetRegisterValue(
         if (RegisterPtr) *RegisterPtr = Register;
         return;
     }
+    */
     return;
 }
 
@@ -288,10 +304,11 @@ void cDexCodeGen::DumpLineSingleInstruction(
     CLASS_CODE_REGISTER** Registers
     )
 {
-    switch((*Line->Instructions)->OpcodeSig)
+    /*
+    switch(Line->Instructions[0]->OpcodeSig)
     {
     case OP_NOP:
-        sprintf_s(Line->Decompiled, MAX_DECOMPILED_STRING_SIZE, "[BUG]");
+        Line->Decompiled = "[BUG]";
         break;
 
     case OP_MOVE:
@@ -607,6 +624,7 @@ void cDexCodeGen::DumpLineSingleInstruction(
     case OP_INVOKE_SUPER_QUICK_RANGE:
         break;
     }
+    */
 }
 
 void cDexCodeGen::DumpLineMultiInstruction(
@@ -614,6 +632,7 @@ void cDexCodeGen::DumpLineMultiInstruction(
     CLASS_CODE_REGISTER** Registers
     )
 {
+    /*
     CLASS_CODE_REGISTER* TempRegister= NULL;
     BOOL LastInstruction;
     for (UINT j=0; j<Line->InstructionsSize; j++)
@@ -817,9 +836,9 @@ void cDexCodeGen::DumpLineMultiInstruction(
             {
                 CHAR* Type = cDexString::ExtractShortLType(
                                 cDexString::GetTypeDescription(
-                                    (CHAR*)DexFile->StringItems[DexFile->DexTypeIds[/*DexFile->DexMethodIds[*/
+                                    (CHAR*)DexFile->StringItems[DexFile->DexTypeIds[
                                         Line->Instructions[j]->vB
-                                    ]/*.ClassIndex]*/.StringIndex].Data));
+                                    ].StringIndex].Data));
                 CHAR* Value = new CHAR[strlen(Type)+ 5];
 
                 sprintf_s(Value, strlen(Type)+ 5, "new %s", Type);
@@ -1168,6 +1187,7 @@ void cDexCodeGen::DumpLineMultiInstruction(
             Line->Instructions[j]->Decompiled = (CHAR*)realloc
             (Line->Instructions[j]->Decompiled, strlen(Line->Instructions[j]->Decompiled)+1);
     }
+    */
 }
 
 cDexCodeGen::~cDexCodeGen()

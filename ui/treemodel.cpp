@@ -150,11 +150,11 @@ void TreeModel::setupDexModelData(TreeItem *parent)
         TreeItem * srcItem = new TreeItem(TI_SRC_DIR, parent);
         srcItem->setText(QString("src"));
         parent->appendChild(srcItem);
-        for (unsigned int i=0; i<decompiledDex->nClasses; i++)
+        for (unsigned int i=0; i<decompiledDex->Classes.size(); i++)
             appenedClassToParent(
                         srcItem,
-                        &decompiledDex->Classes[i],
-                        QString(decompiledDex->Classes[i].Package).split('.'));
+                        decompiledDex->Classes[i],
+                        QString::fromStdString(decompiledDex->Classes[i]->Package).split('.'));
 
         for (int i=srcItem->childCount()-1; i>=0; i--)
             shortenPackageName(srcItem->child(i));
@@ -177,7 +177,7 @@ void TreeModel::appenedClassToParent(TreeItem* parent, struct DEX_DECOMPILED_CLA
     if (list.isEmpty())
     {
         item = new TreeItem(TI_CLASS, parent, dClass);
-        item->setText(QString(dClass->Name));
+        item->setText(QString::fromStdString(dClass->Name));
         item->createClassTree();
         parent->appendChild(item);
     }
