@@ -193,6 +193,10 @@ CHAR* cDexCodeGen::GetRegisterValue(
     return NULL;
 }
 
+void cDexCodeGen::GenrateRegistersMap()
+{
+}
+
 void cDexCodeGen::GenerateSourceCode()
 {
     /*

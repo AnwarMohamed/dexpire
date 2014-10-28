@@ -66,7 +66,8 @@ public:
         CHAR* Value,
         STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
         STRUCT CLASS_CODE_REGISTER** Registers,
-        STRUCT CLASS_CODE_REGISTER** Register=0);    
+        STRUCT CLASS_CODE_REGISTER** Register=0);
+    void GenrateRegistersMap();
 private:
     struct DEX_DECOMPILED_CLASS_METHOD* Method;
     cDexFile* DexFile;

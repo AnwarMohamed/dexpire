@@ -727,15 +727,15 @@ void MainWindow::printClassDexData(CodeEditor* editor, DEX_DECOMPILED_CLASS* dex
             output.append("<p><b><font color=\"blue\">.static-fields begin</font></b></p><p>&nbsp;</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.descriptor&nbsp;&nbsp;</font></b>")
-                .append((char*)dexClass->Ref->ClassData->StaticFields[j].Name)
+                .append((char*)dexClass->Ref->ClassData->StaticFields[j]->Name)
                 .append("</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></b>")
-                .append(cDexString::GetTypeDescription((char*)dexClass->Ref->ClassData->StaticFields[j].Type))
+                .append(cDexString::GetTypeDescription((char*)dexClass->Ref->ClassData->StaticFields[j]->Type))
                 .append("</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.accessflags&nbsp;</font></b>")
-                .append(QString(cDexString::GetAccessMask(2, dexClass->Ref->ClassData->StaticFields[j].AccessFlags)).toLower())
+                .append(QString(cDexString::GetAccessMask(2, dexClass->Ref->ClassData->StaticFields[j]->AccessFlags)).toLower())
                 .append("</p><p>&nbsp;</p>");
 
         if (j+1 == (dexClass->Ref->Ref->ClassDataOff?dexClass->Ref->ClassData->StaticFieldsSize:0))
@@ -748,15 +748,15 @@ void MainWindow::printClassDexData(CodeEditor* editor, DEX_DECOMPILED_CLASS* dex
             output.append("<p><b><font color=\"blue\">.instance-fields begin</font></b></p><p>&nbsp;</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.descriptor&nbsp;&nbsp;</font></b>")
-                .append((char*)dexClass->Ref->ClassData->InstanceFields[j].Name)
+                .append((char*)dexClass->Ref->ClassData->InstanceFields[j]->Name)
                 .append("</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></b>")
-                .append(cDexString::GetTypeDescription((char*)dexClass->Ref->ClassData->InstanceFields[j].Type))
+                .append(cDexString::GetTypeDescription((char*)dexClass->Ref->ClassData->InstanceFields[j]->Type))
                 .append("</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.accessflags&nbsp;</font></b>")
-                .append(QString(cDexString::GetAccessMask(2, dexClass->Ref->ClassData->InstanceFields[j].AccessFlags)).toLower())
+                .append(QString(cDexString::GetAccessMask(2, dexClass->Ref->ClassData->InstanceFields[j]->AccessFlags)).toLower())
                 .append("</p><p>&nbsp;</p>");
 
         if (j+1 == (dexClass->Ref->Ref->ClassDataOff?dexClass->Ref->ClassData->InstanceFieldsSize:0))
@@ -768,64 +768,64 @@ void MainWindow::printClassDexData(CodeEditor* editor, DEX_DECOMPILED_CLASS* dex
         output.append("<p><b><font color=\"blue\">.direct-method begin</font></b></p><p>&nbsp;</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.name&nbsp;&nbsp;&nbsp;</font></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
-                .append(QString((char*)dexClass->Ref->ClassData->DirectMethods[j].Name).replace('<', "&#60;").replace('>', "&#62;"))
+                .append(QString((char*)dexClass->Ref->ClassData->DirectMethods[j]->Name).replace('<', "&#60;").replace('>', "&#62;"))
                 .append("</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></b>")
-                .append(cDexString::GetTypeDescription((char*)dexClass->Ref->ClassData->DirectMethods[j].ProtoType))
+                .append(cDexString::GetTypeDescription((char*)dexClass->Ref->ClassData->DirectMethods[j]->ProtoType))
                 .append("</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.accessflags&nbsp;&nbsp;</font></b>")
-                .append(QString(cDexString::GetAccessMask(1, dexClass->Ref->ClassData->DirectMethods[j].AccessFlags)).toLower())
+                .append(QString(cDexString::GetAccessMask(1, dexClass->Ref->ClassData->DirectMethods[j]->AccessFlags)).toLower())
                 .append("</p>");
 
-        if (dexClass->Ref->ClassData->DirectMethods[j].CodeArea)
+        if (dexClass->Ref->ClassData->DirectMethods[j]->CodeArea)
         {
             output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.registers&nbsp;</font></b>&nbsp;&nbsp;&nbsp;")
-                    .append(QString::number(dexClass->Ref->ClassData->DirectMethods[j].CodeArea->RegistersSize))
+                    .append(QString::number(dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->RegistersSize))
                     .append("</p>");
 
             output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.ins&nbsp;</font></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
-                    .append(QString::number(dexClass->Ref->ClassData->DirectMethods[j].CodeArea->InsSize))
+                    .append(QString::number(dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->InsSize))
                     .append("</p>");
 
             output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.outs&nbsp;</font></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
-                    .append(QString::number(dexClass->Ref->ClassData->DirectMethods[j].CodeArea->OutsSize))
+                    .append(QString::number(dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->OutsSize))
                     .append("</p>");
 
             output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.instructions&nbsp;</font></b>")
-                    .append(QString::number(dexClass->Ref->ClassData->DirectMethods[j].CodeArea->InstBufferSize))
+                    .append(QString::number(dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->InstBufferSize))
                     .append("</p>");
 
             UINT line = 0;
             QString code_line;
-            for (UINT k=0; k<dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Instructions.size(); k++)
+            for (UINT k=0; k<dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Instructions.size(); k++)
             {
-                code_line = QString().sprintf("<p>%06x:&nbsp;", dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Instructions[k]->Offset & 0x00FFFFFF);
-                for (UINT l=0; l<(UINT)(dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Instructions[k]->BufferSize>5?5:
-                                        dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Instructions[k]->BufferSize); l++)
-                    code_line.append(QString().sprintf("%04x&nbsp;", SWAP_SHORT(dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Instructions[k]->Buffer[l])));
+                code_line = QString().sprintf("<p>%06x:&nbsp;", dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Instructions[k]->Offset & 0x00FFFFFF);
+                for (UINT l=0; l<(UINT)(dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Instructions[k]->BufferSize>5?5:
+                                        dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Instructions[k]->BufferSize); l++)
+                    code_line.append(QString().sprintf("%04x&nbsp;", SWAP_SHORT(dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Instructions[k]->Buffer[l])));
 
-                for (UINT l=0; l<28 - (UINT)(dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Instructions[k]->BufferSize>5?5:
-                                             dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Instructions[k]->BufferSize)*5; l++)
+                for (UINT l=0; l<28 - (UINT)(dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Instructions[k]->BufferSize>5?5:
+                                             dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Instructions[k]->BufferSize)*5; l++)
                     code_line.append("&nbsp;");
 
                 code_line.append(QString().sprintf("|%04x:&nbsp;%s</p>", line,
-                                                   dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Instructions[k]->Decoded));
+                                                   dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Instructions[k]->Decoded));
                 output.append(code_line);
-                line += dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Instructions[k]->BufferSize/2;
+                line += dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Instructions[k]->BufferSize/2;
             }
 
-            for (UINT k=0; k<dexClass->Ref->ClassData->DirectMethods[j].CodeArea->TriesSize; k++)
+            for (UINT k=0; k<dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->TriesSize; k++)
             {
                 if (!k)
                     output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.catches&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></b>")
-                            .append(QString::number(dexClass->Ref->ClassData->DirectMethods[j].CodeArea->TriesSize))
+                            .append(QString::number(dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->TriesSize))
                             .append("</p>");
 
                 output.append(QString().sprintf("<p>0x%04x - 0x%04x",
-                                                dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Tries[k]->InstructionsStart,
-                                                dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Tries[k]->InstructionsEnd))
+                                                dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Tries[k]->InstructionsStart,
+                                                dexClass->Ref->ClassData->DirectMethods[j]->CodeArea->Tries[k]->InstructionsEnd))
                         .append("</p>");
 
                 //for (UINT l=0; l<(UINT)dexClass->Ref->ClassData->DirectMethods[j].CodeArea->Tries[k].CatchHandler->TypeHandlersSize; l++)
@@ -846,64 +846,64 @@ void MainWindow::printClassDexData(CodeEditor* editor, DEX_DECOMPILED_CLASS* dex
         output.append("<p><b><font color=\"blue\">.virtual-method begin</font></b></p><p>&nbsp;</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.name&nbsp;&nbsp;&nbsp;</font></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
-                .append(QString((char*)dexClass->Ref->ClassData->VirtualMethods[j].Name).replace('<', "&#60;").replace('>', "&#62;"))
+                .append(QString((char*)dexClass->Ref->ClassData->VirtualMethods[j]->Name).replace('<', "&#60;").replace('>', "&#62;"))
                 .append("</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></b>")
-                .append(cDexString::GetTypeDescription((char*)dexClass->Ref->ClassData->VirtualMethods[j].ProtoType))
+                .append(cDexString::GetTypeDescription((char*)dexClass->Ref->ClassData->VirtualMethods[j]->ProtoType))
                 .append("</p>");
 
         output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.accessflags&nbsp;&nbsp;</font></b>")
-                .append(QString(cDexString::GetAccessMask(1, dexClass->Ref->ClassData->VirtualMethods[j].AccessFlags)).toLower())
+                .append(QString(cDexString::GetAccessMask(1, dexClass->Ref->ClassData->VirtualMethods[j]->AccessFlags)).toLower())
                 .append("</p>");
 
-        if (dexClass->Ref->ClassData->VirtualMethods[j].CodeArea)
+        if (dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea)
         {
             output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.registers&nbsp;</font></b>&nbsp;&nbsp;&nbsp;")
-                    .append(QString::number(dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->RegistersSize))
+                    .append(QString::number(dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->RegistersSize))
                     .append("</p>");
 
             output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.ins&nbsp;</font></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
-                    .append(QString::number(dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->InsSize))
+                    .append(QString::number(dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->InsSize))
                     .append("</p>");
 
             output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.outs&nbsp;</font></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
-                    .append(QString::number(dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->OutsSize))
+                    .append(QString::number(dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->OutsSize))
                     .append("</p>");
 
             output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.instructions&nbsp;</font></b>")
-                    .append(QString::number(dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->InstBufferSize))
+                    .append(QString::number(dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->InstBufferSize))
                     .append("</p>");
 
             UINT line = 0;
             QString code_line;
-            for (UINT k=0; k<dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Instructions.size(); k++)
+            for (UINT k=0; k<dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Instructions.size(); k++)
             {
-                code_line = QString().sprintf("<p>%06x:&nbsp;", dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Instructions[k]->Offset & 0x00FFFFFF);
-                for (UINT l=0; l<(UINT)(dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BufferSize>5?5:
-                                        dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BufferSize); l++)
-                    code_line.append(QString().sprintf("%04x&nbsp;", SWAP_SHORT(dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Instructions[k]->Buffer[l])));
+                code_line = QString().sprintf("<p>%06x:&nbsp;", dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Instructions[k]->Offset & 0x00FFFFFF);
+                for (UINT l=0; l<(UINT)(dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Instructions[k]->BufferSize>5?5:
+                                        dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Instructions[k]->BufferSize); l++)
+                    code_line.append(QString().sprintf("%04x&nbsp;", SWAP_SHORT(dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Instructions[k]->Buffer[l])));
 
-                for (UINT l=0; l<28 - (UINT)(dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BufferSize>5?5:
-                                             dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BufferSize)*5; l++)
+                for (UINT l=0; l<28 - (UINT)(dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Instructions[k]->BufferSize>5?5:
+                                             dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Instructions[k]->BufferSize)*5; l++)
                     code_line.append("&nbsp;");
 
                 code_line.append(QString().sprintf("|%04x:&nbsp;%s</p>", line,
-                                                   dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Instructions[k]->Decoded));
+                                                   dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Instructions[k]->Decoded));
                 output.append(code_line);
-                line += dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Instructions[k]->BufferSize/2;
+                line += dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Instructions[k]->BufferSize/2;
             }
 
-            for (UINT k=0; k<dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->TriesSize; k++)
+            for (UINT k=0; k<dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->TriesSize; k++)
             {
                 if (!k)
                     output.append("<p><b><font color=\"gray\">&nbsp;&nbsp;&nbsp;&nbsp;.catches&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></b>")
-                            .append(QString::number(dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->TriesSize))
+                            .append(QString::number(dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->TriesSize))
                             .append("</p>");
 
                 output.append(QString().sprintf("<p>0x%04x - 0x%04x",
-                                                dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Tries[k]->InstructionsStart,
-                                                dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Tries[k]->InstructionsEnd))
+                                                dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Tries[k]->InstructionsStart,
+                                                dexClass->Ref->ClassData->VirtualMethods[j]->CodeArea->Tries[k]->InstructionsEnd))
                         .append("</p>");
 
                 //for (UINT l=0; l<(UINT)dexClass->Ref->ClassData->VirtualMethods[j].CodeArea->Tries[k]->CatchHandler->TypeHandlersSize; l++)
@@ -1078,7 +1078,7 @@ void MainWindow::printClassBodyJava(QString& output, struct DEX_DECOMPILED_CLASS
         output.append("&nbsp;&nbsp;&nbsp;&nbsp;}</p><p>&nbsp;</p>");
     }
 
-    for (int i=0; i<dexClass->SubClasses.size(); i++)
+    for (unsigned int i=0; i<dexClass->SubClasses.size(); i++)
         printClassBodyJava(output, dexClass->SubClasses[i], depth+1);
 
     output.append("<p>");

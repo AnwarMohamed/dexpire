@@ -193,6 +193,7 @@ void cDexDecompiler::GetClassMethod(
     if (dMethod->Ref->CodeArea)
     {
         cDexCodeGen* CodeGenerator = new cDexCodeGen(DexFile, dMethod);
+        CodeGenerator->GenrateRegistersMap();
         CodeGenerator->GenerateSourceCode();
         delete CodeGenerator;
     }
