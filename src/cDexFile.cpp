@@ -473,7 +473,6 @@ void cDexFile::DumpMethodLocals(
     UINT LocalsSize = ReadUnsignedLeb128((CONST UCHAR**)Buffer);
 
     CLASS_CODE_LOCAL* Local;
-    //CLASS_CODE_REGISTER* Register;
 
     if (!(Method->AccessFlags & ACC_STATIC))
     {
@@ -1018,8 +1017,7 @@ CLASS_CODE_INSTRUCTION* cDexFile::DecodeOpcode(
         break;
     }
 
-    Decoded->Decoded = new CHAR[strlen(Temp)+1];
-    memcpy((CHAR*)Decoded->Decoded, Temp, strlen(Temp)+1);
+    Decoded->Decoded = Temp;
     delete Temp;
     return Decoded;
 }

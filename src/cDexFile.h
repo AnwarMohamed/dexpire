@@ -413,8 +413,8 @@ struct CLASS_CODE_INSTRUCTION
     UCHAR*  Format;
     USHORT  BufferSize;
     USHORT* Buffer;
-    CHAR*  Decoded;
-    CHAR*  Decompiled;
+    string  Decoded;
+    string  Decompiled;
 
     UINT    vA;
     UINT    vB;

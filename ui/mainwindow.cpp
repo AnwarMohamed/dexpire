@@ -1045,11 +1045,19 @@ void MainWindow::printClassBodyJava(QString& output, struct DEX_DECOMPILED_CLASS
         {
             if (k) output.append(", ");
             output.append(QString().sprintf("%s %s",
-                   cDexString::ExtractShortLType((char*)dexClass->Methods[j]->Arguments[k]->Type.c_str()),
-                   cDexString::ExtractShortLType((char*)dexClass->Methods[j]->Arguments[k]->Name.c_str())));
+                    (char*)dexClass->Methods[j]->Arguments[k]->ShortType.c_str(),
+                    (char*)dexClass->Methods[j]->Arguments[k]->Name.c_str()));
         }
 
         output.append(") {</p>");
+
+        for(unsigned int k=0; k<dexClass->Methods[j]->Decompiled.size(); k++)
+        {
+            output.append("<p>");
+            for(int i=0; i<depth; i++) output.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+            output.append(QString().sprintf("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%s;</p>",
+                   dexClass->Methods[j]->Decompiled[k].c_str()));
+        }
 
         /*for (UINT k=0; k<dexClass->Methods[j]->LinesSize; k++)
         {

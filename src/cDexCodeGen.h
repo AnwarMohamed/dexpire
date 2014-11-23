@@ -20,55 +20,36 @@ public:
     ~cDexCodeGen();
 
     void GenerateSourceCode();
-    void DumpLineSingleInstruction(
-        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line, 
-        STRUCT CLASS_CODE_REGISTER** Registers);
-    void DumpLineMultiInstruction(
-        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line, 
-        STRUCT CLASS_CODE_REGISTER** Registers);
 
-    CHAR* GetRegisterName(
+    string GetRegisterName(
         UINT Index, 
         UINT InstructionIndex,
-        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-        STRUCT CLASS_CODE_REGISTER** Registers,
-        STRUCT CLASS_CODE_REGISTER** Register=0);
-    CLASS_CODE_REGISTER* GetRegister(
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_REGISTER** Register=0);
+    STRUCT DEX_DECOMPILED_CLASS_METHOD_REGISTER* GetRegister(
+        UINT Index, 
+        UINT InstructionIndex);
+    string GetRegisterType(
         UINT Index, 
         UINT InstructionIndex,
-        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-        STRUCT CLASS_CODE_REGISTER** Registers);
-    CHAR* GetRegisterType(
-        UINT Index, 
-        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-        STRUCT CLASS_CODE_REGISTER** Registers,
-        STRUCT CLASS_CODE_REGISTER** Register=0);
-    CHAR* GetRegisterValue(
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_REGISTER** Register=0);
+    string GetRegisterValue(
         UINT Index, 
         UINT InstructionIndex,
-        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-        STRUCT CLASS_CODE_REGISTER** Registers,
-        STRUCT CLASS_CODE_REGISTER** Register=0);
-    BOOL GetRegisterInitialized(
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_REGISTER** Register=0);
+    void GetRegisterInitialized(
         UINT Index, 
         UINT InstructionIndex,
-        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-        STRUCT CLASS_CODE_REGISTER** Registers,
-        STRUCT CLASS_CODE_REGISTER** Register=0);
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_REGISTER** Register=0);
     void GetInvokeArguments(
         UINT Index,
-        DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-        CLASS_CODE_REGISTER** Registers,
         BOOL SkipFirst=FALSE);
     void SetRegisterValue(
         UINT Index,
         UINT InstructionIndex,
-        CHAR* Value,
-        STRUCT DEX_DECOMPILED_CLASS_METHOD_LINE* Line,
-        STRUCT CLASS_CODE_REGISTER** Registers,
-        STRUCT CLASS_CODE_REGISTER** Register=0);
+        string &Value,
+        STRUCT DEX_DECOMPILED_CLASS_METHOD_REGISTER** RegisterPtr=0);
     void GenrateRegistersMap();
 private:
-    struct DEX_DECOMPILED_CLASS_METHOD* Method;
+    STRUCT DEX_DECOMPILED_CLASS_METHOD* Method;
     cDexFile* DexFile;
 };

@@ -136,7 +136,7 @@ void cDexDecompiler::GetClassMethod(
 {
 
     DEX_DECOMPILED_CLASS_METHOD* dMethod = new DEX_DECOMPILED_CLASS_METHOD;
-    ZERO(dMethod, sizeof(DEX_DECOMPILED_CLASS_METHOD));
+    //ZERO(dMethod, sizeof(DEX_DECOMPILED_CLASS_METHOD));
 
 
     Class->Methods.push_back(dMethod);
@@ -217,6 +217,7 @@ UINT cDexDecompiler::GetClassMethodArgs(
         LocalsIterator->second[0]->Name == "this")
         LocalsIterator++;
 
+    UINT RegisterIndex;
     for (UINT i=0; i<Method->Ref->Type.size(); i++)
     {
         Argument = new DEX_DECOMPILED_CLASS_METHOD_ARGUMENT;
@@ -224,11 +225,15 @@ UINT cDexDecompiler::GetClassMethodArgs(
         Argument->Type = cDexString::GetTypeDescription((CHAR*)Method->Ref->Type[i].c_str());
         Argument->ShortType = cDexString::GetShortType((CHAR*)Argument->Type.c_str());
 
+        if (Method->Ref->CodeArea)
+            RegisterIndex = Method->Ref->CodeArea->RegistersSize - 
+                Method->Ref->CodeArea->InsSize + i + (Method->Ref->AccessFlags & ACC_STATIC?0:1);
+
         if (Method->Ref->CodeArea &&
             Method->Ref->CodeArea->Locals.size() &&
-            LocalsIterator->second.size() &&
-            LocalsIterator->second[0]->Name.size())
-            Argument->Name = LocalsIterator->second[0]->Name;
+            Method->Ref->CodeArea->Locals[RegisterIndex].size() &&
+            Method->Ref->CodeArea->Locals[RegisterIndex][0]->Name.size())
+            Argument->Name = Method->Ref->CodeArea->Locals[RegisterIndex][0]->Name;
         else
             AssignArgumentName(Argument, i, Method);
 
